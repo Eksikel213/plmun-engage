@@ -81,10 +81,10 @@
                 
                 // Redirect based on role
                 if (role === 'student') {
-                    window.location.href = 'student/student.html';
-                } else if (role === 'professor') {
-                    window.location.href = 'professor/professor.html';
-                }
+    window.location.href = './student/student.html';
+} else if (role === 'professor') {
+    window.location.href = './professor/professor.html';
+}
                 
             } catch (error) {
                 console.error('Error saving role:', error);
@@ -102,4 +102,5 @@
         };
     </script>
 </body>
+
 </html>
