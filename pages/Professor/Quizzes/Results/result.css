@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{ margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+
+body {
+    min-height: 100vh;
+    /* Updated path to reach the pics folder from the Results subfolder */
+    background: #081b29 url('../../../pics/PLMun.png') no-repeat center center/cover fixed;
+}
+
+/* --- SIDEBAR (Uniform with Professor Overview) --- */
+.sidebar {
+    position: fixed; height: 100%; width: 240px;
+    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(15px);
+    color: #fff; border-right: 1px solid rgba(255,255,255,0.1);
+    z-index: 100; transition: all 0.4s ease;
+}
+.sidebar .logo-details { height: 80px; display: flex; align-items: center; padding: 0 25px; font-size: 20px; font-weight: 600; overflow: hidden; }
+.sidebar .logo-details i { margin-right: 12px; font-size: 28px; color: #00d4ff; min-width: 28px; text-align: center; }
+
+.nav-links { margin-top: 15px; }
+.nav-links li { list-style: none; height: 55px; width: 100%; }
+.nav-links li a { height: 100%; width: 100%; display: flex; align-items: center; text-decoration: none; color: #fff; padding-left: 25px; transition: 0.3s; }
+.nav-links li a i { font-size: 20px; min-width: 28px; text-align: center; }
+.nav-links li a .link_name { margin-left: 15px; white-space: nowrap; }
+
+.nav-links li a:hover, .nav-links li a.active { background: rgba(255,255,255,0.2); border-left: 4px solid #00d4ff; }
+.log_out { position: absolute; bottom: 20px; width: 100%; }
+
+/* --- MAIN LAYOUT --- */
+.home-section { position: relative; left: 240px; width: calc(100% - 240px); min-height: 100vh; transition: all 0.4s ease; }
+nav { display: flex; justify-content: space-between; align-items: center; height: 80px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 0 30px; color: #fff; }
+.nav-left { display: flex; align-items: center; gap: 20px; }
+.back-link { color: #00d4ff; text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+.back-link:hover { text-decoration: underline; }
+
+.home-content { padding: 30px; }
+
+/* --- STATS SUMMARY --- */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 25px; }
+.stat-card { text-align: center; padding: 25px !important; }
+.stat-label { font-size: 12px; opacity: 0.7; text-transform: uppercase; letter-spacing: 1px; }
+.stat-value { font-size: 32px; color: #00d4ff; margin-top: 5px; font-weight: 700; }
+
+/* --- GLASS TABLE --- */
+.glass {
+    background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 30px; border-radius: 15px; color: white; backdrop-filter: blur(10px);
+}
+.table-container { overflow-x: auto; }
+.quiz-table { width: 100%; border-collapse: collapse; }
+.quiz-table th { text-align: left; padding: 15px; border-bottom: 2px solid rgba(255,255,255,0.1); color: #00d4ff; }
+.quiz-table td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 15px; }
+
+.text-center { text-align: center !important; }
+.student-count { font-weight: 600; color: #00ff88; }
+
+/* --- STATUS TAGS --- */
+.status-tag { padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+.status-tag.pass { background: rgba(0, 255, 136, 0.15); color: #00ff88; border: 1px solid #00ff88; }
+.status-tag.fail { background: rgba(255, 75, 43, 0.15); color: #ff4b2b; border: 1px solid #ff4b2b; }
+
+@media (max-width: 1000px) {
+    .sidebar { width: 80px; }
+    .sidebar .logo_name, .sidebar .link_name { display: none; }
+    .home-section { left: 80px; width: calc(100% - 80px); }
+}
+
+.download-btn {
+    background: linear-gradient(135deg, #00d4ff, #00ff88);
+    border: none;
+    padding: 15px 40px;
+    border-radius: 12px;
+    color: #081b29;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s;
+    box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+}
+
+.download-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5);
+}
+
+.download-btn i {
+    font-size: 20px;
+}

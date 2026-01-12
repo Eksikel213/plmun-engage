@@ -1,0 +1,98 @@
+/* Import Poppins Font to keep it consistent */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    /* Path points to the assets folder outside of the pages folder */
+    background: url('../pics/PLMun.png'); 
+    background-size: cover;
+    background-position: center;
+    backdrop-filter: blur(8px);    
+}
+
+.wrapper {
+    width: 500px;
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, .2);
+    color: white;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+}
+
+.wrapper h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 14px;
+    margin-bottom: 30px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.role-selection {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+/* Button Styles */
+.role-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 160px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, .2);
+    border-radius: 15px;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.role-btn i {
+    font-size: 50px;
+    margin-bottom: 15px;
+}
+
+.role-btn span {
+    font-size: 18px;
+}
+
+.role-btn:hover {
+    background: #fff;
+    color: #333;
+    transform: translateY(-5px);
+}
+
+.register-link {
+    font-size: 14.5px;
+    margin-top: 20px;
+}
+
+.register-link p a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.register-link p a:hover {
+    text-decoration: underline;
+}

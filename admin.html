@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - PLMun Engage</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+        
+        body {
+            min-height: 100vh;
+            background: #081b29 url('pics/PLMun.png') no-repeat center center/cover fixed;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        header {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(15px);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #00d4ff;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .logout-btn {
+            background: rgba(255, 75, 43, 0.2);
+            border: 2px solid #ff4b2b;
+            color: #fff;
+            padding: 10px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logout-btn:hover {
+            background: #ff4b2b;
+            transform: translateY(-2px);
+        }
+        
+        /* Main Container */
+        .container {
+            flex: 1;
+            padding: 30px;
+            display: flex;
+            gap: 20px;
+            overflow: hidden;
+        }
+        
+        /* Panel Styles */
+        .panel {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .panel-title {
+            color: #00d4ff;
+            font-size: 24px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .count-badge {
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid #00d4ff;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #00d4ff;
+            font-weight: 600;
+        }
+        
+        /* Search Bar */
+        .search-box {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: rgba(0, 212, 255, 0.1);
+        }
+        
+        .search-box input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .search-box i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #00d4ff;
+            font-size: 20px;
+        }
+        
+        /* Account List */
+        .accounts-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .accounts-list::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .accounts-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        .accounts-list::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.5);
+            border-radius: 10px;
+        }
+        
+        /* Account Card */
+        .account-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            color: #fff;
+            transition: 0.3s;
+        }
+        
+        .account-card:hover {
+            background: rgba(0, 0, 0, 0.5);
+            border-color: #00d4ff;
+            transform: translateX(5px);
+        }
+        
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .account-info h4 {
+            color: #00d4ff;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        
+        .account-info p {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-bottom: 3px;
+        }
+        
+        .account-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+        
+        .reset-btn {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #ffc107;
+            color: #ffc107;
+        }
+        
+        .reset-btn:hover {
+            background: #ffc107;
+            color: #000;
+            transform: scale(1.1);
+        }
+        
+        .delete-btn {
+            background: rgba(255, 75, 43, 0.2);
+            border: 1px solid #ff4b2b;
+            color: #ff4b2b;
+        }
+        
+        .delete-btn:hover {
+            background: #ff4b2b;
+            color: #fff;
+            transform: scale(1.1);
+        }
+        
+        .account-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Loading State */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #00d4ff;
+            font-size: 18px;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 212, 255, 0.3);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, rgba(8, 27, 41, 0.95), rgba(0, 212, 255, 0.1));
+            border: 2px solid #00d4ff;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            color: #fff;
+        }
+        
+        .modal-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-content h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #00d4ff;
+        }
+        
+        .modal-content p {
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .modal-btn {
+            padding: 12px 30px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .modal-btn.confirm {
+            background: #ff4b2b;
+            color: #fff;
+        }
+        
+        .modal-btn.cancel {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+        }
+        
+        .modal-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <i class='bx bxs-shield-alt-2'></i>
+            <span>Admin Dashboard</span>
+        </div>
+        <button class="logout-btn" onclick="logout()">
+            <i class='bx bx-log-out'></i>
+            Logout
+        </button>
+    </header>
+
+    <div class="container">
+        <!-- Students Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class='bx bxs-graduation'></i>
+                    Students
+                </div>
+                <div class="count-badge" id="studentCount">0</div>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" id="studentSearch" placeholder="Search students by name or email..." onkeyup="filterStudents()">
+                <i class='bx bx-search'></i>
+            </div>
+            
+            <div class="accounts-list" id="studentsList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading students...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Professors Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class='bx bxs-briefcase-alt-2'></i>
+                    Professors
+                </div>
+                <div class="count-badge" id="professorCount">0</div>
+            </div>
+            
+            <div class="search-box">
+                <input type="text" id="professorSearch" placeholder="Search professors by name or email..." onkeyup="filterProfessors()">
+                <i class='bx bx-search'></i>
+            </div>
+            
+            <div class="accounts-list" id="professorsList">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading professors...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon" id="modalIcon">⚠️</div>
+            <h2 id="modalTitle">Confirm Action</h2>
+            <p id="modalMessage">Are you sure you want to proceed?</p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn confirm" id="confirmBtn" onclick="confirmAction()">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, updatePassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlUY50heKZ_bp-PZUr76S0SiI1_zN6aOA",
+            authDomain: "plmun-engage.firebaseapp.com",
+            projectId: "plmun-engage",
+            storageBucket: "plmun-engage.firebasestorage.app",
+            messagingSenderId: "701791153164",
+            appId: "1:701791153164:web:45422fd17af3493a04d229"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let allStudents = [];
+        let allProfessors = [];
+        let pendingAction = null;
+        
+        // Check if user is admin
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const userDoc = await getDocs(collection(db, 'users'));
+            const currentUserData = userDoc.docs.find(doc => doc.id === user.uid)?.data();
+            
+            // Check if user is admin (username: admin)
+            if (!currentUserData || currentUserData.username !== 'admin') {
+                alert('Access Denied! Admin only.');
+                await signOut(auth);
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            console.log('✅ Admin access granted');
+            loadAccounts();
+        });
+        
+        async function loadAccounts() {
+            try {
+                const usersSnapshot = await getDocs(collection(db, 'users'));
+                const users = usersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                allStudents = users.filter(u => u.role === 'student');
+                allProfessors = users.filter(u => u.role === 'professor');
+                
+                displayStudents(allStudents);
+                displayProfessors(allProfessors);
+                
+                document.getElementById('studentCount').textContent = allStudents.length;
+                document.getElementById('professorCount').textContent = allProfessors.length;
+                
+                console.log(`✅ Loaded ${allStudents.length} students and ${allProfessors.length} professors`);
+            } catch (error) {
+                console.error('❌ Error loading accounts:', error);
+                alert('Failed to load accounts: ' + error.message);
+            }
+        }
+        
+        function displayStudents(students) {
+            const container = document.getElementById('studentsList');
+            
+            if (students.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class='bx bx-user-x'></i>
+                        <p>No students found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = students.map(student => `
+                <div class="account-card">
+                    <div class="account-header">
+                        <div class="account-info">
+                            <h4>${student.fullName || 'N/A'}</h4>
+                            <p><i class='bx bx-envelope'></i> ${student.email}</p>
+                            <p><i class='bx bx-user'></i> @${student.username || 'N/A'}</p>
+                        </div>
+                        <div class="account-actions">
+                            <button class="action-btn reset-btn" onclick="resetPassword('${student.id}', '${student.email}', '${student.fullName}')" title="Reset Password">
+                                <i class='bx bx-lock-open'></i>
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deleteAccount('${student.id}', '${student.email}', '${student.fullName}')" title="Delete Account">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="account-meta">
+                        <div class="meta-item">
+                            <i class='bx bx-id-card'></i>
+                            ${student.studentId || 'N/A'}
+                        </div>
+                        <div class="meta-item">
+                            <i class='bx bx-coin-stack' style="color: gold;"></i>
+                            ${student.coins || 0}
+                        </div>
+                        <div class="meta-item">
+                            <i class='bx bx-star' style="color: cyan;"></i>
+                            Lv ${student.level || 1}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function displayProfessors(professors) {
+            const container = document.getElementById('professorsList');
+            
+            if (professors.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class='bx bx-user-x'></i>
+                        <p>No professors found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = professors.map(prof => `
+                <div class="account-card">
+                    <div class="account-header">
+                        <div class="account-info">
+                            <h4>${prof.fullName || 'N/A'}</h4>
+                            <p><i class='bx bx-envelope'></i> ${prof.email}</p>
+                            <p><i class='bx bx-user'></i> @${prof.username || 'N/A'}</p>
+                        </div>
+                        <div class="account-actions">
+                            <button class="action-btn reset-btn" onclick="resetPassword('${prof.id}', '${prof.email}', '${prof.fullName}')" title="Reset Password">
+                                <i class='bx bx-lock-open'></i>
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deleteAccount('${prof.id}', '${prof.email}', '${prof.fullName}')" title="Delete Account">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="account-meta">
+                        <div class="meta-item">
+                            <i class='bx bx-calendar'></i>
+                            Joined ${prof.createdAt ? new Date(prof.createdAt).toLocaleDateString() : 'N/A'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        window.filterStudents = function() {
+            const searchTerm = document.getElementById('studentSearch').value.toLowerCase();
+            const filtered = allStudents.filter(s => 
+                s.fullName?.toLowerCase().includes(searchTerm) ||
+                s.email?.toLowerCase().includes(searchTerm) ||
+                s.username?.toLowerCase().includes(searchTerm) ||
+                s.studentId?.toLowerCase().includes(searchTerm)
+            );
+            displayStudents(filtered);
+        };
+        
+        window.filterProfessors = function() {
+            const searchTerm = document.getElementById('professorSearch').value.toLowerCase();
+            const filtered = allProfessors.filter(p => 
+                p.fullName?.toLowerCase().includes(searchTerm) ||
+                p.email?.toLowerCase().includes(searchTerm) ||
+                p.username?.toLowerCase().includes(searchTerm)
+            );
+            displayProfessors(filtered);
+        };
+        
+        window.resetPassword = function(userId, email, name) {
+            pendingAction = {
+                type: 'reset',
+                userId: userId,
+                email: email,
+                name: name
+            };
+            
+            document.getElementById('modalIcon').textContent = '🔓';
+            document.getElementById('modalTitle').textContent = 'Reset Password';
+            document.getElementById('modalMessage').innerHTML = `
+                Reset password for <strong>${name}</strong>?<br>
+                <small style="opacity: 0.7;">New password will be: <strong>password123</strong></small>
+            `;
+            document.getElementById('confirmModal').classList.add('show');
+        };
+        
+        window.deleteAccount = function(userId, email, name) {
+            pendingAction = {
+                type: 'delete',
+                userId: userId,
+                email: email,
+                name: name
+            };
+            
+            document.getElementById('modalIcon').textContent = '⚠️';
+            document.getElementById('modalTitle').textContent = 'Delete Account';
+            document.getElementById('modalMessage').innerHTML = `
+                Delete account for <strong>${name}</strong>?<br>
+                <small style="color: #ff4b2b;">⚠️ This action cannot be undone!</small>
+            `;
+            document.getElementById('confirmModal').classList.add('show');
+        };
+        
+        window.confirmAction = async function() {
+            if (!pendingAction) return;
+            
+            const confirmBtn = document.getElementById('confirmBtn');
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Processing...';
+            
+            try {
+                if (pendingAction.type === 'reset') {
+                    // Update Firestore to indicate password reset needed
+                    await updateDoc(doc(db, 'users', pendingAction.userId), {
+                        passwordResetRequired: true,
+                        tempPassword: 'password123'
+                    });
+                    
+                    alert(`✅ Password reset for ${pendingAction.name}\nNew password: password123\n\n⚠️ Note: User must change this on next login.`);
+                } else if (pendingAction.type === 'delete') {
+                    await deleteDoc(doc(db, 'users', pendingAction.userId));
+                    alert(`✅ Account deleted: ${pendingAction.name}`);
+                    loadAccounts(); // Reload list
+                }
+                
+                closeModal();
+            } catch (error) {
+                console.error('❌ Error:', error);
+                alert('Failed: ' + error.message);
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = 'Confirm';
+            }
+        };
+        
+        window.closeModal = function() {
+            document.getElementById('confirmModal').classList.remove('show');
+            pendingAction = null;
+        };
+        
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+    </script>
+</body>
+</html>

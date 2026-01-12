@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor Reports - PLMun Engage</title>
+    <link rel="stylesheet" href="profreport.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-briefcase-alt-2'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="../professor.html"><i class='bx bxs-dashboard'></i><span class="link_name">Overview</span></a></li>
+            <li><a href="../Quizzes/quiz.html"><i class='bx bxs-edit-alt'></i><span class="link_name">Quizzes</span></a></li>
+            <li><a href="#" class="active"><i class='bx bxs-bar-chart-alt-2'></i><span class="link_name">Reports</span></a></li>
+            <li class="log_out"><a href="#" onclick="logout()"><i class='bx bx-log-out'></i><span class="link_name">Logout</span></a></li>
+        </ul>
+    </div>
+
+    <section class="home-section">
+        <nav>
+            <span class="dashboard">Professor Reports</span>
+            <div class="prof-name" id="profName">Loading...</div>
+        </nav>
+
+        <div class="home-content">
+            <!-- Loading State -->
+            <div id="loadingState" class="glass" style="text-align: center; padding: 40px;">
+                <div style="display: inline-block; width: 50px; height: 50px; border: 5px solid rgba(0,212,255,0.3); border-top-color: #00d4ff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+                <p>AI is analyzing class performance...</p>
+            </div>
+
+            <!-- No Results State -->
+            <div id="noResultsState" class="glass" style="display: none; text-align: center; padding: 40px;">
+                <i class='bx bxs-inbox' style="font-size: 60px; color: #00d4ff; margin-bottom: 20px;"></i>
+                <h2>No Student Results Yet</h2>
+                <p style="opacity: 0.8; margin-top: 10px;">Students need to take your quizzes first!</p>
+                <button class="ai-btn-primary" onclick="window.location.href='../professor.html'" style="margin-top: 20px;">
+                    Create a Quiz
+                </button>
+            </div>
+
+            <!-- AI Analysis -->
+            <div id="aiAnalysis" style="display: none;">
+                <div class="ai-assistant-card glass">
+                    <div class="ai-profile">
+                        <div class="ai-avatar"><i class='bx bxs-bot'></i></div>
+                        <div class="ai-info">
+                            <h2>Teaching Assistant</h2>
+                            <p>Analysis for: <b id="analysisTitle">Your Classes</b></p>
+                        </div>
+                    </div>
+                    <div class="ai-prompt">
+                        <p id="aiMessage">Loading analysis...</p>
+                        <button class="ai-btn-primary" onclick="showFeedback()">Show Analysis</button>
+                    </div>
+                </div>
+
+                <div id="aiFeedback" class="feedback-grid" style="display: none;">
+                    <!-- Class Overview -->
+                    <div class="analysis-card glass">
+                        <h3><i class='bx bxs-bar-chart-alt-2' style="color: #00d4ff;"></i> Class Overview</h3>
+                        <div class="mistake-item">
+                            <p><strong>Total Students:</strong> <span id="totalStudents">0</span></p>
+                            <p><strong>Total Quiz Attempts:</strong> <span id="totalAttempts">0</span></p>
+                            <p><strong>Class Average:</strong> <span id="classAverage">0%</span></p>
+                            <p><strong>Highest Score:</strong> <span id="highestScore" style="color: #00ff88;">0%</span></p>
+                            <p><strong>Lowest Score:</strong> <span id="lowestScore" style="color: #ff4b2b;">0%</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Student Knowledge Gaps -->
+                    <div class="analysis-card glass">
+                        <h3><i class='bx bxs-error-circle' style="color: #ff4b2b;"></i> Student Knowledge Gaps</h3>
+                        <div id="knowledgeGaps"></div>
+                    </div>
+
+                    <!-- Teaching Recommendations -->
+                    <div class="review-card glass" style="grid-column: span 2;">
+                        <h3><i class='bx bxs-bulb' style="color: gold;"></i> AI Teaching Recommendations</h3>
+                        <ul class="study-list" id="teachingRecs"></ul>
+                    </div>
+
+                    <!-- Student Performance List -->
+                    <div class="review-card glass" style="grid-column: span 2;">
+                        <h3><i class='bx bxs-user-detail' style="color: #00d4ff;"></i> Student Performance</h3>
+                        <div id="studentList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlUY50heKZ_bp-PZUr76S0SiI1_zN6aOA",
+            authDomain: "plmun-engage.firebaseapp.com",
+            projectId: "plmun-engage",
+            storageBucket: "plmun-engage.firebasestorage.app",
+            messagingSenderId: "701791153164",
+            appId: "1:701791153164:web:45422fd17af3493a04d229"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let currentUser = null;
+        let allResults = [];
+        
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = '../../../index.html';
+                return;
+            }
+            
+            currentUser = user;
+            
+            // Get user data
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                document.getElementById('profName').textContent = userData.fullName || 'Professor';
+            }
+            
+            // Load all quiz results for this professor's quizzes
+            await loadClassResults();
+        });
+        
+        async function loadClassResults() {
+            try {
+                // Get all quiz results for quizzes created by this professor
+                const resultsRef = collection(db, 'quizResults');
+                const q = query(resultsRef, where('professorId', '==', currentUser.uid));
+                const querySnapshot = await getDocs(q);
+                
+                allResults = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                document.getElementById('loadingState').style.display = 'none';
+                
+                if (allResults.length === 0) {
+                    document.getElementById('noResultsState').style.display = 'block';
+                    return;
+                }
+                
+                // Analyze and display
+                analyzeClassData();
+                document.getElementById('aiAnalysis').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading results:', error);
+                document.getElementById('loadingState').innerHTML = '<p style="color: #ff4b2b;">Failed to load results: ' + error.message + '</p>';
+            }
+        }
+        
+        function analyzeClassData() {
+            // Calculate class statistics
+            const uniqueStudents = new Set(allResults.map(r => r.userId)).size;
+            const totalAttempts = allResults.length;
+            
+            const percentages = allResults.map(r => r.percentage);
+            const classAvg = Math.round(percentages.reduce((sum, p) => sum + p, 0) / percentages.length);
+            const highest = Math.max(...percentages);
+            const lowest = Math.min(...percentages);
+            
+            // Find common wrong answers
+            const wrongQuestions = {};
+            allResults.forEach(result => {
+                if (result.detailedResults) {
+                    result.detailedResults.forEach(detail => {
+                        if (!detail.isCorrect) {
+                            const key = detail.question;
+                            if (!wrongQuestions[key]) {
+                                wrongQuestions[key] = {
+                                    question: detail.question,
+                                    count: 0,
+                                    correctAnswer: detail.correctAnswer
+                                };
+                            }
+                            wrongQuestions[key].count++;
+                        }
+                    });
+                }
+            });
+            
+            const topMistakes = Object.values(wrongQuestions)
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 3);
+            
+            // Generate AI message
+            let aiMessage = '';
+            if (classAvg >= 75) {
+                aiMessage = `Great teaching! Your class is averaging ${classAvg}%. ${uniqueStudents} students have participated so far. Keep up the excellent work! 🌟`;
+            } else if (classAvg >= 60) {
+                aiMessage = `Your class is averaging ${classAvg}%. I've identified ${topMistakes.length} topics where students struggle. Let's focus on those areas! 💪`;
+            } else {
+                aiMessage = `Class average is ${classAvg}%. ${topMistakes.length} key topics need reinforcement. I have recommendations to help improve student understanding. 📚`;
+            }
+            
+            document.getElementById('aiMessage').textContent = aiMessage;
+            
+            // Display stats
+            document.getElementById('totalStudents').textContent = uniqueStudents;
+            document.getElementById('totalAttempts').textContent = totalAttempts;
+            document.getElementById('classAverage').textContent = classAvg + '%';
+            document.getElementById('highestScore').textContent = highest + '%';
+            document.getElementById('lowestScore').textContent = lowest + '%';
+            
+            // Display knowledge gaps
+            const gapsDiv = document.getElementById('knowledgeGaps');
+            if (topMistakes.length === 0) {
+                gapsDiv.innerHTML = '<div class="mistake-item"><p style="color: #00ff88;">🎉 No common mistakes! Students are doing great!</p></div>';
+            } else {
+                gapsDiv.innerHTML = topMistakes.map(mistake => `
+                    <div class="mistake-item">
+                        <p><strong>Topic:</strong> ${mistake.question.substring(0, 50)}${mistake.question.length > 50 ? '...' : ''}</p>
+                        <p style="font-size: 13px; opacity: 0.8; margin-top: 10px;">
+                            <b style="color: #ff4b2b;">AI Tip:</b> ${Math.round((mistake.count / totalAttempts) * 100)}% of students struggled with this. Consider re-explaining this concept.
+                        </p>
+                        <p style="font-size: 12px; color: #00ff88; margin-top: 5px;">
+                            Correct answer: ${mistake.correctAnswer}
+                        </p>
+                    </div>
+                `).join('');
+            }
+            
+            // Generate teaching recommendations
+            const recommendations = generateTeachingRecs(classAvg, topMistakes.length, uniqueStudents);
+            document.getElementById('teachingRecs').innerHTML = recommendations.map(rec => `
+                <li><i class='bx bx-check-double'></i> ${rec}</li>
+            `).join('');
+            
+            // Display student performance
+            const studentPerf = {};
+            allResults.forEach(result => {
+                if (!studentPerf[result.userId]) {
+                    studentPerf[result.userId] = {
+                        name: result.userName,
+                        attempts: 0,
+                        totalScore: 0,
+                        totalQuestions: 0
+                    };
+                }
+                studentPerf[result.userId].attempts++;
+                studentPerf[result.userId].totalScore += result.score;
+                studentPerf[result.userId].totalQuestions += result.totalQuestions;
+            });
+            
+            const studentList = Object.values(studentPerf)
+                .map(s => ({
+                    ...s,
+                    avg: Math.round((s.totalScore / s.totalQuestions) * 100)
+                }))
+                .sort((a, b) => b.avg - a.avg);
+            
+            document.getElementById('studentList').innerHTML = studentList.map((student, index) => `
+                <div class="mistake-item" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>${index + 1}. ${student.name}</strong>
+                        <p style="font-size: 13px; opacity: 0.8; margin-top: 5px;">
+                            ${student.attempts} quiz(es) taken
+                        </p>
+                    </div>
+                    <div style="text-align: right;">
+                        <p style="font-size: 24px; font-weight: 700; color: ${student.avg >= 70 ? '#00ff88' : '#ff4b2b'};">
+                            ${student.avg}%
+                        </p>
+                        <p style="font-size: 12px;">${student.totalScore}/${student.totalQuestions}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function generateTeachingRecs(classAvg, mistakeCount, studentCount) {
+            const recs = [];
+            
+            if (classAvg < 70) {
+                recs.push('Consider reviewing fundamental concepts with the class');
+                recs.push('Break down complex topics into smaller, digestible parts');
+            }
+            
+            if (mistakeCount > 0) {
+                recs.push(`Focus on the ${mistakeCount} topics where most students struggled`);
+                recs.push('Provide additional examples and practice problems for difficult topics');
+            }
+            
+            if (studentCount < 5) {
+                recs.push('Encourage more students to participate in quizzes');
+            }
+            
+            if (classAvg >= 80) {
+                recs.push('Excellent! Consider introducing more challenging material');
+                recs.push('Identify top performers who could mentor struggling students');
+            }
+            
+            recs.push('Use quiz analytics to identify students who need extra help');
+            recs.push('Schedule review sessions for topics with high error rates');
+            recs.push('Provide positive reinforcement to students showing improvement');
+            
+            return recs;
+        }
+        
+        window.showFeedback = function() {
+            document.getElementById('aiFeedback').style.display = 'grid';
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        };
+        
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = '../../../index.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Runner 3D - PLMun Engage</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Poppins", sans-serif; overflow: hidden; background: #0a0e27; }
+
+        #gameCanvas { 
+    display: block; 
+    width: 100vw; 
+    height: 100vh;
+    position: fixed; /* ✅ ADDED */
+    top: 0; /* ✅ ADDED */
+    left: 0; /* ✅ ADDED */
+    z-index: 0; /* ✅ ADDED: Behind UI, above stars */
+}
+#starfield {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 30%; /* ✅ CHANGED: 40% to 30% (higher up) */
+    pointer-events: none;
+    z-index: 1; /* ✅ Behind everything */
+    background: linear-gradient(180deg, #0a0e27 0%, transparent 100%);
+}
+
+.star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle linear infinite;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
+        
+        #hud { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 30px; z-index: 100; background: rgba(0, 0, 0, 0.8); padding: 15px 30px; border-radius: 15px; backdrop-filter: blur(10px); border: 2px solid rgba(0, 212, 255, 0.3); }
+        .hud-item { color: white; font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+        
+        #question-display { position: fixed; top: 120px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.9); border: 3px solid #00d4ff; padding: 15px 30px; border-radius: 15px; color: white; font-size: 20px; font-weight: 600; text-align: center; max-width: 70%; z-index: 100; box-shadow: 0 15px 50px rgba(0, 212, 255, 0.5); animation: slideDown 0.5s; line-height: 1.4; }
+        
+        @keyframes slideDown { from { transform: translateX(-50%) translateY(-100px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
+        
+        #instructions { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); color: rgba(255, 255, 255, 0.9); font-size: 16px; text-align: center; z-index: 100; background: rgba(0, 0, 0, 0.6); padding: 15px 30px; border-radius: 10px; border: 1px solid rgba(0, 212, 255, 0.3); }
+        
+        #countdown { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 150px; font-weight: 900; color: #00d4ff; z-index: 200; text-shadow: 0 0 50px rgba(0, 212, 255, 1); animation: countdownPulse 1s infinite; }
+        @keyframes countdownPulse { 0%, 100% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.3); } }
+        
+        .hidden { display: none !important; }
+        
+        #loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px; z-index: 200; text-align: center; }
+        .loading-spinner { display: inline-block; width: 50px; height: 50px; border: 5px solid rgba(0, 212, 255, 0.3); border-top-color: #00d4ff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        #result-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, rgba(0, 0, 0, 0.95), rgba(0, 212, 255, 0.2)); border: 3px solid #00d4ff; padding: 50px 70px; border-radius: 20px; color: white; text-align: center; z-index: 200; box-shadow: 0 20px 60px rgba(0, 212, 255, 0.6); backdrop-filter: blur(15px); display: none; }
+        .result-icon { font-size: 100px; margin-bottom: 20px; animation: bounceIn 0.6s; }
+        @keyframes bounceIn { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        .back-btn { padding: 15px 50px; background: #00d4ff; border: none; border-radius: 10px; color: white; font-size: 18px; font-weight: 700; cursor: pointer; margin-top: 30px; transition: 0.3s; }
+        .back-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5); background: #00ff88; }
+    </style>
+</head>
+<body>
+    <!-- ✨ Animated Starfield Background -->
+    <div id="starfield"></div>
+
+    <div id="loading">
+        <div class="loading-spinner"></div>
+        <p>Preparing character...</p>
+    </div>
+
+    <div id="hud" class="hidden">
+        <div class="hud-item"><i class='bx bx-target-lock' style="color: #00d4ff;"></i><span>Question: <span id="currentQuestion">0</span>/<span id="totalQuestions">0</span></span></div>
+        <div class="hud-item"><i class='bx bx-check-circle' style="color: #00ff88;"></i><span>Score: <span id="score">0</span></span></div>
+    </div>
+
+    <div id="question-display" class="hidden"></div>
+    <div id="countdown" class="hidden">3</div>
+    <div id="instructions" class="hidden"><strong>⬅️ LEFT ARROW  |  RIGHT ARROW ➡️</strong><br><span style="font-size: 14px; opacity: 0.8;">Run through the correct answer!</span></div>
+
+    <div id="result-modal">
+        <div class="result-icon" id="resultIcon">🏆</div>
+        <h2 id="resultTitle" style="font-size: 42px; margin-bottom: 20px;">Quiz Complete!</h2>
+        <p id="resultScore" style="font-size: 56px; color: #00d4ff; font-weight: 900; margin: 25px 0;"></p>
+        <p id="resultCoins" style="font-size: 36px; color: gold; margin: 20px 0;"></p>
+        <p id="resultMessage" style="font-size: 18px; opacity: 0.9; margin: 15px 0;"></p>
+        <button class="back-btn" onclick="goBack()">Back to Dashboard</button>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+    <script>
+        // ✨ CREATE ANIMATED STARS
+        function createStarfield() {
+            const starfield = document.getElementById('starfield');
+            const starCount = 150;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                
+                // Random position
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                
+                // Random size (1-3px)
+                const size = Math.random() * 2 + 1;
+                star.style.width = size + 'px';
+                star.style.height = size + 'px';
+                
+                // Random twinkle speed (2-5 seconds)
+                const duration = Math.random() * 3 + 2;
+                star.style.animationDuration = duration + 's';
+                
+                // Random delay for staggered effect
+                star.style.animationDelay = Math.random() * 3 + 's';
+                
+                starfield.appendChild(star);
+            }
+        }
+        
+        // Initialize stars immediately
+        createStarfield();
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, increment, collection, addDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlUY50heKZ_bp-PZUr76S0SiI1_zN6aOA",
+            authDomain: "plmun-engage.firebaseapp.com",
+            projectId: "plmun-engage",
+            storageBucket: "plmun-engage.firebasestorage.app",
+            messagingSenderId: "701791153164",
+            appId: "1:701791153164:web:45422fd17af3493a04d229"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let currentUser = null;
+        let quizData = null;
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let correctAnswers = 0;
+        let quizStartTime = Date.now();
+
+        let scene, camera, renderer, player, animationTime = 0;
+        let lanes = [-6, -2, 2, 6]; 
+        let currentLane = 1;
+        let answerBlocks = [];
+        let gameSpeed = 0.09;
+        let isPlaying = false;
+        let canMove = true;
+        let isGameEnded = false;
+        let hasAnsweredCurrentQuestion = false;
+        
+        let cityBuildings = [];
+
+        const characterStyles = {
+            'scholar': { bodyColor: 0xffcc00, headColor: 0xffddaa, accessory: 'book' },
+            'dean': { bodyColor: 0xff7675, headColor: 0xffcc99, accessory: 'tie' },
+            'night-owl': { bodyColor: 0xa29bfe, headColor: 0xffddb3, accessory: 'hood' },
+            'tech-whiz': { bodyColor: 0x00d4ff, headColor: 0xffcc99, accessory: 'glasses' }
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = '../../../index.html';
+                return;
+            }
+            
+            currentUser = user;
+            
+            const quizJson = sessionStorage.getItem('currentQuiz');
+            if (!quizJson) {
+                alert('No quiz found. Please enter a quiz code.');
+                window.location.href = '../student.html';
+                return;
+            }
+            
+            quizData = JSON.parse(quizJson);
+            userAnswers = new Array(quizData.questions.length).fill(null);
+            document.getElementById('totalQuestions').textContent = quizData.questions.length;
+            
+            initGame();
+        });
+
+        async function initGame() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0e27);
+            scene.fog = new THREE.Fog(0x0a0e27, 20, 80);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 6, 12);
+            camera.lookAt(0, 2, 0);
+
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gameCanvas'), antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+
+            const ambientLight = new THREE.AmbientLight(0x4a5a8a, 0.4);
+            scene.add(ambientLight);
+
+            const moonLight = new THREE.DirectionalLight(0xaabbff, 0.6);
+            moonLight.position.set(10, 20, 10);
+            moonLight.castShadow = true;
+            scene.add(moonLight);
+
+ // Find this in initGame() and replace:
+const roadGeometry = new THREE.PlaneGeometry(18, 200);
+const roadMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0x2a2a3a, 
+    roughness: 0.9,
+    side: THREE.FrontSide // ✅ ADDED: Solid road
+});
+const road = new THREE.Mesh(roadGeometry, roadMaterial);
+road.rotation.x = -Math.PI / 2;
+road.position.z = -50;
+road.receiveShadow = true;
+scene.add(road);
+
+            const groundGeometry = new THREE.PlaneGeometry(30, 200); // Wide land on sides
+const groundMaterial = new THREE.MeshStandardMaterial({ 
+    color: 0x1a1a2e, // Dark ground color
+    roughness: 0.95
+});
+
+// Left side ground
+const groundLeft = new THREE.Mesh(groundGeometry, groundMaterial);
+groundLeft.rotation.x = -Math.PI / 2;
+groundLeft.position.set(-22, -0.01, -50); // Slightly below road level
+groundLeft.receiveShadow = true;
+scene.add(groundLeft);
+
+// Right side ground
+const groundRight = new THREE.Mesh(groundGeometry, groundMaterial);
+groundRight.rotation.x = -Math.PI / 2;
+groundRight.position.set(22, -0.01, -50); // Slightly below road level
+groundRight.receiveShadow = true;
+scene.add(groundRight);
+
+// Continue with the yellow lane markers code...
+for (let i = 0; i < 3; i++)
+
+            for (let i = 0; i < 3; i++) {
+                const laneLineGeometry = new THREE.PlaneGeometry(0.2, 200);
+                const laneLineMaterial = new THREE.MeshBasicMaterial({ color: 0xffdd00 });
+                const laneLine = new THREE.Mesh(laneLineGeometry, laneLineMaterial);
+                laneLine.rotation.x = -Math.PI / 2;
+                laneLine.position.set(lanes[i] + 1, 0.02, -50);
+                scene.add(laneLine);
+            }
+
+            createCityBuildings();
+            await createCharacter();
+
+            document.addEventListener('keydown', (e) => {
+                if (!isPlaying || !canMove) return;
+                if (e.key === 'ArrowLeft' && currentLane > 0) { currentLane--; movePlayer(); }
+                else if (e.key === 'ArrowRight' && currentLane < 3) { currentLane++; movePlayer(); }
+            });
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            animate();
+            
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+                startCountdown();
+            }, 500);
+        }
+
+function createCityBuildings() {
+    const buildingTypes = [
+        { width: 4, height: 12, depth: 4, color: 0x1a2332 },
+        { width: 3, height: 18, depth: 3, color: 0x2a3344 },
+        { width: 5, height: 10, depth: 5, color: 0x3a4455 },
+        { width: 3.5, height: 15, depth: 3.5, color: 0x2a3a4a }
+    ];
+
+    for (let side = -1; side <= 1; side += 2) {
+        let zPosition = -80;
+        
+        while (zPosition < 100) {
+            const buildingData = buildingTypes[Math.floor(Math.random() * buildingTypes.length)];
+            
+            const buildingGeometry = new THREE.BoxGeometry(buildingData.width, buildingData.height, buildingData.depth);
+            const buildingMaterial = new THREE.MeshStandardMaterial({ 
+                color: buildingData.color, 
+                roughness: 0.8,
+                metalness: 0.1
+                // ✅ NO transparency properties - fully solid
+            });
+            
+            const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
+            building.position.set(side * (9 + Math.random() * 3), buildingData.height / 2, zPosition);
+            building.castShadow = true;
+            building.receiveShadow = true;
+            scene.add(building);
+            cityBuildings.push(building);
+
+            // 💡 Add windows on BOTH front AND back sides
+            const windowsPerFloor = 3;
+            const floors = Math.floor(buildingData.height / 2);
+            
+            for (let floor = 1; floor < floors; floor++) {
+                for (let win = 0; win < windowsPerFloor; win++) {
+                    if (Math.random() > 0.3) {
+                        const windowGeometry = new THREE.BoxGeometry(0.4, 0.6, 0.1);
+                        const windowColor = Math.random() > 0.5 ? 0xffee88 : 0x00ddff;
+                        const windowMaterial = new THREE.MeshBasicMaterial({ 
+                            color: windowColor,
+                            emissive: windowColor,
+                            emissiveIntensity: 0.8
+                        });
+                        
+                        const xOffset = (win - 1) * 1.2;
+                        const yOffset = floor * 2 - buildingData.height / 2 + 1;
+                        
+                        // ✅ Front side window (facing road)
+                        const windowFront = new THREE.Mesh(windowGeometry, windowMaterial);
+                        windowFront.position.set(
+                            building.position.x + xOffset,
+                            yOffset,
+                            building.position.z + (buildingData.depth / 2 + 0.05)
+                        );
+                        scene.add(windowFront);
+                        cityBuildings.push(windowFront);
+                        
+                        // ✅ Back side window (opposite side)
+                        const windowBack = new THREE.Mesh(windowGeometry, windowMaterial.clone());
+                        windowBack.position.set(
+                            building.position.x + xOffset,
+                            yOffset,
+                            building.position.z - (buildingData.depth / 2 + 0.05)
+                        );
+                        scene.add(windowBack);
+                        cityBuildings.push(windowBack);
+                    }
+                }
+            }
+
+            // 🔴 Rooftop lights
+            if (Math.random() > 0.5) {
+                const roofLightGeometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+                const roofLightMaterial = new THREE.MeshBasicMaterial({ 
+                    color: 0xff0000,
+                    emissive: 0xff0000,
+                    emissiveIntensity: 1
+                });
+                const roofLight = new THREE.Mesh(roofLightGeometry, roofLightMaterial);
+                roofLight.position.set(building.position.x, buildingData.height + 0.5, building.position.z);
+                scene.add(roofLight);
+                cityBuildings.push(roofLight);
+            }
+
+            zPosition += buildingData.depth + Math.random() * 8 + 5;
+        }
+    }
+}
+
+async function createCharacter() {
+    return new Promise((resolve) => {
+        try {
+            const userDoc = getDoc(doc(db, 'users', currentUser.uid));
+            userDoc.then(doc => {
+                const userData = doc.data();
+                const avatarId = userData.equippedAvatar || 'scholar';
+                const style = characterStyles[avatarId] || characterStyles['scholar'];
+                
+                player = new THREE.Group();
+                
+                // ✅ BODY
+                const bodyGeometry = new THREE.BoxGeometry(0.7, 1.0, 0.4);
+                const bodyMaterial = new THREE.MeshStandardMaterial({ 
+                    color: style.bodyColor, 
+                    emissive: style.bodyColor, 
+                    emissiveIntensity: 0.4,
+                    roughness: 0.5,
+                    metalness: 0.3
+                });
+                const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+                body.position.y = 1.0;
+                body.castShadow = true;
+                body.receiveShadow = true;
+                player.add(body);
+                
+                // ✅ HEAD
+                const headGeometry = new THREE.SphereGeometry(0.4, 20, 20);
+                const headMaterial = new THREE.MeshStandardMaterial({ 
+                    color: style.headColor,
+                    roughness: 0.6,
+                    metalness: 0.1
+                });
+                const head = new THREE.Mesh(headGeometry, headMaterial);
+                head.position.y = 1.8;
+                head.castShadow = true;
+                head.receiveShadow = true;
+                player.add(head);
+                
+                // ✅ EYES
+                const eyeGeometry = new THREE.SphereGeometry(0.1, 12, 12);
+                const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+                
+                const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                leftEye.position.set(-0.15, 1.85, 0.35);
+                player.add(leftEye);
+                
+                const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+                rightEye.position.set(0.15, 1.85, 0.35);
+                player.add(rightEye);
+                
+                // ✅ EYE SHINE
+                const shineGeometry = new THREE.SphereGeometry(0.04, 8, 8);
+                const shineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                
+                const leftShine = new THREE.Mesh(shineGeometry, shineMaterial);
+                leftShine.position.set(-0.12, 1.90, 0.40);
+                player.add(leftShine);
+                
+                const rightShine = new THREE.Mesh(shineGeometry, shineMaterial);
+                rightShine.position.set(0.17, 1.90, 0.40);
+                player.add(rightShine);
+                
+                // ✅ SMILE
+                const smileGeometry = new THREE.TorusGeometry(0.15, 0.03, 8, 16, Math.PI);
+                const smileMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+                const smile = new THREE.Mesh(smileGeometry, smileMaterial);
+                smile.position.set(0, 1.60, 0.35);
+                smile.rotation.z = Math.PI;
+                smile.rotation.x = -0.3;
+                player.add(smile);
+                
+                // ✅ GLOWING OUTLINE
+                const outlineGeometry = new THREE.BoxGeometry(0.75, 1.05, 0.45);
+                const outlineMaterial = new THREE.MeshBasicMaterial({ 
+                    color: style.bodyColor,
+                    transparent: true,
+                    opacity: 0.3,
+                    side: THREE.BackSide
+                });
+                const outline = new THREE.Mesh(outlineGeometry, outlineMaterial);
+                outline.position.y = 1.0;
+                player.add(outline);
+                
+                // ✅ ARMS
+                const armGeometry = new THREE.CylinderGeometry(0.12, 0.10, 0.9, 12);
+                const armMaterial = new THREE.MeshStandardMaterial({ 
+                    color: style.bodyColor,
+                    roughness: 0.6,
+                    metalness: 0.2,
+                    emissive: style.bodyColor,
+                    emissiveIntensity: 0.2
+                });
+                
+                const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+                leftArm.position.set(-0.5, 1.0, 0);
+                leftArm.castShadow = true;
+                leftArm.receiveShadow = true;
+                player.add(leftArm);
+                player.userData.leftArm = leftArm;
+                
+                const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+                rightArm.position.set(0.5, 1.0, 0);
+                rightArm.castShadow = true;
+                rightArm.receiveShadow = true;
+                player.add(rightArm);
+                player.userData.rightArm = rightArm;
+                
+                // ✅ HANDS
+                const handGeometry = new THREE.SphereGeometry(0.13, 12, 12);
+                const handMaterial = new THREE.MeshStandardMaterial({ 
+                    color: style.headColor,
+                    roughness: 0.7
+                });
+                
+                const leftHand = new THREE.Mesh(handGeometry, handMaterial);
+                leftHand.position.set(-0.5, 0.5, 0);
+                leftHand.castShadow = true;
+                player.add(leftHand);
+                player.userData.leftHand = leftHand;
+                
+                const rightHand = new THREE.Mesh(handGeometry, handMaterial);
+                rightHand.position.set(0.5, 0.5, 0);
+                rightHand.castShadow = true;
+                player.add(rightHand);
+                player.userData.rightHand = rightHand;
+                
+                // ✅ LEGS
+                const legGeometry = new THREE.CylinderGeometry(0.13, 0.12, 0.8, 12);
+                const legMaterial = new THREE.MeshStandardMaterial({ 
+                    color: new THREE.Color(style.bodyColor).multiplyScalar(0.8),
+                    roughness: 0.7,
+                    metalness: 0.2
+                });
+                
+                const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+                leftLeg.position.set(-0.18, 0.4, 0);
+                leftLeg.castShadow = true;
+                leftLeg.receiveShadow = true;
+                player.add(leftLeg);
+                player.userData.leftLeg = leftLeg;
+                
+                const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+                rightLeg.position.set(0.18, 0.4, 0);
+                rightLeg.castShadow = true;
+                rightLeg.receiveShadow = true;
+                player.add(rightLeg);
+                player.userData.rightLeg = rightLeg;
+                
+                // ✅ FEET
+                const footGeometry = new THREE.BoxGeometry(0.2, 0.12, 0.3);
+                const footMaterial = new THREE.MeshStandardMaterial({ 
+                    color: 0x1a1a2e,
+                    roughness: 0.8
+                });
+                
+                const leftFoot = new THREE.Mesh(footGeometry, footMaterial);
+                leftFoot.position.set(-0.18, 0.06, 0.05);
+                leftFoot.castShadow = true;
+                player.add(leftFoot);
+                player.userData.leftFoot = leftFoot;
+                
+                const rightFoot = new THREE.Mesh(footGeometry, footMaterial);
+                rightFoot.position.set(0.18, 0.06, 0.05);
+                rightFoot.castShadow = true;
+                player.add(rightFoot);
+                player.userData.rightFoot = rightFoot;
+                
+                // ✅ AVATAR BADGE
+                const badgeGeometry = new THREE.CircleGeometry(0.25, 16);
+                const badgeMaterial = new THREE.MeshBasicMaterial({ 
+                    color: style.bodyColor,
+                    transparent: true,
+                    opacity: 0.8,
+                    side: THREE.DoubleSide
+                });
+                const badge = new THREE.Mesh(badgeGeometry, badgeMaterial);
+                badge.position.set(0, 2.5, 0);
+                badge.rotation.x = -Math.PI / 2;
+                player.add(badge);
+                
+                // ✅ GLOW RING
+                const ringGeometry = new THREE.RingGeometry(0.4, 0.5, 32);
+                const ringMaterial = new THREE.MeshBasicMaterial({ 
+                    color: style.bodyColor,
+                    transparent: true,
+                    opacity: 0.5,
+                    side: THREE.DoubleSide
+                });
+                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.position.y = 0.02;
+                ring.rotation.x = -Math.PI / 2;
+                player.add(ring);
+                player.userData.ring = ring;
+                
+                // 🎓 AVATAR-SPECIFIC ACCESSORIES
+                if (avatarId === 'scholar') {
+                    // 📚 BOOK
+                    const bookGeometry = new THREE.BoxGeometry(0.15, 0.22, 0.08);
+                    const bookMaterial = new THREE.MeshStandardMaterial({ 
+                        color: 0x8B4513,
+                        roughness: 0.8
+                    });
+                    const book = new THREE.Mesh(bookGeometry, bookMaterial);
+                    book.position.set(-0.5, 0.4, 0.25);
+                    book.rotation.z = 0.3;
+                    book.rotation.x = -0.5;
+                    book.castShadow = true;
+                    player.add(book);
+                    
+                    const pagesGeometry = new THREE.BoxGeometry(0.14, 0.20, 0.02);
+                    const pagesMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFF0 });
+                    const pages = new THREE.Mesh(pagesGeometry, pagesMaterial);
+                    pages.position.set(-0.5, 0.4, 0.27);
+                    pages.rotation.z = 0.3;
+                    pages.rotation.x = -0.5;
+                    player.add(pages);
+                    
+                    // 🎓 GRADUATION CAP
+                    const capBaseGeometry = new THREE.CylinderGeometry(0.35, 0.35, 0.08, 20);
+                    const capMaterial = new THREE.MeshStandardMaterial({ 
+                        color: 0x1a1a2e,
+                        roughness: 0.6
+                    });
+                    const capBase = new THREE.Mesh(capBaseGeometry, capMaterial);
+                    capBase.position.y = 2.15;
+                    capBase.castShadow = true;
+                    player.add(capBase);
+                    
+                    const capTopGeometry = new THREE.BoxGeometry(0.5, 0.02, 0.5);
+                    const capTop = new THREE.Mesh(capTopGeometry, capMaterial);
+                    capTop.position.y = 2.23;
+                    capTop.castShadow = true;
+                    player.add(capTop);
+                    
+                    const tasselGeometry = new THREE.CylinderGeometry(0.02, 0.04, 0.15, 8);
+                    const tasselMaterial = new THREE.MeshStandardMaterial({ color: 0xFFD700 });
+                    const tassel = new THREE.Mesh(tasselGeometry, tasselMaterial);
+                    tassel.position.set(0.15, 2.15, 0);
+                    player.add(tassel);
+                }
+                
+                if (avatarId === 'dean') {
+                    // 👔 NECKTIE
+                    const tieGeometry = new THREE.BoxGeometry(0.12, 0.5, 0.05);
+                    const tieMaterial = new THREE.MeshStandardMaterial({ 
+                        color: 0x8B0000,
+                        roughness: 0.7,
+                        metalness: 0.3
+                    });
+                    const tie = new THREE.Mesh(tieGeometry, tieMaterial);
+                    tie.position.set(0, 0.8, 0.22);
+                    tie.castShadow = true;
+                    player.add(tie);
+                    
+                    const knotGeometry = new THREE.BoxGeometry(0.15, 0.1, 0.06);
+                    const knot = new THREE.Mesh(knotGeometry, tieMaterial);
+                    knot.position.set(0, 1.05, 0.22);
+                    player.add(knot);
+                    
+                    // 💼 BRIEFCASE
+                    const briefcaseGeometry = new THREE.BoxGeometry(0.25, 0.18, 0.08);
+                    const briefcaseMaterial = new THREE.MeshStandardMaterial({ 
+                        color: 0x2c3e50,
+                        roughness: 0.5,
+                        metalness: 0.6
+                    });
+                    const briefcase = new THREE.Mesh(briefcaseGeometry, briefcaseMaterial);
+                    briefcase.position.set(0.5, 0.35, 0);
+                    briefcase.rotation.z = 0.3;
+                    briefcase.castShadow = true;
+                    player.add(briefcase);
+                    
+                    const handleGeometry = new THREE.TorusGeometry(0.08, 0.02, 8, 16, Math.PI);
+                    const handleMaterial = new THREE.MeshStandardMaterial({ color: 0x8B4513 });
+                    const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+                    handle.position.set(0.5, 0.50, 0.04);
+                    handle.rotation.x = Math.PI / 2;
+                    handle.rotation.z = -0.3;
+                    player.add(handle);
+                    
+                    // 👓 GLASSES
+                    const glassFrameGeometry = new THREE.TorusGeometry(0.12, 0.02, 8, 16);
+                    const glassMaterial = new THREE.MeshStandardMaterial({ 
+                        color: 0x1a1a1a,
+                        metalness: 0.8,
+                        roughness: 0.2
+                    });
+                    
+                    const leftGlass = new THREE.Mesh(glassFrameGeometry, glassMaterial);
+                    leftGlass.position.set(-0.15, 1.80, 0.35);
+                    leftGlass.rotation.y = Math.PI / 2;
+                    player.add(leftGlass);
+                    
+                    const rightGlass = new THREE.Mesh(glassFrameGeometry, glassMaterial);
+                    rightGlass.position.set(0.15, 1.80, 0.35);
+                    rightGlass.rotation.y = Math.PI / 2;
+                    player.add(rightGlass);
+                    
+                    const bridgeGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.1, 8);
+                    const bridge = new THREE.Mesh(bridgeGeometry, glassMaterial);
+                    bridge.position.set(0, 1.80, 0.35);
+                    bridge.rotation.z = Math.PI / 2;
+                    player.add(bridge);
+                }
+                
+                if (avatarId === 'night-owl') {
+                    // 🦉 HOODIE
+                    const hoodGeometry = new THREE.SphereGeometry(0.45, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2);
+                    const hoodMaterial = new THREE.MeshStandardMaterial({ 
+                        color: new THREE.Color(style.bodyColor).multiplyScalar(0.7),
+                        roughness: 0.8
+                    });
+                    const hood = new THREE.Mesh(hoodGeometry, hoodMaterial);
+                    hood.position.set(0, 1.95, -0.15);
+                    hood.castShadow = true;
+                    player.add(hood);
+                    
+                    const stringGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.15, 8);
+                    const stringMaterial = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+                    
+                    const leftString = new THREE.Mesh(stringGeometry, stringMaterial);
+                    leftString.position.set(-0.08, 1.52, 0.22);
+                    player.add(leftString);
+                    
+                    const rightString = new THREE.Mesh(stringGeometry, stringMaterial);
+                    rightString.position.set(0.08, 1.52, 0.22);
+                    player.add(rightString);
+                    
+                    // 🌙 MOON BADGE
+                    const moonGeometry = new THREE.SphereGeometry(0.08, 16, 16);
+                    const moonMaterial = new THREE.MeshBasicMaterial({ 
+                        color: 0xFFFF99,
+                        emissive: 0xFFFF99,
+                        emissiveIntensity: 0.8
+                    });
+                    const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+                    moon.position.set(0.15, 1.0, 0.22);
+                    player.add(moon);
+                    
+                    const craterGeometry = new THREE.SphereGeometry(0.02, 8, 8);
+                    const craterMaterial = new THREE.MeshBasicMaterial({ color: 0xCCCC88 });
+                    
+                    const crater1 = new THREE.Mesh(craterGeometry, craterMaterial);
+                    crater1.position.set(0.17, 1.02, 0.24);
+                    player.add(crater1);
+                    
+                    const crater2 = new THREE.Mesh(craterGeometry, craterMaterial);
+                    crater2.position.set(0.13, 0.98, 0.24);
+                    player.add(crater2);
+                    
+                    // ⭐ STARS
+                    const starGeometry = new THREE.ConeGeometry(0.03, 0.06, 5);
+                    const starMaterial = new THREE.MeshBasicMaterial({ 
+                        color: 0xFFFF00,
+                        emissive: 0xFFFF00,
+                        emissiveIntensity: 0.5
+                    });
+                    
+                    for (let i = 0; i < 3; i++) {
+                        const star = new THREE.Mesh(starGeometry, starMaterial);
+                        star.position.set(
+                            -0.25 + (i * 0.15),
+                            1.2 - (i * 0.15),
+                            0.22
+                        );
+                        star.rotation.z = Math.random() * Math.PI * 2;
+                        player.add(star);
+                    }
+                }
+                
+                if (avatarId === 'tech-whiz') {
+                    // 🎩 WIZARD HAT
+                    const hatConeGeometry = new THREE.ConeGeometry(0.35, 0.8, 16);
+                    const hatMaterial = new THREE.MeshStandardMaterial({ 
+                        color: 0x4169E1,
+                        roughness: 0.6,
+                        emissive: 0x4169E1,
+                        emissiveIntensity: 0.2
+                    });
+                    const hatCone = new THREE.Mesh(hatConeGeometry, hatMaterial);
+                    hatCone.position.y = 2.5;
+                    hatCone.castShadow = true;
+                    player.add(hatCone);
+                    
+                    const brimGeometry = new THREE.CylinderGeometry(0.45, 0.45, 0.05, 20);
+                    const brim = new THREE.Mesh(brimGeometry, hatMaterial);
+                    brim.position.y = 2.1;
+                    brim.castShadow = true;
+                    player.add(brim);
+                    
+                    // ⭐ STARS ON HAT
+                    const hatStarGeometry = new THREE.SphereGeometry(0.04, 8, 8);
+                    const hatStarMaterial = new THREE.MeshBasicMaterial({ 
+                        color: 0xFFD700,
+                        emissive: 0xFFD700,
+                        emissiveIntensity: 1
+                    });
+                    
+                    for (let i = 0; i < 5; i++) {
+                        const star = new THREE.Mesh(hatStarGeometry, hatStarMaterial);
+                        const angle = (i / 5) * Math.PI * 2;
+                        star.position.set(
+                            Math.cos(angle) * 0.25,
+                            2.3 + (i * 0.08),
+                            Math.sin(angle) * 0.25
+                        );
+                        player.add(star);
+                    }
+                    
+                    // 💻 LAPTOP
+                    const laptopGeometry = new THREE.BoxGeometry(0.3, 0.22, 0.02);
+                    const laptopMaterial = new THREE.MeshStandardMaterial({ 
+                        color: 0x2c3e50,
+                        roughness: 0.3,
+                        metalness: 0.7
+                    });
+                    const laptop = new THREE.Mesh(laptopGeometry, laptopMaterial);
+                    laptop.position.set(-0.5, 0.45, 0.2);
+                    laptop.rotation.z = 0.3;
+                    laptop.rotation.x = -0.4;
+                    laptop.castShadow = true;
+                    player.add(laptop);
+                    
+                    const screenGeometry = new THREE.BoxGeometry(0.28, 0.20, 0.01);
+                    const screenMaterial = new THREE.MeshBasicMaterial({ 
+                        color: 0x00FFFF,
+                        emissive: 0x00FFFF,
+                        emissiveIntensity: 0.8
+                    });
+                    const screen = new THREE.Mesh(screenGeometry, screenMaterial);
+                    screen.position.set(-0.5, 0.45, 0.21);
+                    screen.rotation.z = 0.3;
+                    screen.rotation.x = -0.4;
+                    player.add(screen);
+                    
+                    // 🔌 CIRCUIT LINES
+                    const circuitMaterial = new THREE.MeshBasicMaterial({ 
+                        color: 0x00FF00,
+                        emissive: 0x00FF00,
+                        emissiveIntensity: 0.5
+                    });
+                    
+                    const lineGeometry = new THREE.BoxGeometry(0.02, 0.3, 0.01);
+                    const line1 = new THREE.Mesh(lineGeometry, circuitMaterial);
+                    line1.position.set(0.15, 0.9, 0.22);
+                    player.add(line1);
+                    
+                    const line2 = new THREE.Mesh(lineGeometry, circuitMaterial);
+                    line2.position.set(-0.15, 1.1, 0.22);
+                    player.add(line2);
+                    
+                    const connectorGeometry = new THREE.BoxGeometry(0.3, 0.02, 0.01);
+                    const connector = new THREE.Mesh(connectorGeometry, circuitMaterial);
+                    connector.position.set(0, 1.0, 0.22);
+                    player.add(connector);
+                }
+                
+                player.position.set(lanes[currentLane], 0, 6);
+                player.rotation.y = Math.PI;
+                scene.add(player);
+                
+                console.log('✅ Enhanced character created:', avatarId);
+                resolve();
+            });
+        } catch (error) {
+            console.error('Error creating character:', error);
+            resolve();
+        }
+    });
+}
+
+        function movePlayer() {
+            if (!player) return;
+            const targetX = lanes[currentLane];
+            const startX = player.position.x;
+            const duration = 200;
+            const startTime = Date.now();
+
+            function animateMove() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                player.position.x = startX + (targetX - startX) * eased;
+                if (progress < 1) requestAnimationFrame(animateMove);
+            }
+            animateMove();
+        }
+
+        function startCountdown() {
+            const countdownEl = document.getElementById('countdown');
+            countdownEl.classList.remove('hidden');
+            let count = 3;
+            const interval = setInterval(() => {
+                if (count > 0) countdownEl.textContent = count;
+                else countdownEl.textContent = 'GO!';
+                count--;
+                if (count < -1) {
+                    clearInterval(interval);
+                    countdownEl.classList.add('hidden');
+                    startQuiz();
+                }
+            }, 1000);
+        }
+
+        function startQuiz() {
+            isPlaying = true;
+            document.getElementById('hud').classList.remove('hidden');
+            document.getElementById('instructions').classList.remove('hidden');
+            showQuestion();
+        }
+
+function clearAllBlocks() {
+    answerBlocks.forEach(item => { 
+        if (item.block) scene.remove(item.block);
+        if (item.sprite) scene.remove(item.sprite);
+        if (item.light) scene.remove(item.light);
+    });
+    answerBlocks = [];
+    console.log('🧹 All answer blocks cleared');
+}
+
+function showQuestion() {
+    
+    if (isGameEnded || currentQuestionIndex >= quizData.questions.length) return;
+    clearAllBlocks();
+
+    hasAnsweredCurrentQuestion = false;
+    console.log('🔓 Ready for new answer - Question', currentQuestionIndex + 1);
+    
+    clearAllBlocks();
+
+    const question = quizData.questions[currentQuestionIndex];
+    document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+    document.getElementById('question-display').textContent = question.question;
+    document.getElementById('question-display').classList.remove('hidden');
+
+    let options = question.options.map((opt, idx) => ({ text: opt, isCorrect: idx === question.correctAnswer }));
+    for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [options[i], options[j]] = [options[j], options[i]];
+    }
+
+    options.forEach((option, i) => {
+        // ✅ INVISIBLE COLLISION BOX
+        const baseGeometry = new THREE.BoxGeometry(3.5, 0.1, 4);
+        const baseMaterial = new THREE.MeshBasicMaterial({ 
+            transparent: true,
+            opacity: 0
+        });
+        const base = new THREE.Mesh(baseGeometry, baseMaterial);
+        base.position.set(lanes[i], 0.05, -60);
+        scene.add(base);
+
+        // ✅ SMART TEXT WRAPPING for long answers
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = 1024;
+        canvas.height = 768; // ✅ Taller canvas for more lines
+        
+        // Transparent background
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // ✅ ADAPTIVE FONT SIZE based on text length
+        let fontSize = 175;
+        if (option.text.length > 30) fontSize = 75; // Medium length
+        if (option.text.length > 50) fontSize = 60; // Long text
+        if (option.text.length > 80) fontSize = 50; // Very long text
+        
+        context.font = `bold ${fontSize}px Arial`;
+        context.fillStyle = '#ffffff';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.shadowColor = '#05fa22';
+        context.shadowBlur = 20;
+        
+        // ✅ SMART WORD WRAPPING - Breaks into multiple lines
+        const maxWidth = 850; // Max width per line
+        const lineHeight = fontSize + 30; // Space between lines
+        const words = option.text.split(' ');
+        let lines = [];
+        let currentLine = '';
+        
+        words.forEach(word => {
+            const testLine = currentLine + word + ' ';
+            const metrics = context.measureText(testLine);
+            
+            if (metrics.width > maxWidth && currentLine.length > 0) {
+                lines.push(currentLine.trim());
+                currentLine = word + ' ';
+            } else {
+                currentLine = testLine;
+            }
+        });
+        if (currentLine.length > 0) {
+            lines.push(currentLine.trim());
+        }
+        
+        // ✅ CENTER TEXT VERTICALLY (even with multiple lines)
+        const totalHeight = lines.length * lineHeight;
+        const startY = (canvas.height / 2) - (totalHeight / 2) + (lineHeight / 2);
+        
+        // ✅ DRAW EACH LINE with triple glow
+        lines.forEach((line, idx) => {
+            const y = startY + (idx * lineHeight);
+            
+            // Draw 3 times for mega-glow
+            context.fillText(line, canvas.width / 2, y);
+            context.fillText(line, canvas.width / 2, y);
+            context.fillText(line, canvas.width / 2, y);
+        });
+
+        const texture = new THREE.CanvasTexture(canvas);
+        texture.needsUpdate = true;
+        
+        const spriteMaterial = new THREE.SpriteMaterial({ 
+            map: texture,
+            transparent: true
+        });
+        const sprite = new THREE.Sprite(spriteMaterial);
+        sprite.position.set(lanes[i], 2.5, -60);
+        
+        // ✅ ADAPTIVE SIZE - Taller for more lines
+        const spriteHeight = 3 + (lines.length * 0.5); // Grows with line count
+        sprite.scale.set(7, spriteHeight, 1);
+        scene.add(sprite);
+
+        // ✅ GLOWING LIGHT
+        const light = new THREE.PointLight(0x00d4ff, 3, 15);
+        light.position.set(lanes[i], 2.5, -60);
+        scene.add(light);
+
+        // ✅ Store parts
+        const blockData = {
+            block: base,
+            sprite: sprite,
+            light: light
+        };
+        
+        base.userData = { isCorrect: option.isCorrect, text: option.text };
+        answerBlocks.push(blockData);
+    });
+}
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (player && isPlaying) {
+    animationTime += 0.15;
+    
+    // ✅ ARM SWING - Natural running motion
+    if (player.userData.leftArm) {
+        player.userData.leftArm.rotation.x = Math.sin(animationTime) * 0.7;
+        player.userData.rightArm.rotation.x = Math.sin(animationTime + Math.PI) * 0.7;
+    }
+    
+    // ✅ LEG MOVEMENT - Running animation
+    if (player.userData.leftLeg) {
+        player.userData.leftLeg.rotation.x = Math.sin(animationTime) * 0.6;
+        player.userData.rightLeg.rotation.x = Math.sin(animationTime + Math.PI) * 0.6;
+    }
+    
+    // ✅ FOOT MOVEMENT - Matches legs
+    if (player.userData.leftFoot) {
+        player.userData.leftFoot.rotation.x = Math.sin(animationTime) * 0.4;
+        player.userData.rightFoot.rotation.x = Math.sin(animationTime + Math.PI) * 0.4;
+    }
+    
+    // ✅ HAND MOVEMENT - Slight swing
+    if (player.userData.leftHand) {
+        player.userData.leftHand.position.y = 0.5 + Math.sin(animationTime) * 0.15;
+        player.userData.rightHand.position.y = 0.5 + Math.sin(animationTime + Math.PI) * 0.15;
+    }
+    
+    // ✅ BOUNCE - Natural running bounce
+    player.position.y = Math.abs(Math.sin(animationTime * 2)) * 0.2;
+    
+    // ✅ GLOW RING PULSE
+    if (player.userData.ring) {
+        player.userData.ring.scale.set(
+            1 + Math.sin(animationTime * 2) * 0.15,
+            1 + Math.sin(animationTime * 2) * 0.15,
+            1
+        );
+        player.userData.ring.material.opacity = 0.4 + Math.sin(animationTime * 2) * 0.2;
+    }
+}
+
+            cityBuildings.forEach(building => {
+                building.position.z += gameSpeed;
+                if (building.position.z > 20) {
+                    building.position.z -= 180;
+                }
+            });
+
+if (isPlaying && player && !isGameEnded) {
+    answerBlocks.forEach(item => {
+        item.block.position.z += gameSpeed;
+        item.sprite.position.z += gameSpeed;
+        item.light.position.z += gameSpeed;
+
+        // ✅ Pulse the light for extra visibility
+        item.light.intensity = 2 + Math.sin(Date.now() * 0.003) * 0.5;
+
+if (Math.abs(item.block.position.z - player.position.z) < 1.5 && Math.abs(item.block.position.x - player.position.x) < 2.5) {
+    // ✅ Only process if haven't answered yet
+    if (!hasAnsweredCurrentQuestion) {
+        handleAnswer(item.block.userData.isCorrect, item.block.userData.text);
+        
+        // ✅ IMMEDIATELY clear ALL blocks after answering
+        clearAllBlocks();
+    }
+}
+    });
+
+                if (answerBlocks.length === 0 && currentQuestionIndex < quizData.questions.length && !isGameEnded) {
+    showQuestion(); // ✅ NEW: Instant, no delay!
+}
+            }
+
+            renderer.render(scene, camera);
+        }
+
+function handleAnswer(isCorrect, answer) {
+    // ✅ CHECK: Already answered this question?
+    if (hasAnsweredCurrentQuestion) {
+        console.log('⚠️ Already answered this question, ignoring extra input');
+        return; // Exit early, don't process
+    }
+    
+    // ✅ LOCK: Prevent multiple answers
+    hasAnsweredCurrentQuestion = true;
+    console.log('✅ Answer locked for question', currentQuestionIndex + 1);
+    
+    userAnswers[currentQuestionIndex] = answer;
+    
+    if (isCorrect) {
+        correctAnswers++;
+        document.getElementById('score').textContent = correctAnswers;
+        scene.background = new THREE.Color(0x00ff88);
+        setTimeout(() => scene.background = new THREE.Color(0x0a0e27), 300);
+    } else {
+        scene.background = new THREE.Color(0xff4b2b);
+        setTimeout(() => scene.background = new THREE.Color(0x0a0e27), 300);
+    }
+
+    document.getElementById('question-display').classList.add('hidden');
+    currentQuestionIndex++;
+
+    if (currentQuestionIndex >= quizData.questions.length) {
+        isGameEnded = true;
+        clearAllBlocks();
+        setTimeout(() => endGame(), 1500);
+    }
+}
+
+async function endGame() {
+    if (isGameEnded === 'completed') return;
+    isGameEnded = 'completed';
+    isPlaying = false;
+    
+    const totalQuestions = quizData.questions.length;
+    const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+    
+    // ✅ NEW COIN SYSTEM (Much less coins!)
+    const baseCoins = correctAnswers * 3;  // ✅ CHANGED: 10 to 3 coins per correct answer
+    let bonusCoins = 0;
+    
+    if (correctAnswers === totalQuestions) {
+        bonusCoins = 20; // ✅ CHANGED: 100 to 20 (perfect score bonus)
+    } else if (correctAnswers > 0) {
+        bonusCoins = 5;  // ✅ CHANGED: 25 to 5 (participation bonus)
+    }
+    
+    const totalCoins = baseCoins + bonusCoins;
+    
+    // ✅ NEW: Calculate XP earned (20 XP per correct answer)
+    const xpEarned = correctAnswers * 20;
+
+    try {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        const userData = userDoc.data();
+        
+        // ✅ Calculate new XP and level
+        const currentXp = userData.xp || 0;
+        const currentLevel = userData.level || 1;
+        const currentMaxXp = userData.maxXp || 100;
+        
+        let newXp = currentXp + xpEarned;
+        let newLevel = currentLevel;
+        let newMaxXp = currentMaxXp;
+        let levelUpCoins = 0;
+        
+        // ✅ Level up logic (Max level 20)
+        while (newXp >= newMaxXp && newLevel < 20) {
+            newXp -= newMaxXp;
+            newLevel++;
+            newMaxXp = Math.floor(100 * Math.pow(1.2, newLevel - 1)); // XP scales by 20% each level
+            levelUpCoins += newLevel * 10; // ✅ Bonus coins per level (10, 20, 30, etc.)
+        }
+        
+        // Cap XP at max level
+        if (newLevel >= 20) {
+            newXp = 0;
+            newLevel = 20;
+        }
+        
+        const totalCoinsWithBonus = totalCoins + levelUpCoins;
+        
+        // ✅ Update user data
+        await updateDoc(doc(db, 'users', currentUser.uid), { 
+            coins: increment(totalCoinsWithBonus),
+            xp: newXp,
+            level: newLevel,
+            maxXp: newMaxXp
+        });
+        
+        const now = new Date();
+        await addDoc(collection(db, 'quizResults'), {
+            userId: currentUser.uid, 
+            userName: userData.fullName,
+            quizId: quizData.id, 
+            quizTitle: quizData.title, 
+            quizCode: quizData.code,
+            professorId: quizData.professorId, 
+            score: correctAnswers,
+            totalQuestions: totalQuestions, 
+            percentage: percentage, 
+            coinsEarned: totalCoinsWithBonus,
+            xpEarned: xpEarned, // ✅ NEW: Track XP earned
+            levelAfter: newLevel, // ✅ NEW: Track level after quiz
+            completedAt: now.toISOString(), 
+            completedAtTimestamp: now.getTime()
+        });
+        
+        await updateDoc(doc(db, 'quizzes', quizData.id), { 
+            completedBy: arrayUnion(currentUser.uid) 
+        });
+        
+        // ✅ Pass level up info to results
+        showResults(correctAnswers, totalQuestions, percentage, totalCoinsWithBonus, levelUpCoins > 0, newLevel);
+        
+    } catch (error) {
+        console.error('Error saving results:', error);
+        alert('Failed to save results.');
+    }
+}
+
+    function showResults(correct, total, percentage, coins, didLevelUp, newLevel) {
+    document.getElementById('hud').classList.add('hidden');
+    document.getElementById('instructions').classList.add('hidden');
+    
+    let icon = '🏆', title = 'Quiz Complete!', message = '';
+    if (correct === total) { 
+        icon = '🌟'; 
+        title = 'PERFECT SCORE!'; 
+        message = 'Flawless victory!'; 
+    }
+    else if (percentage >= 80) { 
+        icon = '🎯'; 
+        title = 'Excellent!'; 
+        message = 'Outstanding!'; 
+    }
+    else if (percentage >= 60) { 
+        icon = '👍'; 
+        title = 'Good Job!'; 
+        message = 'Keep practicing!'; 
+    }
+    else { 
+        icon = '💪'; 
+        title = 'Keep Trying!'; 
+        message = 'Every attempt makes you stronger!'; 
+    }
+    
+    // ✅ Add level up notification
+    if (didLevelUp) {
+        message += `\n🎉 LEVEL UP! You're now Level ${newLevel}!`;
+    }
+    
+    document.getElementById('resultIcon').textContent = icon;
+    document.getElementById('resultTitle').textContent = title;
+    document.getElementById('resultScore').textContent = `${correct}/${total} (${percentage}%)`;
+    document.getElementById('resultCoins').innerHTML = `<i class='bx bxs-coin-stack'></i> +${coins} Coins`;
+    document.getElementById('resultMessage').textContent = message;
+    document.getElementById('result-modal').style.display = 'block';
+}
+
+    window.goBack = () => window.location.href = '../student.html';
+</script>
+</body>
+</html>

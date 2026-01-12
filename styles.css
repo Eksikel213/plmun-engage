@@ -1,0 +1,250 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #081b29 url('pics/PLMun.png') no-repeat center center/cover fixed;
+}
+
+.wrapper {
+    width: 100%;
+    max-width: 420px; /* Limits size on desktop */
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    border-radius: 10px;
+    padding: 30px 40px;
+    margin: 20px; /* Space around the box on mobile */
+}
+
+.wrapper h1 {
+    font-size: 36px;
+    text-align: center;
+}
+
+.wrapper .input-box {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    margin: 30px 0;
+}
+
+.input-box input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    font-size: 16px;
+    color: #fff;
+    padding: 20px 45px 20px 20px;
+}
+
+.input-box input::placeholder {
+    color: #fff;
+}
+
+.input-box i {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+}
+
+.wrapper .remember-forget {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14.5px;
+    margin: -15px 0 15px;
+}
+
+.remember-forget label input {
+    accent-color: #fff;
+    margin-right: 3px;
+}
+
+.remember-forget a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.remember-forget a:hover {
+    text-decoration: underline;
+}
+
+.wrapper .btn {
+    width: 100%;
+    height: 45px;
+    background: #fff;
+    border: none;
+    outline: none;
+    border-radius: 40px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+}
+
+.wrapper .register-link {
+    font-size: 14.5px;
+    text-align: center;
+    margin: 20px 0 15px;
+}
+
+.register-link p a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.register-link p a:hover {
+    text-decoration: underline;
+}
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 480px) {
+    .wrapper {
+        padding: 30px 25px; /* Less padding on very small screens */
+    }
+    
+    .wrapper h1 {
+        font-size: 28px;
+    }
+
+    .remember-forget {
+        flex-direction: column; /* Stacks 'Remember Me' and 'Forgot Password' */
+        gap: 10px;
+        align-items: center;
+    }
+}
+
+/* Floating Centered PLMun Logo Header */
+.logo-header {
+    position: fixed; /* Changed to fixed so it's always visible */
+    top: 55px; /* Back to top of screen */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.logo-header:hover {
+    transform: translateX(-50%) translateY(-5px);
+    filter: drop-shadow(0 8px 25px rgba(0, 212, 255, 0.4));
+}
+
+.plmun-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+.logo-header:hover .plmun-logo {
+    transform: rotate(5deg) scale(1.1);
+}
+
+.logo-text h2 {
+    color: #00d4ff;
+    font-size: 48px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+    letter-spacing: 2px;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.6),
+                 0 0 25px rgba(0, 212, 255, 0.7);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.logo-header:hover .logo-text h2 {
+    text-shadow: 0 4px 16px rgba(0, 0, 0, 0.7),
+                 0 0 35px rgba(0, 212, 255, 0.9);
+    letter-spacing: 2.5px;
+}
+
+/* --- RESPONSIVE LOGO --- */
+@media (max-height: 700px) {
+    .logo-header {
+        top: 10px;
+        gap: 15px;
+    }
+    
+    .plmun-logo {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .logo-text h2 {
+        font-size: 36px;
+    }
+}
+
+@media (max-height: 600px) {
+    .logo-header {
+        top: 5px;
+        gap: 12px;
+    }
+    
+    .plmun-logo {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .logo-text h2 {
+        font-size: 28px;
+        letter-spacing: 1.5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-header {
+        gap: 15px;
+    }
+    
+    .plmun-logo {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .logo-text h2 {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 360px) {
+    .logo-header {
+        gap: 10px;
+    }
+    
+    .plmun-logo {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .logo-text h2 {
+        font-size: 26px;
+        letter-spacing: 1px;
+    }
+}

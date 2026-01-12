@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{ margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+
+body {
+    min-height: 100vh;
+    background: #081b29 url('../../pics/PLMun.png') no-repeat center center/cover fixed;
+}
+
+/* --- SIDEBAR LOGIC --- */
+.sidebar {
+    position: fixed; height: 100%; width: 240px;
+    background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(15px);
+    color: #fff; border-right: 1px solid rgba(255,255,255,0.1);
+    z-index: 100; transition: all 0.4s ease;
+}
+
+.sidebar .logo-details { height: 80px; display: flex; align-items: center; padding: 0 25px; font-size: 20px; font-weight: 600; overflow: hidden; }
+.sidebar .logo-details i { margin-right: 12px; font-size: 28px; min-width: 28px; }
+
+.nav-links { margin-top: 15px; }
+.nav-links li { list-style: none; height: 55px; width: 100%; }
+.nav-links li a { height: 100%; width: 100%; display: flex; align-items: center; text-decoration: none; color: #fff; padding-left: 25px; transition: 0.3s; }
+.nav-links li a i { font-size: 20px; min-width: 28px; text-align: center; }
+.nav-links li a .link_name { margin-left: 15px; white-space: nowrap; }
+
+.nav-links li a:hover, .nav-links li a.active { background: rgba(255, 255, 255, 0.2); border-left: 4px solid #00d4ff; }
+.log_out { position: absolute; bottom: 20px; width: 100%; }
+
+/* --- MAIN SECTION --- */
+.home-section { position: relative; left: 240px; width: calc(100% - 240px); min-height: 100vh; transition: all 0.4s ease; }
+
+nav { display: flex; justify-content: space-between; align-items: center; height: 80px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 0 30px; color: #fff; }
+
+.stats { display: flex; gap: 15px; }
+.stat-item { background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 5px; color: #fff; }
+
+.home-content { padding: 30px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+
+/* --- FIXED GLASS CARDS --- */
+.quiz-join-card, .recent-activity {
+    background: rgba(255, 255, 255, 0.1); 
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 40px 20px; 
+    border-radius: 15px; 
+    text-align: center; 
+    color: #fff; 
+    backdrop-filter: blur(10px);
+    width: 100%;
+    max-width: 700px; /* Limits how wide it gets on desktop */
+}
+
+/* This fixes the overlapping issue */
+.input-group { 
+    margin-top: 30px; 
+    display: flex; 
+    justify-content: center; 
+    gap: 15px; 
+    flex-wrap: wrap; /* Allows stacking on small screens */
+}
+
+.input-group input { 
+    padding: 15px; 
+    border-radius: 8px; 
+    border: none; 
+    width: 100%; 
+    max-width: 300px; /* Better than fixed width */
+    font-size: 18px; 
+    text-align: center; 
+    font-weight: bold; 
+}
+
+.join-btn { 
+    padding: 15px 35px; 
+    border-radius: 8px; 
+    border: none; 
+    background: #00d4ff; 
+    color: #fff; 
+    font-weight: 700; 
+    cursor: pointer; 
+    transition: 0.3s;
+    white-space: nowrap; /* Prevents button text from splitting */
+}
+
+.join-btn:hover { background: #fff; color: #00d4ff; transform: scale(1.05); }
+
+.result-summary { 
+    display: flex; 
+    justify-content: center; 
+    gap: 30px; 
+    margin-top: 15px; 
+    flex-wrap: wrap; 
+}
+
+/* --- RESPONSIVE COLLAPSE --- */
+@media (max-width: 1000px) {
+    .sidebar { width: 80px; }
+    .sidebar .logo_name, .sidebar .link_name { display: none; }
+    .home-section { left: 80px; width: calc(100% - 80px); }
+}
+
+/* For small phones */
+@media (max-width: 500px) {
+    .home-content { padding: 15px; }
+    .quiz-join-card h2 { font-size: 22px; }
+    .input-group input { width: 100%; }
+    .join-btn { width: 100%; } /* Button becomes full width on tiny screens */
+}

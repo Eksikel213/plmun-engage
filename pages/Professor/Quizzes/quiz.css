@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{ margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+
+body {
+    min-height: 100vh;
+    background: #081b29 url('../../../pics/PLMun.png') no-repeat center center/cover fixed;
+}
+
+/* --- SIDEBAR - UPDATED FOR UNIFORM ICON SIZES --- */
+.sidebar {
+    position: fixed; height: 100%; width: 240px;
+    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(15px);
+    color: #fff; border-right: 1px solid rgba(255,255,255,0.1);
+    z-index: 100; transition: all 0.4s ease;
+}
+
+/* Logo Icon Size - Matches Professor Overview */
+.sidebar .logo-details { height: 80px; display: flex; align-items: center; padding: 0 25px; font-size: 20px; font-weight: 600; overflow: hidden; }
+.sidebar .logo-details i { margin-right: 12px; font-size: 28px; color: #00d4ff; min-width: 28px; text-align: center; }
+
+.nav-links { margin-top: 15px; }
+.nav-links li { list-style: none; height: 55px; width: 100%; }
+.nav-links li a { height: 100%; width: 100%; display: flex; align-items: center; text-decoration: none; color: #fff; padding-left: 25px; transition: 0.3s; }
+
+/* Navigation Icon Size - Matches Professor Overview */
+.nav-links li a i { font-size: 20px; min-width: 28px; text-align: center; }
+.nav-links li a .link_name { margin-left: 15px; white-space: nowrap; }
+
+.nav-links li a:hover, .nav-links li a.active { background: rgba(255,255,255,0.2); border-left: 4px solid #00d4ff; }
+.log_out { position: absolute; bottom: 20px; width: 100%; }
+
+/* --- MAIN SECTION --- */
+.home-section { position: relative; left: 240px; width: calc(100% - 240px); min-height: 100vh; transition: all 0.4s ease; }
+nav { display: flex; justify-content: space-between; align-items: center; height: 80px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 0 30px; color: #fff; }
+.home-content { padding: 30px; }
+
+/* --- HISTORY CARD --- */
+.glass {
+    background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 30px; border-radius: 15px; color: white; backdrop-filter: blur(10px);
+}
+
+.card-header h2 { color: #00d4ff; margin-bottom: 5px; }
+.card-header p { font-size: 14px; opacity: 0.8; margin-bottom: 25px; }
+
+/* --- TABLE STYLING --- */
+.table-container { overflow-x: auto; }
+.quiz-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+.quiz-table th { text-align: left; padding: 15px; border-bottom: 2px solid rgba(255,255,255,0.1); color: #00d4ff; }
+.quiz-table td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 15px; }
+
+.view-btn {
+    background: rgba(0, 212, 255, 0.2); border: 1px solid #00d4ff;
+    color: #00d4ff; padding: 6px 15px; border-radius: 5px;
+    cursor: pointer; transition: 0.3s;
+}
+.view-btn:hover { background: #00d4ff; color: #fff; }
+
+/* --- RESPONSIVE --- */
+@media (max-width: 1000px) {
+    .sidebar { width: 80px; }
+    .sidebar .logo_name, .sidebar .link_name { display: none; }
+    .home-section { left: 80px; width: calc(100% - 80px); }
+}

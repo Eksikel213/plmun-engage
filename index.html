@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - PLMun Engage</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+
+    <div class="logo-header">
+        <img src="pics/Pamantasan_ng_Lungsod_ng_Muntinlupa_logo.png" alt="PLMun Logo" class="plmun-logo">
+        <div class="logo-text">
+            <h2>PLMun Engage</h2>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <form id="loginForm">
+            <h1>Login</h1>
+            
+            <!-- Error message display -->
+            <div id="errorMessage" style="display:none; background: rgba(255,75,43,0.2); padding: 10px; border-radius: 8px; margin-bottom: 15px; color: #ff4b2b; font-size: 14px;"></div>
+            
+            <div class="input-box">
+                <input type="email" id="email" placeholder="Email" required>
+                <i class='bx bxs-user'></i>
+            </div>
+            <div class="input-box">
+                <input type="password" id="password" placeholder="Password" required>
+                <i class='bx bxs-lock-alt'></i>
+            </div>
+            <div class="remember-forget">
+                <label><input type="checkbox"> Remember me</label>
+                <a href="forpas.html">Forgot password?</a>
+            </div>
+            <button type="submit" class="btn">Login</button>
+            <div class="register-link">
+                <p>Don't have an account? <a href="Register/register.html">Register</a></p>
+            </div>
+        </form>
+    </div>
+
+<!-- Firebase SDK -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyBlUY50heKZ_bp-PZUr76S0SiI1_zN6aOA",
+        authDomain: "plmun-engage.firebaseapp.com",
+        projectId: "plmun-engage",
+        storageBucket: "plmun-engage.firebasestorage.app",
+        messagingSenderId: "701791153164",
+        appId: "1:701791153164:web:45422fd17af3493a04d229"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    const loginForm = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('errorMessage');
+    
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const rememberMe = document.querySelector('input[type="checkbox"]').checked;
+        
+        const submitBtn = loginForm.querySelector('.btn');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Logging in...';
+        submitBtn.disabled = true;
+        
+        try {
+            // ✅ SET PERSISTENCE BASED ON "REMEMBER ME"
+            if (rememberMe) {
+                await setPersistence(auth, browserLocalPersistence);
+                console.log('✅ Remember Me: ON - User will stay logged in');
+            } else {
+                await setPersistence(auth, browserSessionPersistence);
+                console.log('✅ Remember Me: OFF - User will logout when browser closes');
+            }
+            
+            // Sign in with Firebase
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            console.log('✅ Login successful!', userCredential.user);
+            
+            // ✅ Check if user is admin
+            try {
+                const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
+                
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    console.log('📊 User data:', userData);
+                    
+                    // Check if admin by username
+                    if (userData.username === 'admin' || userData.role === 'admin') {
+                        console.log('🔐 Admin login detected, redirecting to admin.html');
+                        window.location.href = 'admin.html';
+                        return;
+                    }
+                }
+                
+                // Not admin, go to role selection
+                console.log('👤 Regular user, redirecting to role.html');
+                window.location.href = 'pages/role.html';
+                
+            } catch (firestoreError) {
+                console.error('⚠️ Firestore error:', firestoreError);
+                // If Firestore fails, still redirect to role page
+                window.location.href = 'pages/role.html';
+            }
+            
+        } catch (error) {
+            console.error('❌ Login error:', error);
+            
+            let message = 'Login failed. Please try again.';
+            if (error.code === 'auth/invalid-credential') {
+                message = 'Invalid email or password.';
+            } else if (error.code === 'auth/user-not-found') {
+                message = 'No account found with this email.';
+            } else if (error.code === 'auth/wrong-password') {
+                message = 'Incorrect password.';
+            } else if (error.code === 'auth/too-many-requests') {
+                message = 'Too many failed attempts. Please try again later.';
+            } else if (error.code === 'auth/network-request-failed') {
+                message = 'Network error. Check your internet connection.';
+            }
+            
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>

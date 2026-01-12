@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{ margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+
+body {
+    min-height: 100vh;
+    background: #081b29 url('../../../pics/PLMun.png') no-repeat center center/cover fixed;
+}
+
+/* UNIFORM SIDEBAR */
+.sidebar {
+    position: fixed; height: 100%; width: 240px;
+    background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(15px);
+    color: #fff; border-right: 1px solid rgba(255,255,255,0.1);
+    z-index: 100;
+}
+.sidebar .logo-details { height: 80px; display: flex; align-items: center; padding: 0 25px; font-size: 20px; font-weight: 600; }
+.nav-links { margin-top: 15px; }
+.nav-links li { list-style: none; height: 55px; }
+.nav-links li a { height: 100%; width: 100%; display: flex; align-items: center; text-decoration: none; color: #fff; padding-left: 25px; gap: 15px; transition: 0.3s; }
+.nav-links li a:hover { background: rgba(255, 255, 255, 0.2); border-left: 4px solid #00d4ff; }
+.log_out { position: absolute; bottom: 20px; width: 100%; }
+
+/* MAIN SECTION */
+.home-section { position: relative; left: 240px; width: calc(100% - 240px); min-height: 100vh; }
+nav { display: flex; justify-content: space-between; align-items: center; height: 80px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 0 30px; color: #fff; }
+.stats { display: flex; gap: 15px; }
+.stat-item { background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 5px; color: #fff;}
+
+/* LOBBY CARD */
+.home-content { padding: 30px; display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 80px); }
+
+.lobby-card {
+    background: rgba(255, 255, 255, 0.1); border: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 50px; border-radius: 20px; text-align: center; color: #fff;
+    backdrop-filter: blur(15px); width: 100%; max-width: 500px;
+}
+
+.lobby-card h1 { font-size: 40px; margin: 20px 0 10px; color: #00d4ff; }
+
+/* LOADING ANIMATION */
+.loader {
+    width: 60px; height: 60px; border: 5px solid #fff;
+    border-bottom-color: #00d4ff; border-radius: 50%;
+    display: inline-block; animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.joined-info { margin: 30px 0; font-size: 20px; }
+.code-tag { background: #00d4ff; padding: 5px 15px; border-radius: 5px; font-weight: 700; margin-left: 10px; }
+
+.player-status { margin-bottom: 30px; opacity: 0.8; display: flex; align-items: center; justify-content: center; gap: 10px; }
+
+.leave-btn {
+    background: transparent; border: 1px solid rgba(255,255,255,0.3);
+    color: #fff; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s;
+}
+.leave-btn:hover { background: #ff4b2b; border-color: #ff4b2b; }
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}

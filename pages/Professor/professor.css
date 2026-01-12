@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{ margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+
+body {
+    min-height: 100vh;
+    background: #081b29 url('../../pics/PLMun.png') no-repeat center center/cover fixed;
+}
+
+/* --- RESPONSIVE SIDEBAR --- */
+.sidebar {
+    position: fixed; height: 100%; width: 240px;
+    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(15px);
+    color: #fff; border-right: 1px solid rgba(255,255,255,0.1);
+    z-index: 100; transition: all 0.4s ease;
+}
+
+/* Logo Icon Size - Patched for uniformity */
+.sidebar .logo-details { height: 80px; display: flex; align-items: center; padding: 0 25px; font-size: 20px; font-weight: 600; overflow: hidden; }
+.sidebar .logo-details i { margin-right: 12px; font-size: 28px; color: #00d4ff; min-width: 28px; text-align: center; }
+
+.nav-links { margin-top: 15px; }
+.nav-links li { list-style: none; height: 55px; width: 100%; }
+.nav-links li a { height: 100%; width: 100%; display: flex; align-items: center; text-decoration: none; color: #fff; padding-left: 25px; transition: 0.3s; }
+
+/* Navigation Icon Size - Patched for uniformity */
+.nav-links li a i { font-size: 20px; min-width: 28px; text-align: center; }
+.nav-links li a .link_name { margin-left: 15px; white-space: nowrap; }
+
+.nav-links li a:hover, .nav-links li a.active { background: rgba(255,255,255,0.2); border-left: 4px solid #00d4ff; }
+.log_out { position: absolute; bottom: 20px; width: 100%; }
+
+/* --- MAIN SECTION --- */
+.home-section { position: relative; left: 240px; width: calc(100% - 240px); min-height: 100vh; transition: all 0.4s ease; }
+
+nav { display: flex; justify-content: space-between; align-items: center; height: 80px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 0 30px; color: #fff; }
+
+.home-content { padding: 30px; display: flex; flex-direction: column; align-items: center; }
+
+/* --- CARDS & QUIZ CREATOR --- */
+.quiz-creator-card, .code-card { 
+    background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); 
+    padding: 30px; border-radius: 15px; color: white; backdrop-filter: blur(10px); 
+    width: 100%; max-width: 850px; 
+}
+
+.quiz-title-input {
+    width: 100%;
+    padding: 15px;
+    margin: 15px 0;
+    border-radius: 10px;
+    border: 2px solid #00d4ff;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    outline: none;
+}
+
+.question-item { background: rgba(0, 0, 0, 0.3); padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 5px solid #00d4ff; }
+
+.q-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 600; }
+.q-header i { color: #ff4b2b; cursor: pointer; font-size: 22px; padding: 5px; border-radius: 50%; transition: 0.3s; }
+.q-header i:hover { background: rgba(255, 75, 43, 0.2); transform: scale(1.1); }
+
+.q-input { width: 100%; padding: 12px; border-radius: 5px; border: none; margin-bottom: 15px; background: white; color: #333; }
+
+/* --- UNIFORM 2x2 OPTIONS GRID --- */
+.options-grid { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr;
+    gap: 15px; 
+}
+
+.opt-input { 
+    padding: 12px; border-radius: 5px; border: none; outline: none; 
+    background: rgba(255,255,255,0.9); width: 100%; font-size: 14px;
+}
+
+.opt-input.correct { border: 2px solid #00ff88; background: #e6fff4; }
+
+/* --- BUTTONS --- */
+.creator-actions { display: flex; justify-content: space-between; margin-top: 20px; gap: 15px; flex-wrap: wrap; }
+
+.make-quiz-btn {
+    padding: 15px 30px; background: #00d4ff; color: white; border: none;
+    border-radius: 10px; font-size: 18px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; gap: 10px; transition: 0.3s;
+}
+
+.add-ques-btn { background: transparent; border: 2px dashed #00d4ff; color: #00d4ff; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: 600; flex: 1; min-width: 150px; }
+.confirm-btn { background: #00ff88; color: #081b29; padding: 12px 30px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; flex: 1; min-width: 150px; }
+
+/* --- LIVE CODE CARD & END SESSION --- */
+.code-card { text-align: center; }
+
+.quiz-code { 
+    font-size: 60px; font-weight: 800; color: #00d4ff; 
+    margin: 20px 0; letter-spacing: 5px; 
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.5); 
+}
+
+.end-btn { 
+    background: rgba(255, 75, 43, 0.8); color: white; 
+    padding: 12px 30px; border: 1px solid rgba(255, 255, 255, 0.2); 
+    border-radius: 8px; font-weight: 700; cursor: pointer; 
+    font-size: 16px; transition: 0.3s; margin-top: 20px; 
+    backdrop-filter: blur(5px);
+}
+
+.end-btn:hover { background: #ff4b2b; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(255, 75, 43, 0.4); }
+
+/* --- MEDIA QUERIES --- */
+@media (max-width: 1000px) {
+    .sidebar { width: 80px; }
+    .sidebar .logo_name, .sidebar .link_name { display: none; }
+    .home-section { left: 80px; width: calc(100% - 80px); }
+}
+
+@media (max-width: 600px) {
+    .home-content { padding: 15px; }
+    .options-grid { grid-template-columns: 1fr; }
+    .quiz-code { font-size: 40px; }
+    .creator-actions button { width: 100%; flex: none; }
+}
