@@ -132,7 +132,7 @@
         
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
-                window.location.href = '../../../index.html';
+                window.location.href = '/plmun-engage/index.html';
                 return;
             }
             
@@ -142,7 +142,7 @@
             const userDoc = await getDoc(doc(db, 'users', user.uid));
             if (userDoc.exists()) {
                 const userData = userDoc.data();
-                document.getElementById('coin-count').textContent = userData.coins || 500;
+                document.getElementById('coin-count').textContent = userData.coins || 100;
                 document.getElementById('level').textContent = userData.level || 1;
                 document.getElementById('studentName').textContent = userData.fullName || 'Student';
             }
@@ -154,11 +154,9 @@
         async function loadQuizResults() {
             try {
                 const resultsRef = collection(db, 'quizResults');
-                // FIXED: Removed orderBy to avoid index requirement
                 const q = query(resultsRef, where('userId', '==', currentUser.uid));
                 const querySnapshot = await getDocs(q);
                 
-                // Sort in JavaScript instead
                 quizResults = querySnapshot.docs
                     .map(doc => ({ id: doc.id, ...doc.data() }))
                     .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
@@ -170,7 +168,6 @@
                     return;
                 }
                 
-                // Analyze results and display
                 analyzeResults();
                 document.getElementById('aiAnalysis').style.display = 'block';
                 
@@ -181,20 +178,19 @@
         }
         
         function analyzeResults() {
-            // Calculate statistics
             const totalQuizzes = quizResults.length;
             const totalScore = quizResults.reduce((sum, r) => sum + r.score, 0);
             const totalQuestions = quizResults.reduce((sum, r) => sum + r.totalQuestions, 0);
             const avgPercentage = Math.round((totalScore / totalQuestions) * 100);
             const totalCoinsEarned = quizResults.reduce((sum, r) => sum + (r.coinsEarned || 0), 0);
             
-            // Find weak areas (wrong answers)
-            const wrongAnswers = [];
+            // ✅ NEW: Extract ACTUAL wrong questions with their text
+            const wrongQuestions = [];
             quizResults.forEach(result => {
                 if (result.detailedResults) {
                     result.detailedResults.forEach(detail => {
                         if (!detail.isCorrect) {
-                            wrongAnswers.push({
+                            wrongQuestions.push({
                                 question: detail.question,
                                 userAnswer: detail.userAnswer,
                                 correctAnswer: detail.correctAnswer,
@@ -205,14 +201,16 @@
                 }
             });
             
-            // Generate AI message
+            // Generate AI message based on actual performance
             let aiMessage = '';
-            if (avgPercentage >= 80) {
-                aiMessage = `Excellent work! You're scoring ${avgPercentage}% on average. Keep up the great performance! 🌟`;
+            if (wrongQuestions.length === 0) {
+                aiMessage = `🎉 Perfect performance! You've answered all ${totalQuestions} questions correctly across ${totalQuizzes} quiz(es). Keep up the excellent work!`;
+            } else if (avgPercentage >= 80) {
+                aiMessage = `Great work! You're scoring ${avgPercentage}% on average. I found ${wrongQuestions.length} question(s) where you can improve. Let's review them! 🌟`;
             } else if (avgPercentage >= 60) {
-                aiMessage = `Good progress! You're averaging ${avgPercentage}%. I've identified ${wrongAnswers.length} areas where you can improve. Let's work on them together! 💪`;
+                aiMessage = `Good progress! You're averaging ${avgPercentage}%. I've identified ${wrongQuestions.length} areas where focused study will boost your performance. 💪`;
             } else {
-                aiMessage = `I've analyzed your ${totalQuizzes} quiz(es) and found ${wrongAnswers.length} areas that need attention. Don't worry - with focused practice, you'll improve quickly! 📚`;
+                aiMessage = `I've analyzed your ${totalQuizzes} quiz(es) and found ${wrongQuestions.length} questions that need attention. Don't worry - with targeted practice, you'll improve quickly! 📚`;
             }
             
             document.getElementById('aiMessage').textContent = aiMessage;
@@ -222,26 +220,30 @@
             document.getElementById('avgScore').textContent = avgPercentage + '%';
             document.getElementById('totalCoins').textContent = totalCoinsEarned;
             
-            // Display weak areas
+            // ✅ NEW: Display ACTUAL weak areas with real questions
             const weakAreasDiv = document.getElementById('weakAreas');
-            if (wrongAnswers.length === 0) {
+            if (wrongQuestions.length === 0) {
                 weakAreasDiv.innerHTML = '<div class="mistake-item"><p style="color: #00ff88;">🎉 Perfect! No mistakes found!</p></div>';
             } else {
-                weakAreasDiv.innerHTML = wrongAnswers.slice(0, 3).map(wa => `
+                // Show up to 5 most recent wrong answers
+                weakAreasDiv.innerHTML = wrongQuestions.slice(0, 5).map((wa, index) => `
                     <div class="mistake-item">
-                        <p class="question"><strong>Q:</strong> ${wa.question}</p>
-                        <p class="your-ans" style="font-size: 13px; margin-top: 5px;">
-                            <span style="color: #ff4b2b;">Your answer: ${wa.userAnswer}</span>
+                        <p class="question"><strong>Q${index + 1}:</strong> ${wa.question}</p>
+                        <p class="your-ans" style="font-size: 13px; margin-top: 8px;">
+                            <span style="color: #ff4b2b;">❌ Your answer: ${wa.userAnswer}</span>
                         </p>
-                        <p style="font-size: 13px; color: #00ff88;">
-                            Correct: ${wa.correctAnswer}
+                        <p style="font-size: 13px; color: #00ff88; margin-top: 5px;">
+                            ✅ Correct: ${wa.correctAnswer}
+                        </p>
+                        <p class="ai-advice">
+                            💡 <strong>Study Tip:</strong> ${generateStudyTip(wa.question, wa.correctAnswer)}
                         </p>
                     </div>
                 `).join('');
             }
             
-            // Generate AI recommendations
-            const recommendations = generateRecommendations(avgPercentage, wrongAnswers.length, totalQuizzes);
+            // ✅ NEW: Generate recommendations based on actual mistakes
+            const recommendations = generateSmartRecommendations(wrongQuestions, avgPercentage, totalQuizzes);
             const recList = document.getElementById('recommendations');
             recList.innerHTML = recommendations.map(rec => `
                 <li><i class='bx bx-check-double'></i> ${rec}</li>
@@ -267,30 +269,100 @@
             `).join('');
         }
         
-        function generateRecommendations(avgScore, wrongCount, totalQuizzes) {
-            const recs = [];
+        // ✅ NEW: AI-powered study tip generator
+        function generateStudyTip(question, correctAnswer) {
+            const lowerQ = question.toLowerCase();
             
-            if (avgScore < 70) {
-                recs.push('Review the basics and fundamentals of the topics covered');
-                recs.push('Practice more quizzes to improve understanding');
+            // Math-related
+            if (lowerQ.includes('2+3') || lowerQ.includes('addition') || lowerQ.includes('sum')) {
+                return 'Review basic arithmetic operations and practice mental math.';
+            }
+            if (lowerQ.includes('multiply') || lowerQ.includes('times') || lowerQ.includes('×')) {
+                return 'Practice multiplication tables and memorize common products.';
+            }
+            if (lowerQ.includes('divide') || lowerQ.includes('÷')) {
+                return 'Master division fundamentals and understand remainders.';
             }
             
-            if (wrongCount > 0) {
-                recs.push(`Focus on the ${Math.min(wrongCount, 5)} questions you got wrong`);
-                recs.push('Study the correct answers and understand why they\'re right');
+            // Programming-related
+            if (lowerQ.includes('variable') || lowerQ.includes('declare')) {
+                return 'Review variable declaration syntax and data types.';
+            }
+            if (lowerQ.includes('loop') || lowerQ.includes('for') || lowerQ.includes('while')) {
+                return 'Practice loop structures and understand iteration concepts.';
+            }
+            if (lowerQ.includes('function') || lowerQ.includes('method')) {
+                return 'Study function definitions, parameters, and return values.';
+            }
+            if (lowerQ.includes('array') || lowerQ.includes('list')) {
+                return 'Practice array manipulation and indexing operations.';
+            }
+            
+            // Science-related
+            if (lowerQ.includes('atom') || lowerQ.includes('element') || lowerQ.includes('molecule')) {
+                return 'Review atomic structure and the periodic table.';
+            }
+            if (lowerQ.includes('cell') || lowerQ.includes('biology') || lowerQ.includes('organism')) {
+                return 'Study cell biology and life processes.';
+            }
+            
+            // History/Social Studies
+            if (lowerQ.includes('year') || lowerQ.includes('century') || lowerQ.includes('date')) {
+                return 'Create a timeline to memorize important historical dates.';
+            }
+            
+            // Language/Grammar
+            if (lowerQ.includes('verb') || lowerQ.includes('noun') || lowerQ.includes('grammar')) {
+                return 'Review parts of speech and sentence structure rules.';
+            }
+            
+            // General fallback
+            return `Review the topic "${question.substring(0, 40)}..." and understand why "${correctAnswer}" is correct.`;
+        }
+        
+        // ✅ NEW: Smart recommendations based on actual mistakes
+        function generateSmartRecommendations(wrongQuestions, avgScore, totalQuizzes) {
+            const recs = [];
+            
+            if (wrongQuestions.length === 0) {
+                recs.push('Continue your excellent performance!');
+                recs.push('Challenge yourself with more advanced topics');
+                recs.push('Help classmates who are struggling');
+                return recs;
+            }
+            
+            // Analyze question types
+            const mathQuestions = wrongQuestions.filter(q => 
+                q.question.toLowerCase().match(/\d+|\+|\-|\*|\/|multiply|divide|sum|calculate/)
+            ).length;
+            
+            const codingQuestions = wrongQuestions.filter(q =>
+                q.question.toLowerCase().match(/code|program|variable|function|loop|array|syntax/)
+            ).length;
+            
+            if (mathQuestions > 0) {
+                recs.push(`Focus on math fundamentals - you missed ${mathQuestions} math question(s)`);
+                recs.push('Practice basic arithmetic operations daily');
+            }
+            
+            if (codingQuestions > 0) {
+                recs.push(`Review programming concepts - ${codingQuestions} coding question(s) need work`);
+                recs.push('Write practice code and test your understanding');
+            }
+            
+            if (avgScore < 70) {
+                recs.push('Schedule a review session with your professor');
+                recs.push('Form a study group with classmates');
             }
             
             if (totalQuizzes < 3) {
-                recs.push('Take more quizzes to track your progress over time');
+                recs.push('Take more quizzes to identify knowledge gaps');
             }
             
-            if (avgScore >= 80) {
-                recs.push('Great job! Try challenging yourself with harder topics');
-                recs.push('Help your classmates who might be struggling');
-            }
-            
-            recs.push('Review your notes and textbook for unclear topics');
-            recs.push('Ask your professor for clarification on difficult concepts');
+            // Always include these
+            recs.push('Review the specific questions you got wrong above');
+            recs.push('Re-read your textbook sections on these topics');
+            recs.push('Take practice quizzes to track improvement');
             
             return recs;
         }
@@ -303,12 +375,11 @@
         window.logout = async function() {
             try {
                 await signOut(auth);
-                window.location.href = '../../../index.html';
+                window.location.href = '/plmun-engage/index.html';
             } catch (error) {
                 console.error('Logout error:', error);
             }
         };
     </script>
 </body>
-
 </html>
