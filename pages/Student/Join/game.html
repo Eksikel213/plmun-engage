@@ -206,9 +206,12 @@
             camera.position.set(0, 6, 12);
             camera.lookAt(0, 2, 0);
 
-            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gameCanvas'), antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.shadowMap.enabled = true;
+            renderer = new THREE.WebGLRenderer({ 
+             canvas: document.getElementById('gameCanvas'), 
+            antialias: false, // Faster!
+            powerPreference: "high-performance"
+            });
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
 
             const ambientLight = new THREE.AmbientLight(0x4a5a8a, 0.4);
             scene.add(ambientLight);
@@ -1266,3 +1269,4 @@ async function endGame() {
 </script>
 </body>
 </html>
+
