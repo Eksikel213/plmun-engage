@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - PLMun Engage</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+
+    <div class="logo-header">
+        <img src="pics/Pamantasan_ng_Lungsod_ng_Muntinlupa_logo.png" alt="PLMun Logo" class="plmun-logo">
+        <div class="logo-text">
+            <h2>PLMun Engage</h2>
+        </div>
+    </div>
+
+    <div class="wrapper">
+        <form id="loginForm">
+            <h1>Login</h1>
+            
+            <!-- Error message display -->
+            <div id="errorMessage" style="display:none; background: rgba(255,75,43,0.2); padding: 10px; border-radius: 8px; margin-bottom: 15px; color: #ff4b2b; font-size: 14px;"></div>
+            
+            <div class="input-box">
+                <input type="email" id="email" placeholder="Email" required>
+                <i class='bx bxs-user'></i>
+            </div>
+            <div class="input-box">
+                <input type="password" id="password" placeholder="Password" required>
+                <i class='bx bxs-lock-alt' id="lockIcon"></i>
+                <i class='bx bx-hide' id="togglePassword" style="right: 50px; cursor: pointer;"></i>
+            </div>
+            <div class="remember-forget">
+                <label><input type="checkbox"> Remember me</label>
+                <a href="forpas.html">Forgot password?</a>
+            </div>
+            <button type="submit" class="btn">Login</button>
+            <div class="register-link">
+                <p>Don't have an account? <a href="Register/register.html">Register</a></p>
+            </div>
+        </form>
+    </div>
+
+    <!-- ✅ Disabled Account Modal -->
+    <div id="disabledModal" class="modal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-icon">🚫</div>
+            <h2>Account Disabled</h2>
+            <p>Your account has been disabled by the administrator.</p>
+            <p style="font-size: 14px; opacity: 0.8; margin-top: 10px;">Please contact the administration for assistance.</p>
+            <button class="modal-btn" onclick="closeDisabledModal()">OK</button>
+        </div>
+    </div>
+
+<!-- Firebase SDK -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence, browserSessionPersistence, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyBlUY50heKZ_bp-PZUr76S0SiI1_zN6aOA",
+        authDomain: "plmun-engage.firebaseapp.com",
+        projectId: "plmun-engage",
+        storageBucket: "plmun-engage.firebasestorage.app",
+        messagingSenderId: "701791153164",
+        appId: "1:701791153164:web:45422fd17af3493a04d229"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    
+    const loginForm = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('errorMessage');
+    
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const rememberMe = document.querySelector('input[type="checkbox"]').checked;
+        
+        const submitBtn = loginForm.querySelector('.btn');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Logging in...';
+        submitBtn.disabled = true;
+        
+        try {
+            // Set persistence
+            if (rememberMe) {
+                await setPersistence(auth, browserLocalPersistence);
+            } else {
+                await setPersistence(auth, browserSessionPersistence);
+            }
+            
+            // Attempt Firebase Authentication
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            console.log('✅ Login successful!', userCredential.user);
+            
+            // ✅ CHECK IF ACCOUNT IS DISABLED
+            const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
+            
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                
+                // ✅ CRITICAL: Check if account is disabled
+                if (userData.isDeleted === true || userData.isActive === false) {
+                    console.log('❌ Account is disabled');
+                    await signOut(auth); // Sign them out immediately
+                    
+                    // Show disabled modal
+                    showDisabledModal();
+                    
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                    return;
+                }
+                
+                // Account is active, proceed with redirect
+                if (userData.username === 'admin' || userData.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else if (userData.role === 'student') {
+                    window.location.href = 'pages/Student/Classes/student-classes.html';
+                } else if (userData.role === 'professor') {
+                    window.location.href = 'pages/professor/professor.html';
+                } else {
+                    window.location.href = 'pages/role.html';
+                }
+            } else {
+                // User doc doesn't exist
+                await signOut(auth);
+                errorMessage.textContent = 'Account data not found. Please contact support.';
+                errorMessage.style.display = 'block';
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+            
+        } catch (error) {
+            console.error('❌ Login error:', error);
+            
+            let message = 'Login failed. Please try again.';
+            if (error.code === 'auth/invalid-credential') {
+                message = 'Invalid email or password.';
+            } else if (error.code === 'auth/user-not-found') {
+                message = 'No account found with this email.';
+            } else if (error.code === 'auth/wrong-password') {
+                message = 'Incorrect password.';
+            } else if (error.code === 'auth/too-many-requests') {
+                message = 'Too many failed attempts. Please try again later.';
+            }
+            
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+    
+    // ✅ Show Disabled Account Modal
+    function showDisabledModal() {
+        document.getElementById('disabledModal').style.display = 'flex';
+    }
+    
+    // ✅ Close Disabled Account Modal
+    window.closeDisabledModal = function() {
+        document.getElementById('disabledModal').style.display = 'none';
+    };
+    
+    // ✅ Password visibility toggle
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('togglePassword');
+    const lockIcon = document.getElementById('lockIcon');
+    
+    togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        if (type === 'text') {
+            this.classList.remove('bx-hide');
+            this.classList.add('bx-show');
+        } else {
+            this.classList.remove('bx-show');
+            this.classList.add('bx-hide');
+        }
+    });
+</script>
+
+</body>
+</html>

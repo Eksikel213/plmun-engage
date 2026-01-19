@@ -1,0 +1,414 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #081b29 url('pics/PLMun.png') no-repeat center center/cover fixed;
+}
+
+.wrapper {
+    width: 100%;
+    max-width: 420px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    color: #fff;
+    border-radius: 10px;
+    padding: 30px 40px;
+    margin: 20px;
+}
+
+.wrapper h1 {
+    font-size: 36px;
+    text-align: center;
+}
+
+.wrapper .input-box {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    margin: 30px 0;
+}
+
+.input-box input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 40px;
+    font-size: 16px;
+    color: #fff;
+    padding: 20px 45px 20px 20px;
+}
+
+.input-box input::placeholder {
+    color: #fff;
+}
+
+.input-box i {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+}
+
+.wrapper .remember-forget {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14.5px;
+    margin: -15px 0 15px;
+}
+
+.remember-forget label input {
+    accent-color: #fff;
+    margin-right: 3px;
+}
+
+.remember-forget a {
+    color: #fff;
+    text-decoration: none;
+}
+
+.remember-forget a:hover {
+    text-decoration: underline;
+}
+
+.wrapper .btn {
+    width: 100%;
+    height: 45px;
+    background: #fff;
+    border: none;
+    outline: none;
+    border-radius: 40px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+    font-weight: 600;
+}
+
+.wrapper .register-link {
+    font-size: 14.5px;
+    text-align: center;
+    margin: 20px 0 15px;
+}
+
+.register-link p a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.register-link p a:hover {
+    text-decoration: underline;
+}
+
+/* --- MOBILE RESPONSIVENESS --- */
+@media (max-width: 480px) {
+    .wrapper {
+        padding: 30px 25px;
+    }
+    
+    .wrapper h1 {
+        font-size: 28px;
+    }
+
+    .remember-forget {
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+    }
+}
+
+/* Floating Centered PLMun Logo Header */
+.logo-header {
+    position: fixed;
+    top: 55px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.logo-header:hover {
+    transform: translateX(-50%) translateY(-5px);
+    filter: drop-shadow(0 8px 25px rgba(0, 212, 255, 0.4));
+}
+
+.plmun-logo {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+.logo-header:hover .plmun-logo {
+    transform: rotate(5deg) scale(1.1);
+}
+
+.logo-text h2 {
+    color: #00d4ff;
+    font-size: 48px;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+    letter-spacing: 2px;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.6),
+                 0 0 25px rgba(0, 212, 255, 0.7);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.logo-header:hover .logo-text h2 {
+    text-shadow: 0 4px 16px rgba(0, 0, 0, 0.7),
+                 0 0 35px rgba(0, 212, 255, 0.9);
+    letter-spacing: 2.5px;
+}
+
+/* --- RESPONSIVE LOGO --- */
+@media (max-height: 700px) {
+    .logo-header {
+        top: 10px;
+        gap: 15px;
+    }
+    
+    .plmun-logo {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .logo-text h2 {
+        font-size: 36px;
+    }
+}
+
+@media (max-height: 600px) {
+    .logo-header {
+        top: 5px;
+        gap: 12px;
+    }
+    
+    .plmun-logo {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .logo-text h2 {
+        font-size: 28px;
+        letter-spacing: 1.5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-header {
+        gap: 15px;
+    }
+    
+    .plmun-logo {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .logo-text h2 {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 360px) {
+    .logo-header {
+        gap: 10px;
+    }
+    
+    .plmun-logo {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .logo-text h2 {
+        font-size: 26px;
+        letter-spacing: 1px;
+    }
+}
+
+/* ===========================
+   PASSWORD VISIBILITY TOGGLE
+   =========================== */
+
+#togglePassword {
+    position: absolute;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.7);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+#togglePassword:hover {
+    color: #00d4ff;
+    transform: translateY(-50%) scale(1.1);
+}
+
+#togglePassword:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+#lockIcon {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: rgba(255, 255, 255, 0.7);
+    pointer-events: none;
+}
+
+@media (max-width: 360px) {
+    #togglePassword {
+        right: 45px;
+        font-size: 18px;
+    }
+    
+    #lockIcon {
+        font-size: 18px;
+    }
+}
+
+/* ===========================
+   ✅ DISABLED ACCOUNT MODAL
+   =========================== */
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+}
+
+.modal-content {
+    position: relative;
+    background: linear-gradient(135deg, rgba(8, 27, 41, 0.98), rgba(255, 75, 43, 0.1));
+    border: 3px solid #ff4b2b;
+    border-radius: 25px;
+    padding: 40px;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    color: #fff;
+    animation: modalSlideIn 0.4s ease;
+    box-shadow: 0 20px 60px rgba(255, 75, 43, 0.5);
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: scale(0.8) translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: bounceIn 0.6s;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.modal-content h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    color: #ff4b2b;
+    font-weight: 700;
+}
+
+.modal-content p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.modal-btn {
+    margin-top: 25px;
+    padding: 12px 40px;
+    font-size: 18px;
+    font-weight: 700;
+    background: #ff4b2b;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.modal-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255, 75, 43, 0.5);
+    background: #ff6b4b;
+}
+
+.modal-btn:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        padding: 30px 20px;
+    }
+    
+    .modal-icon {
+        font-size: 60px;
+    }
+    
+    .modal-content h2 {
+        font-size: 24px;
+    }
+    
+    .modal-content p {
+        font-size: 14px;
+    }
+}

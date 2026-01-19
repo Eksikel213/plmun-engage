@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - PLMun Engage</title>
+    <link rel="stylesheet" href="forpas.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="wrapper">
+        <form id="resetForm">
+            <h1>Reset Password</h1>
+            <p class="instruction">Enter your PLMun email to receive a password reset link.</p>
+            
+            <!-- Message display -->
+            <div id="message" style="display:none; padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 14px;"></div>
+            
+            <div class="input-box">
+                <input type="email" id="email" placeholder="Institutional Email" required>
+                <i class='bx bxs-envelope'></i>
+            </div>
+
+            <button type="submit" class="btn">Send Reset Link</button>
+
+            <div class="register-link">
+                <p>Remember your password? <a href="index.html">Back to Login</a></p>
+            </div>
+        </form>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        
+        console.log('🔵 Password reset page loaded');
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlUY50heKZ_bp-PZUr76S0SiI1_zN6aOA",
+            authDomain: "plmun-engage.firebaseapp.com",
+            projectId: "plmun-engage",
+            storageBucket: "plmun-engage.firebasestorage.app",
+            messagingSenderId: "701791153164",
+            appId: "1:701791153164:web:45422fd17af3493a04d229"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        console.log('✅ Firebase initialized');
+        
+        const resetForm = document.getElementById('resetForm');
+        const messageDiv = document.getElementById('message');
+        
+        function showMessage(text, isError = false) {
+            messageDiv.textContent = text;
+            messageDiv.style.display = 'block';
+            messageDiv.style.background = isError ? 'rgba(255,75,43,0.2)' : 'rgba(0,255,136,0.2)';
+            messageDiv.style.color = isError ? '#ff4b2b' : '#00ff88';
+            messageDiv.style.border = isError ? '1px solid #ff4b2b' : '1px solid #00ff88';
+            console.log(isError ? '❌' : '✅', text);
+        }
+        
+        resetForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value.trim();
+            const submitBtn = resetForm.querySelector('.btn');
+            const originalText = submitBtn.textContent;
+            
+            console.log('🔵 Attempting to send reset email to:', email);
+            
+            submitBtn.textContent = 'Sending...';
+            submitBtn.disabled = true;
+            
+            try {
+                // Firebase will send email to this address
+                await sendPasswordResetEmail(auth, email);
+                
+                console.log('✅ Reset email sent successfully');
+                
+                showMessage('✅ Password reset link sent! Check your email inbox (and spam folder).', false);
+                
+                // Redirect after 5 seconds (give user time to read message)
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 5000);
+                
+            } catch (error) {
+                console.error('❌ Reset error:', error);
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
+                
+                let message = 'Failed to send reset email. Please try again.';
+                
+                if (error.code === 'auth/user-not-found') {
+                    message = '❌ No account found with this email address.';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = '❌ Please enter a valid email address.';
+                } else if (error.code === 'auth/too-many-requests') {
+                    message = '❌ Too many attempts. Please try again in a few minutes.';
+                } else if (error.code === 'auth/network-request-failed') {
+                    message = '❌ Network error. Check your internet connection.';
+                } else if (error.code === 'auth/missing-email') {
+                    message = '❌ Please enter an email address.';
+                } else {
+                    message = `❌ Error: ${error.message}`;
+                }
+                
+                showMessage(message, true);
+                
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+        
+        console.log('✅ Password reset script loaded');
+    </script>
+</body>
+</html>

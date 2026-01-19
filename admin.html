@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - PLMun Engage</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <i class='bx bxs-shield-alt-2'></i>
+            <span>Admin Dashboard</span>
+        </div>
+        <div class="header-actions">
+            <div class="admin-info">
+                <i class='bx bxs-user-circle'></i>
+                <span id="adminName">Administrator</span>
+            </div>
+            <button class="logout-btn" id="logoutBtn">
+                <i class='bx bx-log-out'></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <a href="#overview" class="nav-item active" data-section="overview">
+                    <i class='bx bxs-dashboard'></i>
+                    <span>Overview</span>
+                </a>
+                <a href="#users" class="nav-item" data-section="users">
+                    <i class='bx bxs-group'></i>
+                    <span>User Management</span>
+                </a>
+                <a href="#classes" class="nav-item" data-section="classes">
+                    <i class='bx bxs-book-bookmark'></i>
+                    <span>Classes</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Overview Section -->
+            <section id="overview-section" class="content-section active">
+                <h1 class="section-title">System Overview</h1>
+                
+                <!-- Statistics Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(0, 212, 255, 0.2);">
+                            <i class='bx bxs-group' style="color: #00d4ff;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalUsers">0</h3>
+                            <p>Total Users</p>
+                            <small id="userBreakdown">0 Students • 0 Professors</small>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(0, 255, 136, 0.2);">
+                            <i class='bx bxs-graduation' style="color: #00ff88;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalStudents">0</h3>
+                            <p>Students</p>
+                            <small id="activeStudents">0 Active</small>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(255, 193, 7, 0.2);">
+                            <i class='bx bxs-briefcase-alt-2' style="color: #ffc107;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalProfessors">0</h3>
+                            <p>Professors</p>
+                            <small id="activeProfessors">0 Active</small>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(255, 75, 43, 0.2);">
+                            <i class='bx bxs-book-bookmark' style="color: #ff4b2b;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalClasses">0</h3>
+                            <p>Classes Created</p>
+                            <small id="activeClasses">0 Active</small>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(156, 39, 176, 0.2);">
+                            <i class='bx bxs-file-doc' style="color: #9c27b0;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalQuizzes">0</h3>
+                            <p>Quizzes Created</p>
+                            <small id="completedQuizzes">0 Completed</small>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(233, 30, 99, 0.2);">
+                            <i class='bx bxs-bar-chart-alt-2' style="color: #e91e63;"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="totalQuizResults">0</h3>
+                            <p>Quiz Attempts</p>
+                            <small id="avgScore">Avg: 0%</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2><i class='bx bx-history'></i> Recent Activity</h2>
+                    </div>
+                    <div class="activity-list" id="recentActivity">
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            <p>Loading activity...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- User Management Section -->
+            <section id="users-section" class="content-section">
+                <h1 class="section-title">User Management</h1>
+
+                <!-- User Tabs -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="students">
+                        <i class='bx bxs-graduation'></i> Students
+                    </button>
+                    <button class="tab-btn" data-tab="professors">
+                        <i class='bx bxs-briefcase-alt-2'></i> Professors
+                    </button>
+                </div>
+
+                <!-- Students Tab -->
+                <div class="tab-content active" id="students-tab">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Student Accounts</h2>
+                            <div class="count-badge" id="studentCount">0</div>
+                        </div>
+                        
+                        <div class="search-box">
+                            <input type="text" id="studentSearch" placeholder="Search by name, email, or student ID...">
+                            <i class='bx bx-search'></i>
+                        </div>
+                        
+                        <div class="users-list" id="studentsList">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <p>Loading students...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Professors Tab -->
+                <div class="tab-content" id="professors-tab">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <h2>Professor Accounts</h2>
+                            <div class="count-badge" id="professorCount">0</div>
+                        </div>
+                        
+                        <div class="search-box">
+                            <input type="text" id="professorSearch" placeholder="Search by name or email...">
+                            <i class='bx bx-search'></i>
+                        </div>
+                        
+                        <div class="users-list" id="professorsList">
+                            <div class="loading-state">
+                                <div class="spinner"></div>
+                                <p>Loading professors...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Classes Section -->
+            <section id="classes-section" class="content-section">
+                <h1 class="section-title">Classes Management</h1>
+                
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <h2><i class='bx bxs-book-bookmark'></i> All Classes</h2>
+                        <div class="count-badge" id="classCount">0</div>
+                    </div>
+
+                    <div class="search-box">
+                        <input type="text" id="classSearch" placeholder="Search by class name, code, or professor...">
+                        <i class='bx bx-search'></i>
+                    </div>
+
+                    <div class="classes-list" id="classesList">
+                        <div class="loading-state">
+                            <div class="spinner"></div>
+                            <p>Loading classes...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-icon" id="modalIcon">⚠️</div>
+            <h2 id="modalTitle">Confirm Action</h2>
+            <p id="modalMessage">Are you sure you want to proceed?</p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" id="cancelBtn">Cancel</button>
+                <button class="modal-btn confirm" id="confirmBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class='bx bx-check-circle'></i>
+        <span id="toastMessage">Action completed successfully</span>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
