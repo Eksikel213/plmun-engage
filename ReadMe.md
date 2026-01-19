@@ -18,6 +18,6 @@
 Coming soon...
 
 ## 🎓 Academic Project
-Capstone project for [Your Course] at PLMun
+Capstone project for BSIT at PLMun
 
 **Year**: 2025
