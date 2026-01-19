@@ -1,0 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{ margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+
+body {
+    min-height: 100vh;
+    background: #081b29 url('../../../pics/PLMun.png') no-repeat center center/cover fixed;
+}
+
+/* --- SIDEBAR --- */
+.sidebar {
+    position: fixed; height: 100%; width: 240px;
+    background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(15px);
+    color: #fff; border-right: 1px solid rgba(255,255,255,0.1);
+    z-index: 100; transition: all 0.4s ease;
+}
+.sidebar .logo-details { height: 80px; display: flex; align-items: center; padding: 0 25px; font-size: 20px; font-weight: 600; overflow: hidden; }
+.sidebar .logo-details i { margin-right: 12px; font-size: 28px; min-width: 28px; }
+
+.nav-links { margin-top: 15px; }
+.nav-links li { list-style: none; height: 55px; width: 100%; }
+.nav-links li a { height: 100%; width: 100%; display: flex; align-items: center; text-decoration: none; color: #fff; padding-left: 25px; transition: 0.3s; }
+.nav-links li a i { font-size: 20px; min-width: 28px; text-align: center; }
+.nav-links li a .link_name { margin-left: 15px; white-space: nowrap; }
+
+.nav-links li a:hover, .nav-links li a.active { background: rgba(255, 255, 255, 0.2); border-left: 4px solid #00d4ff; }
+.log_out { position: absolute; bottom: 20px; width: 100%; }
+
+/* --- MAIN SECTION --- */
+.home-section { position: relative; left: 240px; width: calc(100% - 240px); min-height: 100vh; transition: all 0.4s ease; }
+
+nav { display: flex; justify-content: space-between; align-items: center; height: 80px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 0 30px; color: #fff; }
+
+.stats { display: flex; gap: 15px; }
+.stat-item { background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); display: flex; align-items: center; gap: 5px; color: #fff; }
+
+.home-content { padding: 30px; display: flex; justify-content: center; }
+
+/* --- GLASS TABLE CARD --- */
+.leaderboard-card {
+    background: rgba(255, 255, 255, 0.1); 
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 30px; 
+    border-radius: 15px; 
+    color: #fff; 
+    backdrop-filter: blur(10px);
+    width: 100%;
+    max-width: 900px;
+}
+
+.table-header h2 { font-size: 24px; color: #00d4ff; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+
+.table-container { width: 100%; overflow-x: auto; } /* Key for mobile swiping */
+
+table { width: 100%; border-collapse: collapse; min-width: 500px; } /* Prevents table from crushing too much */
+table th { padding: 15px; text-align: left; background: rgba(255,255,255,0.1); color: #00d4ff; }
+table td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+
+.coin-gain { color: gold; font-weight: 600; }
+.top-rank { color: #00ff88; font-weight: 700; }
+
+/* --- RESPONSIVE COLLAPSE --- */
+@media (max-width: 1000px) {
+    .sidebar { width: 80px; }
+    .sidebar .logo_name, .sidebar .link_name { display: none; }
+    .home-section { left: 80px; width: calc(100% - 80px); }
+}
+
+@media (max-width: 600px) {
+    .stats { display: none; }
+    .home-content { padding: 15px; }
+    .table-header h2 { font-size: 18px; }
+    table th, table td { padding: 10px; font-size: 14px; }
+}

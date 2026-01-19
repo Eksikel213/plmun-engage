@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class View - PLMun Engage</title>
+    <link rel="stylesheet" href="class-view.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="../dyslexia-mode.css">
+</head>
+<body>
+    <div class="dyslexia-badge" id="dyslexiaBadge">
+    <i class='bx bx-accessibility'></i>
+    Dyslexia-Friendly Mode Active
+</div>
+    <!-- Sidebar -->
+<div class="sidebar">
+    <div class="logo-details">
+        <i class='bx bxs-graduation'></i>
+        <span class="logo_name">PLMun Engage</span>
+    </div>
+    <ul class="nav-links">
+        <li><a href="student-classes.html"><i class='bx bx-arrow-back'></i><span class="link_name">Back to Classes</span></a></li>
+        <li><a href="class-topics.html"><i class='bx bxs-book-content'></i><span class="link_name">View Topics</span></a></li>
+        <li><a href="class-leaderboard.html"><i class='bx bxs-trophy'></i><span class="link_name">Leaderboard</span></a></li>
+        <li class="log_out"><a href="#" onclick="logout()"><i class='bx bx-log-out'></i><span class="link_name">Logout</span></a></li>
+    </ul>
+</div>
+
+    <!-- Main Content -->
+    <section class="home-section">
+        <nav>
+            <span class="professor-badge" id="professorInfo">
+                <div class="professor-avatar" id="professorAvatar">
+                    <i class='bx bx-user-circle'></i>
+                </div>
+                <span id="professorName">Prof. Loading...</span>
+            </span>
+            <div class="stats">
+                <div class="stat-item"><i class='bx bxs-coin-stack' style="color:gold"></i> <span id="coin-count">Loading...</span></div>
+                <div class="stat-item"><i class='bx bxs-star' style="color:cyan"></i> LVL <span id="level">1</span></div>
+            </div>
+        </nav>
+
+        <div class="home-content">
+            <!-- Class Info Card -->
+            <div class="class-info-card glass">
+    <div class="class-header-new">
+        <div class="class-info-left">
+            <h2 id="classTitle">Loading...</h2>
+            <p id="classDetails">Subject Code • Section</p>
+        </div>
+        <div class="class-code-center">
+            <i class='bx bx-key'></i>
+            <span id="displayClassCode">------</span>
+        </div>
+        <button class="btn-leave-class" onclick="confirmLeaveClass()">
+            <i class='bx bx-exit'></i> Leave Class
+        </button>
+    </div>
+</div>
+
+            <!-- Join Quiz Card (Same design as join.html) -->
+            <div class="quiz-join-card glass">
+                <h2>Enter Quiz Game</h2>
+                <p>Type the code provided by your Professor to start the match!</p>
+                <div class="input-group">
+                    <input type="text" placeholder="e.g. PLM-M1R0" id="studentCodeInput" style="text-transform: uppercase;">
+                    <button class="join-btn" onclick="joinQuiz()">
+                        🎮 Join Quiz
+                    </button>
+                </div>
+                <div id="errorMsg" style="display:none; color:#ff4b2b; margin-top:15px; font-size:14px;"></div>
+            </div>
+
+            <!-- Recent Activity in this Class -->
+            <div class="activity-card glass">
+                <h3><i class='bx bx-history'></i>Recent Quiz Activity in Class</h3>
+                <div id="activityList">
+                    <div class="loading-container">
+                        <div class="loading-spinner"></div>
+                        <p>Loading activity...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Error Modal (Same as student.html) -->
+    <div id="errorModal">
+        <div class="modal-overlay" onclick="closeErrorModal()"></div>
+        <div class="modal-content">
+            <div class="modal-icon" id="modalIcon">⛔</div>
+            <h2 id="modalTitle">Session Expired</h2>
+            <p id="modalMessage">This quiz session has ended and is no longer accepting submissions.</p>
+            <button class="modal-btn" onclick="closeErrorModal()">Understood</button>
+        </div>
+    </div>
+    <script src="../dyslexia-mode.js"></script>
+    <script type="module" src="class-view.js"></script>
+    <script src="../dyslexia-mode.js"></script>
+</body>
+</html>

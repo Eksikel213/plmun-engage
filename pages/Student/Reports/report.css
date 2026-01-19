@@ -1,0 +1,237 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{ margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+
+body {
+    min-height: 100vh;
+    background: #081b29 url('../../../pics/PLMun.png') no-repeat center center/cover fixed;
+}
+
+/* --- SIDEBAR (Responsive & Aligned) --- */
+.sidebar {
+    position: fixed; height: 100%; width: 240px;
+    background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(15px);
+    color: #fff; border-right: 1px solid rgba(255,255,255,0.1);
+    z-index: 100; transition: all 0.4s ease;
+}
+.sidebar .logo-details { height: 80px; display: flex; align-items: center; padding: 0 25px; font-size: 20px; font-weight: 600; overflow: hidden; }
+.sidebar .logo-details i { margin-right: 12px; font-size: 28px; min-width: 28px; }
+
+.nav-links { margin-top: 15px; }
+.nav-links li { list-style: none; height: 55px; width: 100%; }
+.nav-links li a { 
+    height: 100%; width: 100%; display: flex; align-items: center; 
+    text-decoration: none; color: #fff; padding-left: 25px; 
+    transition: 0.3s; gap: 15px; 
+}
+.nav-links li a i { font-size: 20px; min-width: 28px; text-align: center; }
+.nav-links li a .link_name { white-space: nowrap; }
+
+.nav-links li a:hover, .nav-links li a.active { 
+    background: rgba(255, 255, 255, 0.2); 
+    border-left: 4px solid #00d4ff; 
+}
+.log_out { position: absolute; bottom: 20px; width: 100%; }
+
+/* --- MAIN SECTION --- */
+.home-section { 
+    position: relative; left: 240px; 
+    width: calc(100% - 240px); min-height: 100vh; 
+    transition: all 0.4s ease; 
+}
+
+nav { 
+    display: flex; justify-content: space-between; align-items: center; 
+    height: 80px; background: rgba(255,255,255,0.1); 
+    backdrop-filter: blur(10px); padding: 0 30px; color: #fff; 
+}
+
+.stats { display: flex; gap: 15px; }
+.stat-item { 
+    background: rgba(0,0,0,0.3); padding: 5px 15px; 
+    border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); 
+    display: flex; align-items: center; gap: 5px; 
+}
+
+/* --- CONTENT --- */
+.home-content { 
+    padding: 20px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 20px;
+    margin: 0 auto; /* ✅ Centers horizontally */
+    max-width: 12000px; /* ✅ Limits width */
+}
+.glass {
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 30px;
+    border-radius: 15px;
+    color: #fff;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 900px;
+}
+
+.ai-profile { display: flex; align-items: center; gap: 20px; margin-bottom: 20px; }
+.ai-avatar { 
+    width: 60px; height: 60px; background: #00d4ff; 
+    border-radius: 50%; display: flex; align-items: center; 
+    justify-content: center; font-size: 35px; box-shadow: 0 0 15px #00d4ff;
+}
+
+.ai-prompt { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; border-left: 5px solid #00d4ff; }
+.ai-btns { display: flex; gap: 10px; margin-top: 15px; }
+
+.ai-btn-primary { background: #00d4ff; border: none; padding: 10px 20px; border-radius: 8px; color: #fff; font-weight: 700; cursor: pointer; transition: 0.3s; }
+.ai-btn-primary:hover { background: #fff; color: #00d4ff; }
+.ai-btn-secondary { background: transparent; border: 1px solid #fff; color: #fff; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+
+/* FEEDBACK GRID */
+.feedback-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; width: 100%; max-width: 900px; }
+.mistake-item { background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; margin-top: 10px; }
+.your-ans span { text-decoration: line-through; color: #ffb3b3; }
+.ai-advice { font-size: 13px; background: rgba(0,212,255,0.1); padding: 10px; border-radius: 5px; margin-top: 10px; line-height: 1.4; }
+
+.study-list { list-style: none; margin-top: 10px; }
+.study-list li { margin-bottom: 10px; display: flex; gap: 10px; font-size: 14px; align-items: center; }
+.study-list li i { color: #00ff88; font-size: 18px; }
+
+/* AI Assistant Card - Enhanced */
+.ai-assistant-card {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Analysis Cards - Enhanced */
+.analysis-card {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* Review Cards - Enhanced */
+.review-card {
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 30px;
+    border-radius: 15px;
+    color: #fff;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* --- RESPONSIVE SIDEBAR COLLAPSE --- */
+@media (max-width: 1000px) {
+    .sidebar { width: 80px; }
+    .sidebar .logo_name, .sidebar .link_name { display: none; }
+    .home-section { left: 80px; width: calc(100% - 80px); }
+}
+
+@media (max-width: 600px) {
+    .stats { display: none; }
+    .ai-profile { flex-direction: column; text-align: center; }
+    .ai-btns { flex-direction: column; }
+    .home-content { padding: 15px; }
+}
+
+/* ===========================
+   MOTIVATIONAL MESSAGE IN PERFORMANCE CARD
+   =========================== */
+
+.motivational-message {
+    margin-top: 20px;
+    padding: 15px 18px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border-left: 4px solid;
+    animation: fadeInUp 0.5s ease;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.motivation-icon {
+    font-size: 32px;
+    flex-shrink: 0;
+}
+
+.motivation-text {
+    flex: 1;
+    color: white;
+    font-weight: 600;
+}
+
+/* Perfect Score (100%) - Gold/Rainbow */
+.motivation-perfect {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.2));
+    border-left-color: #FFD700;
+}
+
+/* Excellent (90-99%) - Bright Cyan */
+.motivation-excellent {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.2), rgba(0, 255, 136, 0.2));
+    border-left-color: #00d4ff;
+}
+
+/* Great (80-89%) - Green */
+.motivation-great {
+    background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(50, 205, 50, 0.2));
+    border-left-color: #00ff88;
+}
+
+/* Good (70-79%) - Light Green */
+.motivation-good {
+    background: linear-gradient(135deg, rgba(144, 238, 144, 0.2), rgba(34, 139, 34, 0.2));
+    border-left-color: #90EE90;
+}
+
+/* Fair (60-69%) - Yellow/Orange */
+.motivation-fair {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
+    border-left-color: #FFD700;
+}
+
+/* Needs Work (50-59%) - Orange */
+.motivation-needswork {
+    background: linear-gradient(135deg, rgba(255, 165, 0, 0.2), rgba(255, 140, 0, 0.2));
+    border-left-color: #FFA500;
+}
+
+/* Struggling (< 50%) - Red (Supportive) */
+.motivation-struggling {
+    background: linear-gradient(135deg, rgba(255, 99, 71, 0.2), rgba(255, 69, 0, 0.2));
+    border-left-color: #FF6347;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .motivational-message {
+        padding: 12px 15px;
+        gap: 10px;
+    }
+    
+    .motivation-icon {
+        font-size: 28px;
+    }
+    
+    .motivation-text {
+        font-size: 13px;
+    }
+}

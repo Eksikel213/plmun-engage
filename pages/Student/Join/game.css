@@ -1,0 +1,975 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Press Start 2P', "Poppins", sans-serif;
+    overflow: hidden;
+    background: #1a1a2e;
+}
+
+/* Battle Background */
+.battle-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('assets/characters/game-bg.png') no-repeat center center/cover;
+    z-index: 0;
+}
+
+.battle-background::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+/* Loading Screen */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    color: white;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid rgba(0, 212, 255, 0.3);
+    border-top-color: #00d4ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Hidden class */
+.hidden {
+    display: none !important;
+}
+
+/* Battle UI Container */
+#battle-ui {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+}
+
+/* Pokémon Battle Scene */
+.pokemon-battle-scene {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 40px;
+}
+
+/* Enemy Pokémon (Top Right) */
+.enemy-pokemon {
+    position: absolute;
+    top: 80px;
+    right: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 20px;
+}
+
+/* ✅ UPDATED: Enemy Sprite - MUCH BIGGER */
+.enemy-sprite {
+    width: 380px;
+    height: 380px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: floatEnemy 3s ease-in-out infinite;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.6));
+}
+
+.enemy-sprite img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.enemy-sprite.defeated {
+    animation: defeatEnemy 1s ease forwards;
+}
+
+@keyframes floatEnemy {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+}
+
+@keyframes defeatEnemy {
+    0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    50% {
+        transform: scale(1.2) translateY(-30px);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0) translateY(100px);
+    }
+}
+
+/* ✅ FIXED: Player Pokémon - BOTTOM LEFT */
+.player-pokemon {
+    position: absolute;
+    bottom: 40px;
+    left: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ✅ UPDATED: Player Sprite - BIGGER */
+.player-sprite {
+    width: 220px;
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: floatPlayer 3s ease-in-out infinite;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+}
+
+.player-sprite img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.player-sprite.defeated {
+    animation: defeatPlayer 1s ease forwards;
+}
+
+@keyframes floatPlayer {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-10px) scale(1.05); }
+}
+
+@keyframes defeatPlayer {
+    0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+    50% {
+        transform: scale(0.8) translateY(20px);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0) translateY(100px);
+    }
+}
+
+/* ✅ NEW: Player takes damage (gets hit by enemy) */
+@keyframes playerHit {
+    0% { 
+        filter: brightness(1) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+        transform: translateX(0) scale(1);
+    }
+    10% { 
+        filter: brightness(3) hue-rotate(0deg) drop-shadow(0 0 20px rgba(255, 0, 0, 0.8));
+        transform: translateX(-15px) scale(0.95);
+    }
+    20% { 
+        filter: brightness(1) hue-rotate(90deg);
+        transform: translateX(15px) scale(0.95);
+    }
+    30% { 
+        filter: brightness(3) hue-rotate(180deg);
+        transform: translateX(-10px) scale(0.95);
+    }
+    40% { 
+        filter: brightness(1) hue-rotate(270deg);
+        transform: translateX(10px) scale(0.95);
+    }
+    50% { 
+        filter: brightness(3) hue-rotate(0deg);
+        transform: translateX(-5px) scale(0.95);
+    }
+    60% {
+        filter: brightness(1);
+        transform: translateX(5px) scale(0.95);
+    }
+    70%, 100% { 
+        filter: brightness(1) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+        transform: translateX(0) scale(1);
+    }
+}
+
+/* ✅ NEW: Enemy takes damage (player attacks) */
+@keyframes enemyHit {
+    0% { 
+        filter: brightness(1) drop-shadow(0 15px 30px rgba(0, 0, 0, 0.6));
+        transform: translateY(0) scale(1);
+    }
+    10% { 
+        filter: brightness(5) hue-rotate(0deg) drop-shadow(0 0 30px rgba(0, 255, 136, 0.9));
+        transform: translateY(-20px) scale(1.1) rotate(-5deg);
+    }
+    20% { 
+        filter: brightness(2) hue-rotate(90deg);
+        transform: translateY(20px) scale(0.9) rotate(5deg);
+    }
+    30% { 
+        filter: brightness(5) hue-rotate(180deg);
+        transform: translateY(-15px) scale(1.05) rotate(-3deg);
+    }
+    40% { 
+        filter: brightness(2) hue-rotate(270deg);
+        transform: translateY(15px) scale(0.95) rotate(3deg);
+    }
+    50% { 
+        filter: brightness(5) hue-rotate(0deg);
+        transform: translateY(-10px) scale(1.02) rotate(-2deg);
+    }
+    60% {
+        filter: brightness(1);
+        transform: translateY(10px) scale(0.98) rotate(2deg);
+    }
+    70%, 100% { 
+        filter: brightness(1) drop-shadow(0 15px 30px rgba(0, 0, 0, 0.6));
+        transform: translateY(0) scale(1) rotate(0deg);
+    }
+}
+
+/* ✅ NEW: Scholar attack (book slam) - smaller movement */
+@keyframes scholarAttack {
+    0% { 
+        transform: translateX(0) scale(1) rotate(0deg);
+    }
+    15% { 
+        transform: translateX(15px) scale(1.1) rotate(5deg);
+    }
+    30% { 
+        transform: translateX(30px) scale(1.15) rotate(10deg);
+        filter: brightness(1.5) drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+    }
+    45% { 
+        transform: translateX(20px) scale(1.1) rotate(5deg);
+    }
+    60%, 100% { 
+        transform: translateX(0) scale(1) rotate(0deg);
+        filter: brightness(1) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+    }
+}
+
+/* ✅ NEW: Dean attack (powerful slam) */
+@keyframes deanAttack {
+    0% { 
+        transform: translateX(0) scale(1) translateY(0) rotate(0deg);
+    }
+    15% { 
+        transform: translateX(20px) scale(1.15) translateY(-10px) rotate(8deg);
+    }
+    30% { 
+        transform: translateX(40px) scale(1.2) translateY(-15px) rotate(15deg);
+        filter: brightness(1.8) drop-shadow(0 0 25px rgba(255, 118, 117, 0.9));
+    }
+    45% { 
+        transform: translateX(25px) scale(1.1) translateY(-5px) rotate(5deg);
+    }
+    60%, 100% { 
+        transform: translateX(0) scale(1) translateY(0) rotate(0deg);
+        filter: brightness(1) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+    }
+}
+
+/* ✅ NEW: Night Owl attack (swift strike) */
+@keyframes nightOwlAttack {
+    0% { 
+        transform: translateX(0) scale(1);
+        opacity: 1;
+    }
+    10% { 
+        transform: translateX(10px) scale(1.05);
+        opacity: 0.8;
+    }
+    20% { 
+        transform: translateX(35px) scale(1.1);
+        opacity: 0.5;
+        filter: brightness(1.5) drop-shadow(0 0 20px rgba(162, 155, 254, 0.9));
+    }
+    30% { 
+        transform: translateX(50px) scale(1.15);
+        opacity: 0.3;
+    }
+    40% { 
+        transform: translateX(30px) scale(1.1);
+        opacity: 0.6;
+    }
+    50%, 100% { 
+        transform: translateX(0) scale(1);
+        opacity: 1;
+        filter: brightness(1) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+    }
+}
+
+/* ✅ NEW: Tech Whiz attack (laser blast) */
+@keyframes techWizAttack {
+    0% { 
+        transform: translateX(0) scale(1);
+    }
+    10% { 
+        transform: translateX(8px) scale(1.05);
+        filter: brightness(1.3);
+    }
+    20% { 
+        transform: translateX(25px) scale(1.1);
+        filter: brightness(2) drop-shadow(0 0 25px rgba(0, 212, 255, 1));
+    }
+    30% { 
+        transform: translateX(45px) scale(1.15);
+        filter: brightness(3) drop-shadow(0 0 30px rgba(0, 212, 255, 1));
+    }
+    40% { 
+        transform: translateX(30px) scale(1.1);
+        filter: brightness(2);
+    }
+    50% { 
+        transform: translateX(15px) scale(1.05);
+        filter: brightness(1.5);
+    }
+    60%, 100% { 
+        transform: translateX(0) scale(1);
+        filter: brightness(1) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+    }
+}
+
+/* ✅ NEW: Monster 1 Attack - Claw Swipe */
+@keyframes monster1Attack {
+    0% { 
+        transform: translateX(0) scale(1) rotate(0deg);
+        filter: brightness(1) drop-shadow(0 15px 30px rgba(0, 0, 0, 0.6));
+    }
+    10% { 
+        transform: translateX(-15px) scale(1.05) rotate(-5deg);
+        filter: brightness(1.3);
+    }
+    20% { 
+        transform: translateX(-35px) scale(1.15) rotate(-12deg);
+        filter: brightness(1.8) hue-rotate(330deg) drop-shadow(0 0 25px rgba(255, 75, 43, 0.9));
+    }
+    30% { 
+        transform: translateX(-50px) scale(1.2) rotate(-18deg);
+        filter: brightness(2.5) hue-rotate(330deg) drop-shadow(0 0 30px rgba(255, 0, 0, 1));
+    }
+    40% { 
+        transform: translateX(-35px) scale(1.1) rotate(-10deg);
+        filter: brightness(1.5);
+    }
+    50% { 
+        transform: translateX(-20px) scale(1.05) rotate(-5deg);
+    }
+    60%, 100% { 
+        transform: translateX(0) scale(1) rotate(0deg);
+        filter: brightness(1) drop-shadow(0 15px 30px rgba(0, 0, 0, 0.6));
+    }
+}
+
+/* ✅ NEW: Monster 2 Attack - Charge Tackle */
+@keyframes monster2Attack {
+    0% { 
+        transform: translateX(0) translateY(0) scale(1);
+        filter: brightness(1) drop-shadow(0 15px 30px rgba(0, 0, 0, 0.6));
+    }
+    5% { 
+        transform: translateX(-10px) translateY(5px) scale(0.95);
+        filter: brightness(1.2);
+    }
+    15% { 
+        transform: translateX(-25px) translateY(-5px) scale(0.9);
+        filter: brightness(1.5) drop-shadow(0 0 20px rgba(255, 100, 50, 0.8));
+    }
+    25% { 
+        transform: translateX(-60px) translateY(0) scale(1.3);
+        filter: brightness(2.8) hue-rotate(300deg) drop-shadow(0 0 35px rgba(255, 50, 0, 1));
+    }
+    35% { 
+        transform: translateX(-70px) translateY(5px) scale(1.35);
+        filter: brightness(3) hue-rotate(320deg);
+    }
+    45% { 
+        transform: translateX(-40px) translateY(0) scale(1.15);
+        filter: brightness(1.8);
+    }
+    55% { 
+        transform: translateX(-20px) translateY(-3px) scale(1.05);
+        filter: brightness(1.3);
+    }
+    70%, 100% { 
+        transform: translateX(0) translateY(0) scale(1);
+        filter: brightness(1) drop-shadow(0 15px 30px rgba(0, 0, 0, 0.6));
+    }
+}
+
+/* ✅ NEW: Monster 3 Attack - Stomp Slam */
+@keyframes monster3Attack {
+    0% { 
+        transform: translateX(0) translateY(0) scale(1) rotate(0deg);
+        filter: brightness(1) drop-shadow(0 15px 30px rgba(0, 0, 0, 0.6));
+    }
+    8% { 
+        transform: translateX(-8px) translateY(-15px) scale(1.05) rotate(-3deg);
+        filter: brightness(1.4);
+    }
+    16% { 
+        transform: translateX(-18px) translateY(-30px) scale(1.15) rotate(-8deg);
+        filter: brightness(1.8) drop-shadow(0 0 25px rgba(150, 0, 255, 0.8));
+    }
+    24% { 
+        transform: translateX(-30px) translateY(-40px) scale(1.25) rotate(-12deg);
+        filter: brightness(2.5) hue-rotate(280deg) drop-shadow(0 0 35px rgba(200, 0, 255, 1));
+    }
+    32% { 
+        transform: translateX(-40px) translateY(10px) scale(1.3) rotate(-15deg);
+        filter: brightness(3.5) hue-rotate(300deg) drop-shadow(0 5px 40px rgba(255, 0, 150, 1));
+    }
+    40% { 
+        transform: translateX(-35px) translateY(15px) scale(1.2) rotate(-10deg);
+        filter: brightness(2.5);
+    }
+    50% { 
+        transform: translateX(-25px) translateY(5px) scale(1.1) rotate(-5deg);
+        filter: brightness(1.8);
+    }
+    60% { 
+        transform: translateX(-12px) translateY(-5px) scale(1.05) rotate(-2deg);
+        filter: brightness(1.3);
+    }
+    75%, 100% { 
+        transform: translateX(0) translateY(0) scale(1) rotate(0deg);
+        filter: brightness(1) drop-shadow(0 15px 30px rgba(0, 0, 0, 0.6));
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    50% { transform: translateX(10px); }
+    75% { transform: translateX(-5px); }
+}
+
+/* Info Boxes */
+.enemy-info-box, .player-info-box {
+    background: rgba(0, 0, 0, 0.85);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 15px 20px;
+    backdrop-filter: blur(10px);
+    min-width: 280px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+}
+
+.enemy-info-box {
+    border-color: rgba(255, 75, 43, 0.6);
+}
+
+.player-info-box {
+    border-color: rgba(0, 212, 255, 0.6);
+}
+
+.pokemon-name-tag {
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* HP Bars */
+.hp-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.hp-label {
+    color: #00d4ff;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.hp-bar-fill {
+    flex: 1;
+    height: 16px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.hp-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #00ff88, #00d4ff);
+    transition: width 0.8s ease, background 0.3s;
+    border-radius: 6px;
+}
+
+.hp-text {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 600;
+    min-width: 70px;
+    text-align: right;
+}
+
+/* ✅ FIXED: Battle Textbox - NEW LAYOUT */
+.battle-textbox {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* ✅ FIXED: Question Section - TOP LEFT */
+.question-section {
+    position: absolute;
+    top: 40px;
+    left: 40px;
+    width: 550px;
+    background: rgba(0, 0, 0, 0.92);
+    border: 4px solid white;
+    border-radius: 12px;
+    padding: 20px 25px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    pointer-events: auto;
+}
+
+/* Choices Section - BOTTOM RIGHT - WIDER */
+.choices-section {
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    width: 700px;
+    background: rgba(0, 0, 0, 0.92);
+    border: 4px solid white;
+    border-radius: 12px;
+    padding: 20px 25px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    pointer-events: auto;
+}
+
+/* Timer Container */
+.timer-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid rgba(0, 212, 255, 0.5);
+    font-family: 'Press Start 2P', monospace;
+}
+
+.timer-container i {
+    font-size: 18px;
+    color: #00d4ff;
+}
+
+#timer-display {
+    color: #00d4ff;
+    font-size: 16px;
+    min-width: 60px;
+    font-weight: 900;
+}
+
+.timer-bar-mini {
+    flex: 1;
+    height: 14px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 2px solid rgba(0, 212, 255, 0.5);
+}
+
+.timer-bar-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #00ff88, #00d4ff);
+    border-radius: 6px;
+    transition: width 0.1s linear, background 0.3s;
+}
+
+/* Battle Question */
+.battle-question {
+    color: white;
+    font-size: 18px;
+    font-family: 'Press Start 2P', monospace;
+    line-height: 1.8;
+    text-align: center;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.8),
+                 0 0 40px rgba(0, 212, 255, 0.5);
+    animation: questionGlow 2s infinite;
+}
+
+@keyframes questionGlow {
+    0%, 100% { 
+        text-shadow: 0 0 20px rgba(0, 212, 255, 0.8),
+                     0 0 40px rgba(0, 212, 255, 0.5);
+    }
+    50% { 
+        text-shadow: 0 0 30px rgba(0, 212, 255, 1),
+                     0 0 60px rgba(0, 212, 255, 0.8);
+    }
+}
+
+/* Battle Choices */
+.battle-choices {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.choice-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 3px solid rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    padding: 12px 15px;
+    color: white;
+    font-size: 12px;
+    font-family: 'Press Start 2P', monospace;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    backdrop-filter: blur(10px);
+    text-align: left;
+    min-height: 50px;
+    line-height: 1.5;
+}
+
+.choice-btn:hover:not(:disabled) {
+    background: rgba(0, 212, 255, 0.3);
+    border-color: #00d4ff;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+}
+
+.choice-btn:disabled {
+    cursor: not-allowed;
+}
+
+.choice-icon {
+    font-size: 18px;
+    color: #00d4ff;
+}
+
+.choice-text {
+    flex: 1;
+    line-height: 1.4;
+}
+
+/* Correct/Wrong animations */
+.choice-btn.correct {
+    background: rgba(0, 255, 136, 0.4);
+    border-color: #00ff88;
+    animation: pulseCorrect 0.5s;
+}
+
+.choice-btn.wrong {
+    background: rgba(255, 75, 43, 0.4);
+    border-color: #ff4b2b;
+    animation: shakeWrong 0.5s;
+}
+
+@keyframes pulseCorrect {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes shakeWrong {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-8px); }
+    75% { transform: translateX(8px); }
+}
+
+/* Results Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(8px);
+}
+
+.modal-content {
+    position: relative;
+    background: linear-gradient(135deg, rgba(8, 27, 41, 0.98), rgba(0, 212, 255, 0.1));
+    border: 3px solid #00d4ff;
+    border-radius: 25px;
+    padding: 50px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    color: white;
+    animation: modalSlideIn 0.5s ease;
+    box-shadow: 0 20px 60px rgba(0, 212, 255, 0.4);
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.result-icon {
+    font-size: 100px;
+    margin-bottom: 20px;
+    animation: bounceIn 0.6s;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.modal-content h2 {
+    font-size: 36px;
+    margin-bottom: 25px;
+    color: #00d4ff;
+}
+
+.result-stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 30px 0;
+    gap: 20px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stat-label {
+    font-size: 14px;
+    opacity: 0.7;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: #00d4ff;
+}
+
+.stat-item.coins .stat-value {
+    color: gold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.xp-gain {
+    background: rgba(0, 212, 255, 0.2);
+    border: 2px solid #00d4ff;
+    border-radius: 15px;
+    padding: 15px;
+    margin: 20px 0;
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-primary {
+    margin-top: 25px;
+    padding: 15px 40px;
+    background: #00d4ff;
+    border: none;
+    border-radius: 12px;
+    color: #081b29;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5);
+}
+
+/* Countdown Overlay */
+.countdown-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1500;
+}
+
+.countdown-number {
+    font-size: 120px;
+    color: #00d4ff;
+    font-weight: 900;
+    text-shadow: 0 0 40px rgba(0, 212, 255, 0.8);
+    animation: countdownPulse 1s ease;
+}
+
+@keyframes countdownPulse {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .question-section {
+        width: 480px;
+    }
+    
+    .battle-question {
+        font-size: 16px;
+    }
+    
+    .choices-section {
+        width: 600px;
+    }
+    
+    .enemy-sprite {
+        width: 300px;
+        height: 300px;
+    }
+    
+    .player-sprite {
+        width: 180px;
+        height: 180px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pokemon-battle-scene {
+        padding: 20px;
+    }
+
+    .enemy-pokemon {
+        top: 50px;
+        right: 30px;
+    }
+
+    .player-pokemon {
+        bottom: 350px;
+        left: 30px;
+    }
+
+    .enemy-sprite {
+        width: 220px;
+        height: 220px;
+    }
+
+    .player-sprite {
+        width: 150px;
+        height: 150px;
+    }
+
+    .enemy-info-box, .player-info-box {
+        min-width: 200px;
+        padding: 10px 12px;
+    }
+
+    .question-section {
+        top: 20px;
+        left: 15px;
+        width: calc(100% - 30px);
+        max-width: 450px;
+        padding: 15px 20px;
+    }
+    
+    .battle-question {
+        font-size: 12px;
+        line-height: 1.6;
+    }
+    
+    .choices-section {
+        bottom: 15px;
+        right: 15px;
+        width: calc(100% - 30px);
+        max-width: 500px;
+        padding: 15px 20px;
+    }
+
+    .battle-choices {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .choice-btn {
+        padding: 10px 12px;
+        font-size: 10px;
+        min-height: 45px;
+    }
+    
+    .timer-container {
+        margin-bottom: 15px;
+    }
+    
+    #timer-display {
+        font-size: 14px;
+    }
+}

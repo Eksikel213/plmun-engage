@@ -1,0 +1,539 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{ margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+
+body {
+    min-height: 100vh;
+    background: #081b29 url('../../../pics/PLMun.png') no-repeat center center/cover fixed;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed; height: 100%; width: 240px;
+    background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(15px);
+    color: #fff; border-right: 1px solid rgba(255,255,255,0.1);
+    z-index: 100;
+}
+
+.sidebar .logo-details { 
+    height: 80px; display: flex; align-items: center; 
+    padding: 0 25px; font-size: 20px; font-weight: 600; 
+}
+.sidebar .logo-details i { margin-right: 12px; font-size: 28px; color: #00d4ff; }
+
+.nav-links { margin-top: 15px; }
+.nav-links li { list-style: none; height: 55px; }
+.nav-links li a { 
+    height: 100%; width: 100%; display: flex; align-items: center; 
+    text-decoration: none; color: #fff; padding-left: 25px; 
+    transition: 0.3s; gap: 15px; 
+}
+.nav-links li a:hover, .nav-links li a.active { 
+    background: rgba(255,255,255,0.2); 
+    border-left: 4px solid #00d4ff; 
+}
+.log_out { position: absolute; bottom: 20px; width: 100%; }
+
+/* Main Section */
+.home-section { 
+    position: relative; left: 240px; 
+    width: calc(100% - 240px); min-height: 100vh; 
+}
+
+nav { 
+    display: flex; justify-content: space-between; align-items: center; 
+    height: 80px; background: rgba(255,255,255,0.1); 
+    backdrop-filter: blur(10px); padding: 0 30px; color: #fff; 
+}
+
+.student-count {
+    background: rgba(0, 212, 255, 0.2);
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: 2px solid #00d4ff;
+    font-weight: 700;
+    color: #00d4ff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.home-content { padding: 30px; }
+
+/* Students Header */
+.students-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.students-header h2 {
+    color: #00d4ff;
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    padding: 10px 15px;
+    gap: 10px;
+    min-width: 300px;
+}
+
+.search-box i {
+    color: #00d4ff;
+    font-size: 20px;
+}
+
+.search-box input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 15px;
+    width: 100%;
+}
+
+.search-box input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Loading State */
+.loading-container {
+    text-align: center;
+    padding: 60px 20px;
+    color: white;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    border: 5px solid rgba(0, 212, 255, 0.3);
+    border-top-color: #00d4ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Students Table */
+.students-table-container {
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.students-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.students-table thead {
+    background: rgba(0, 212, 255, 0.2);
+}
+
+.students-table th {
+    padding: 20px 15px;
+    text-align: left;
+    color: #00d4ff;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.students-table tbody tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: 0.3s;
+}
+
+.students-table tbody tr:hover {
+    background: rgba(0, 212, 255, 0.1);
+}
+
+.students-table td {
+    padding: 20px 15px;
+    color: white;
+    vertical-align: middle;
+}
+
+/* Avatar Cell */
+.student-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    border: 3px solid #00d4ff;
+    overflow: hidden;
+}
+
+.student-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.student-avatar i {
+    color: #00d4ff;
+}
+
+/* Student Info */
+.student-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: white;
+}
+
+.student-id {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+}
+
+.student-email {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+}
+
+.date-joined {
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.date-joined i {
+    color: #00d4ff;
+}
+
+/* Action Button */
+.btn-kick-student {
+    padding: 8px 16px;
+    background: rgba(255, 75, 43, 0.2);
+    border: 2px solid #ff4b2b;
+    border-radius: 8px;
+    color: #ff4b2b;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+}
+
+.btn-kick-student:hover {
+    background: #ff4b2b;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 75, 43, 0.4);
+}
+
+/* Empty State */
+.empty-state {
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    border-radius: 15px;  /* ✅ ADD THIS if missing */
+    padding: 60px 40px;    /* ✅ ADD THIS if missing */
+    text-align: center;    /* ✅ ADD THIS if missing */
+    color: white;          /* ✅ ADD THIS if missing */
+}
+
+.empty-state i {
+    font-size: 100px;
+    color: rgba(0, 212, 255, 0.3);
+    margin-bottom: 20px;
+    display: block;  /* ✅ ADD THIS to center the icon */
+}
+
+.empty-state h3 {
+    font-size: 28px;
+    margin-bottom: 10px;
+    color: #00d4ff;
+}
+
+.empty-state p {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+.class-code-reminder {
+    background: rgba(0, 212, 255, 0.1);
+    border: 2px solid #00d4ff;
+    border-radius: 12px;
+    padding: 20px 30px;  /* ✅ Increased padding */
+    margin: 30px auto 0 auto;  /* ✅ Center it */
+    display: inline-block;
+    max-width: 400px;  /* ✅ Limit width */
+}
+
+.class-code-reminder p {
+    margin-bottom: 0 !important;  /* ✅ Remove bottom margin */
+}
+
+.class-code-reminder strong {
+    color: #00d4ff;
+    font-size: 14px;
+}
+
+.class-code-reminder span {
+    font-size: 32px;  /* ✅ Bigger class code */
+    font-weight: 900;
+    color: #00ff88;
+    letter-spacing: 3px;
+    display: block;    /* ✅ Make it its own line */
+    margin-top: 10px;  /* ✅ Space from label */
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+}
+
+.modal-content {
+    position: relative;
+    background: linear-gradient(135deg, rgba(8, 27, 41, 0.95), rgba(255, 75, 43, 0.1));
+    border: 2px solid #ff4b2b;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    animation: modalSlideIn 0.4s ease;
+    box-shadow: 0 20px 60px rgba(255, 75, 43, 0.4);
+    color: white;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px) scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+}
+
+.modal-icon.warning {
+    color: #ff4b2b;
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+.modal-content h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    color: #ff4b2b;
+}
+
+.modal-content p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.student-info-preview {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    border-left: 4px solid #ff4b2b;
+}
+
+.student-info-preview p {
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+.student-info-preview strong {
+    color: #00d4ff;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+}
+
+.btn-cancel,
+.btn-kick {
+    padding: 12px 30px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 16px;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-kick {
+    background: #ff4b2b;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-kick:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(255, 75, 43, 0.5);
+    background: #ff6b4b;
+}
+
+/* Responsive */
+@media (max-width: 1000px) {
+    .sidebar { width: 80px; }
+    .sidebar .logo_name, .sidebar .link_name { display: none; }
+    .home-section { left: 80px; width: calc(100% - 80px); }
+}
+
+@media (max-width: 768px) {
+    .students-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-box {
+        width: 100%;
+    }
+    
+    .students-table-container {
+        overflow-x: auto;
+    }
+    
+    .students-table {
+        min-width: 800px;
+    }
+}
+
+/* Clickable Class Code Box */
+.class-code-reminder {
+    background: rgba(0, 212, 255, 0.1);
+    border: 2px solid #00d4ff;
+    border-radius: 12px;
+    padding: 20px 30px;
+    margin: 30px auto 0 auto;
+    display: inline-block;
+    max-width: 400px;
+    cursor: pointer;  /* ✅ Show it's clickable */
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.class-code-reminder:hover {
+    background: rgba(0, 212, 255, 0.2);
+    border-color: #00ff88;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 212, 255, 0.4);
+}
+
+.class-code-reminder:active {
+    transform: translateY(-1px);
+}
+
+.class-code-reminder p {
+    margin-bottom: 0;
+}
+
+.class-code-reminder strong {
+    color: #00d4ff;
+    font-size: 14px;
+}
+
+.class-code-reminder span {
+    font-size: 32px;
+    font-weight: 900;
+    color: #00ff88;
+    letter-spacing: 3px;
+    display: block;
+    margin-top: 10px;
+    user-select: all;  /* ✅ Make text easily selectable */
+}
+
+/* Copy success animation */
+.class-code-reminder.copied {
+    animation: copySuccess 0.6s ease;
+}
+
+@keyframes copySuccess {
+    0% { 
+        background: rgba(0, 255, 136, 0.3);
+        border-color: #00ff88;
+    }
+    100% { 
+        background: rgba(0, 212, 255, 0.1);
+        border-color: #00d4ff;
+    }
+}
+
+/* Copy icon styling */
+.class-code-reminder i {
+    font-size: 16px;
+    vertical-align: middle;
+}
+

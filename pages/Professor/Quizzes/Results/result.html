@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Results - PLMun Engage</title>
+    <link rel="stylesheet" href="result.css"> 
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-briefcase-alt-2'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="../../professor.html"><i class='bx bxs-dashboard'></i><span class="link_name">Overview</span></a></li>
+            <li><a href="../quiz.html" class="active"><i class='bx bxs-edit-alt'></i><span class="link_name">Quizzes</span></a></li>
+            <li><a href="../../Report/profreport.html"><i class='bx bxs-bar-chart-alt-2'></i><span class="link_name">Reports</span></a></li>
+            <li class="log_out"><a href="#" onclick="logout()"><i class='bx bx-log-out'></i><span class="link_name">Logout</span></a></li>
+        </ul>
+    </div>
+
+    <section class="home-section">
+        <nav>
+            <div class="nav-left">
+                <a href="../quiz.html" class="back-link"><i class='bx bx-left-arrow-alt'></i> Back to History</a>
+                <span class="dashboard" id="quizTitle">Loading...</span>
+            </div>
+            <div class="prof-name" id="profName">Loading...</div>
+        </nav>
+
+        <div class="home-content">
+            <!-- Loading State -->
+            <div id="loadingState" class="glass" style="text-align: center; padding: 40px;">
+                <div style="display: inline-block; width: 50px; height: 50px; border: 5px solid rgba(0,212,255,0.3); border-top-color: #00d4ff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+                <p>Loading results...</p>
+            </div>
+
+            <!-- No Results State -->
+            <div id="noResultsState" class="glass" style="display: none; text-align: center; padding: 40px;">
+                <i class='bx bxs-user-x' style="font-size: 60px; color: #00d4ff; opacity: 0.5; margin-bottom: 20px;"></i>
+                <h2>No Students Took This Quiz Yet</h2>
+                <p style="opacity: 0.8; margin-top: 10px;">Share the quiz code with your students!</p>
+                <button class="view-btn" onclick="window.location.href='../quiz.html'" style="margin-top: 20px; padding: 12px 30px;">
+                    Back to Quiz History
+                </button>
+            </div>
+
+            <!-- Results Content -->
+            <div id="resultsContent" style="display: none;">
+                <!-- Stats Summary -->
+                <div class="stats-grid">
+                    <div class="stat-card glass">
+                        <span class="stat-label">Average Score</span>
+                        <h3 class="stat-value" id="avgScore">0%</h3>
+                    </div>
+                    <div class="stat-card glass">
+                        <span class="stat-label">Highest Score</span>
+                        <h3 class="stat-value" id="highScore">0%</h3>
+                    </div>
+                    <div class="stat-card glass">
+                        <span class="stat-label">Total Submissions</span>
+                        <h3 class="stat-value" id="totalSubs">0</h3>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <button class="download-btn" onclick="downloadReport()">
+                        <i class='bx bxs-download'></i> Download Report (.csv)
+                    </button>
+                </div>
+
+                <!-- Student Performance Table -->
+                <div class="history-card glass">
+                    <div class="card-header">
+                        <h2><i class='bx bxs-user-detail'></i> Student Performance</h2>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="quiz-table">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th class="text-center">Score</th>
+                                    <th class="text-center">Percentage</th>
+                                    <th>Completed At</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlUY50heKZ_bp-PZUr76S0SiI1_zN6aOA",
+            authDomain: "plmun-engage.firebaseapp.com",
+            projectId: "plmun-engage",
+            storageBucket: "plmun-engage.firebasestorage.app",
+            messagingSenderId: "701791153164",
+            appId: "1:701791153164:web:45422fd17af3493a04d229"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let currentUser = null;
+        let quizId = null;
+        let quizTitle = null;
+        let currentResults = []; // ✅ ADDED: Store results for download
+        
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = '../../../../index.html';
+                return;
+            }
+            
+            currentUser = user;
+            
+            // Get user data
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                document.getElementById('profName').textContent = userData.fullName || 'Professor';
+            }
+            
+            // Get quiz info from sessionStorage
+            quizId = sessionStorage.getItem('viewQuizId');
+            quizTitle = sessionStorage.getItem('viewQuizTitle');
+            
+            if (!quizId || !quizTitle) {
+                alert('Quiz not found. Redirecting back...');
+                window.location.href = '../quiz.html';
+                return;
+            }
+            
+            document.getElementById('quizTitle').textContent = quizTitle + ' Results';
+            
+            // Load results
+            await loadQuizResults();
+        });
+        
+        async function loadQuizResults() {
+            try {
+                // Get all results for this specific quiz
+                const resultsRef = collection(db, 'quizResults');
+                const q = query(resultsRef, where('quizId', '==', quizId));
+                const resultsSnapshot = await getDocs(q);
+                
+                if (resultsSnapshot.empty) {
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('noResultsState').style.display = 'block';
+                    return;
+                }
+                
+                // Get all results
+                const results = resultsSnapshot.docs.map(doc => ({ 
+                    id: doc.id, 
+                    ...doc.data() 
+                }));
+                
+                // Sort by completion time (most recent first)
+                results.sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt));
+                
+                // Calculate statistics
+                const percentages = results.map(r => r.percentage);
+                const avgScore = Math.round(percentages.reduce((sum, p) => sum + p, 0) / percentages.length);
+                const highScore = Math.max(...percentages);
+                const totalSubmissions = results.length;
+                
+                // Display stats
+                document.getElementById('avgScore').textContent = avgScore + '%';
+                document.getElementById('highScore').textContent = highScore + '%';
+                document.getElementById('totalSubs').textContent = totalSubmissions;
+                
+                // ✅ FIXED: Display results AND store them
+                displayResults(results);
+                
+                // Show content
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('resultsContent').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading results:', error);
+                document.getElementById('loadingState').innerHTML = '<p style="color: #ff4b2b;">Failed to load results: ' + error.message + '</p>';
+            }
+        }
+        
+        // ✅ FIXED: Store results globally for download
+        function displayResults(results) {
+            currentResults = results; // ✅ Store for download function
+            
+            const tableBody = document.getElementById('resultsTableBody');
+            
+            tableBody.innerHTML = results.map(result => {
+                const date = new Date(result.completedAt);
+                const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                const isPassing = result.percentage >= 60;
+                const statusClass = isPassing ? 'status-tag pass' : 'status-tag fail';
+                const statusText = isPassing ? 'Passed' : 'Needs Review';
+                
+                return `
+                    <tr>
+                        <td><strong>${result.userName}</strong></td>
+                        <td class="text-center student-count">${result.score}/${result.totalQuestions}</td>
+                        <td class="text-center" style="font-weight: 700; color: ${result.percentage >= 80 ? '#00ff88' : result.percentage >= 60 ? '#ffd700' : '#ff4b2b'};">
+                            ${result.percentage}%
+                        </td>
+                        <td>${dateStr}</td>
+                        <td class="text-center">
+                            <span class="${statusClass}">${statusText}</span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // ✅ FIXED: Moved to end and simplified
+        window.downloadReport = function() {
+            if (!currentResults || currentResults.length === 0) {
+                alert('⚠️ No results available to download!');
+                return;
+            }
+            
+            console.log('📥 Downloading CSV with', currentResults.length, 'results');
+            
+            // Create CSV content
+            let csvContent = 'Student Name,Score,Total Questions,Percentage,Status,Completed At\n';
+            
+            currentResults.forEach(result => {
+                const status = result.percentage >= 60 ? 'Passed' : 'Needs Review';
+                const completedDate = new Date(result.completedAt).toLocaleString();
+                
+                // Escape quotes in names
+                const safeName = result.userName.replace(/"/g, '""');
+                
+                csvContent += `"${safeName}",${result.score},${result.totalQuestions},${result.percentage}%,${status},"${completedDate}"\n`;
+            });
+            
+            // ✅ INSTANT DOWNLOAD - No loading screen
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${quizTitle.replace(/[^a-z0-9]/gi, '_')}_Results.csv`;
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            
+            console.log('✅ CSV downloaded successfully!');
+        };
+        
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = '../../../../index.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+    </script>
+</body>
+</html>

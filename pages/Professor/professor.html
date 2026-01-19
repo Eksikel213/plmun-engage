@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor Dashboard - PLMun Engage</title>
+    <link rel="stylesheet" href="professor.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-briefcase-alt-2'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" class="active"><i class='bx bxs-dashboard'></i><span class="link_name">My Classes</span></a></li>
+            <li><a href="Profile/profile.html"><i class='bx bxs-user-circle'></i><span class="link_name">My Profile</span></a></li>
+            <li class="log_out"><a href="#" onclick="logout()"><i class='bx bx-log-out'></i><span class="link_name">Logout</span></a></li>
+        </ul>
+    </div>
+
+    <section class="home-section">
+        <nav>
+            <span class="dashboard">Professor Panel</span>
+            <div class="prof-name" id="profName">Loading...</div>
+        </nav>
+
+        <div class="home-content">
+            <!-- Create Class Button -->
+            <div class="action-header">
+                <button class="create-class-btn" onclick="showCreateClassModal()">
+                    <i class='bx bx-plus-circle'></i> Create New Class
+                </button>
+            </div>
+
+            <!-- Classes Grid -->
+            <div class="classes-container">
+                <!-- ✅ Classes Header with Search -->
+                <div class="classes-header">
+                    <h2><i class='bx bxs-book-bookmark'></i> My Classes</h2>
+                    <div class="search-wrapper">
+                        <i class='bx bx-search'></i>
+                        <input 
+                            type="text" 
+                            id="classSearchInput" 
+                            class="class-search-input" 
+                            placeholder="Search by name, code, or section..."
+                            oninput="searchClasses()"
+                        >
+                        <button class="clear-search" id="clearSearchBtn" onclick="clearSearch()" style="display: none;">
+                            <i class='bx bx-x'></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Loading State -->
+                <div id="loadingState" style="text-align: center; padding: 40px; color: #00d4ff;">
+                    <div class="spinner"></div>
+                    <p>Loading your classes...</p>
+                </div>
+
+                <!-- No Classes State -->
+                <div id="noClassesState" style="display: none; text-align: center; padding: 60px; background: rgba(255,255,255,0.05); border-radius: 15px;">
+                    <i class='bx bxs-book' style="font-size: 80px; color: #00d4ff; opacity: 0.5;"></i>
+                    <h3 style="color: white; margin-top: 20px;">No Classes Yet</h3>
+                    <p style="color: rgba(255,255,255,0.7); margin-top: 10px;">Create your first class to get started!</p>
+                </div>
+
+                <!-- ✅ No Search Results -->
+                <div id="noSearchResults" class="no-results" style="display: none;">
+                    <i class='bx bx-search-alt'></i>
+                    <h3>No Classes Found</h3>
+                    <p>Try searching with a different term</p>
+                </div>
+
+                <!-- Classes Grid -->
+                <div id="classesGrid" class="classes-grid" style="display: none;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Create Class Modal -->
+    <div id="createClassModal" class="modal">
+        <div class="modal-overlay" onclick="closeCreateClassModal()"></div>
+        <div class="modal-content">
+            <h2 style="color: #00d4ff; margin-bottom: 20px;">
+                <i class='bx bxs-book-add'></i> Create New Class
+            </h2>
+            
+            <form id="createClassForm">
+                <div class="form-group">
+                    <label>Class Name</label>
+                    <input type="text" id="className" placeholder="e.g., IT4Q - Data Structures" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Subject Code</label>
+                    <input type="text" id="subjectCode" placeholder="e.g., ITELEC2" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Section</label>
+                    <input type="text" id="section" placeholder="e.g., BSIT-4Q" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Description (Optional)</label>
+                    <textarea id="description" rows="3" placeholder="Brief description of the class..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeCreateClassModal()">Cancel</button>
+                    <button type="submit" class="btn-create">
+                        <i class='bx bx-check'></i> Create Class
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ✅ Load external JS file -->
+    <script type="module" src="professor.js"></script>
+</body>
+</html>

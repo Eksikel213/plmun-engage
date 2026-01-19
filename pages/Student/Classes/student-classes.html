@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Classes - PLMun Engage</title>
+    <link rel="stylesheet" href="student-classes.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-graduation'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" class="active"><i class='bx bxs-book-alt'></i><span class="link_name">My Classes</span></a></li>
+            <li><a href="../Profile/profile.html"><i class='bx bxs-user-circle'></i><span class="link_name">My Profile</span></a></li>
+            <li><a href="../Reports/report.html"><i class='bx bxs-bar-chart-alt-2'></i><span class="link_name">Reports</span></a></li>
+            <li><a href="../Shop/shop.html"><i class='bx bxs-store-alt'></i><span class="link_name">Item Shop</span></a></li>
+            <li class="log_out"><a href="#" onclick="logout()"><i class='bx bx-log-out'></i><span class="link_name">Logout</span></a></li>
+        </ul>
+    </div>
+
+    <section class="home-section">
+        <nav>
+            <span class="dashboard">My Classes</span>
+            <div class="stats">
+                <div class="stat-item"><i class='bx bxs-coin-stack' style="color:gold"></i> <span id="coin-count">Loading...</span></div>
+                <div class="stat-item"><i class='bx bxs-star' style="color:cyan"></i> LVL <span id="level">1</span></div>
+            </div>
+        </nav>
+
+        <div class="home-content">
+            <!-- Join Class Card -->
+            <div class="join-class-card">
+                <div class="join-header">
+                    <h3><i class='bx bx-plus-circle'></i> Join a New Class</h3>
+                    <p>Enter the class code provided by your professor</p>
+                </div>
+                <div class="join-input-group">
+                    <input type="text" id="classCodeInput" placeholder="e.g. PLM-ABC123" style="text-transform: uppercase;">
+                    <button class="btn-join" onclick="joinClass()">
+                        <i class='bx bx-log-in-circle'></i> Join Class
+                    </button>
+                </div>
+                <div id="joinError" style="display: none; color: #ff4b2b; margin-top: 15px; font-size: 14px;"></div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-container" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Loading your classes...</p>
+            </div>
+
+            <!-- ✅ Classes Section with Search -->
+            <div class="classes-section">
+                <div class="classes-header">
+                    <h2><i class='bx bxs-book-bookmark'></i> Enrolled Classes</h2>
+                    <div class="search-wrapper">
+                        <i class='bx bx-search'></i>
+                        <input 
+                            type="text" 
+                            id="classSearchInput" 
+                            class="class-search-input" 
+                            placeholder="Search by class name or code..."
+                            oninput="searchClasses()"
+                        >
+                        <button class="clear-search" id="clearSearchBtn" onclick="clearSearch()" style="display: none;">
+                            <i class='bx bx-x'></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="classesGrid" class="classes-grid">
+                    <!-- Classes will be loaded here -->
+                </div>
+                <!-- ✅ No Search Results -->
+                <div id="noSearchResults" class="no-results" style="display: none;">
+                    <i class='bx bx-search-alt'></i>
+                    <h3>No Classes Found</h3>
+                    <p>Try searching with a different term</p>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <i class='bx bxs-inbox'></i>
+                <h3>No Classes Yet</h3>
+                <p>Join a class using the code provided by your professor</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-overlay" onclick="closeSuccessModal()"></div>
+        <div class="modal-content">
+            <div class="modal-icon success">
+                <i class='bx bx-check-circle'></i>
+            </div>
+            <h2>Successfully Joined!</h2>
+            <p id="successMessage"></p>
+            <button class="modal-btn" onclick="closeSuccessModal()">OK</button>
+        </div>
+    </div>
+
+    <script type="module" src="student-classes.js"></script>
+</body>
+</html>

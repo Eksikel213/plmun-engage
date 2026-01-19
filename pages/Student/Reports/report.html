@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Reports - PLMun Engage</title>
+    <link rel="stylesheet" href="report.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="../dyslexia-mode.css">
+    
+    <style>
+        /* ✅ FIXED: Chatbot Overlay Instead of Shifting Content */
+        .chatbot-container {
+            position: fixed;
+            top: 0;
+            right: -450px; /* Start hidden off-screen */
+            width: 450px;
+            height: 100vh;
+            z-index: 10000;
+            transition: right 0.3s ease; /* Smooth slide in/out */
+        }
+
+        .chatbot-container.open {
+            right: 0; /* Slide into view */
+        }
+
+        /* ✅ Add overlay background when chatbot is open */
+        .chatbot-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 9999;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .chatbot-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Rest of chatbot styles remain the same */
+        .chatbot-card {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(8, 27, 41, 0.98), rgba(0, 212, 255, 0.08));
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            border-left: 2px solid #00d4ff;
+            box-shadow: -5px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .chatbot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+            color: white;
+        }
+
+        .chatbot-close {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(255, 75, 43, 0.2);
+            border: 2px solid #ff4b2b;
+            color: #ff4b2b;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .chatbot-close:hover {
+            background: #ff4b2b;
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .suggested-questions {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .suggested-question {
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid #00d4ff;
+            color: #00d4ff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .suggested-question:hover {
+            background: #00d4ff;
+            color: #081b29;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 12px;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-message {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .ai-message .message-avatar {
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px solid #00d4ff;
+        }
+
+        .user-message .message-avatar {
+            background: rgba(0, 255, 136, 0.2);
+            border: 2px solid #00ff88;
+        }
+
+        .user-avatar-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #00ff88;
+        }
+
+        .message-content {
+            max-width: 75%;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 16px;
+            border-radius: 15px;
+            color: white;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .user-message .message-content {
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .ai-message .message-content {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-top: 2px solid rgba(0, 212, 255, 0.3);
+            display: flex;
+            gap: 10px;
+        }
+
+        #chatInput {
+            flex: 1;
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            color: white;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        #chatInput:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        #chatInput::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .chat-send-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #00d4ff;
+            border: none;
+            color: #081b29;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .chat-send-btn:hover {
+            background: #00ff88;
+            transform: scale(1.1);
+        }
+
+        .chat-send-btn:active {
+            transform: scale(0.95);
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 10px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #00d4ff;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Scrollbar */
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(0, 212, 255, 0.5);
+            border-radius: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #00d4ff;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .chatbot-container {
+                width: 100%;
+                right: -100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dyslexia-badge" id="dyslexiaBadge">
+        <i class='bx bx-accessibility'></i>
+        Dyslexia-Friendly Mode Active
+    </div>
+
+    <!-- ✅ NEW: Chatbot Overlay (darkens background when chatbot is open) -->
+    <div class="chatbot-overlay" id="chatbotOverlay" onclick="closeAIChat()"></div>
+
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-graduation'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="../Classes/student-classes.html"><i class='bx bxs-dashboard'></i><span class="link_name">My Classes</span></a></li>
+            <li><a href="../Profile/profile.html"><i class='bx bxs-user-circle'></i><span class="link_name">My Profile</span></a></li>
+            <li><a href="#" class="active"><i class='bx bxs-bar-chart-alt-2'></i><span class="link_name">Reports</span></a></li>
+            <li><a href="../Shop/shop.html"><i class='bx bxs-store-alt'></i><span class="link_name">Item Shop</span></a></li>
+            <li class="log_out"><a href="#" onclick="logout()"><i class='bx bx-log-out'></i><span class="link_name">Logout</span></a></li>
+        </ul>
+    </div>
+
+    <section class="home-section">
+        <nav>
+            <span class="dashboard">📊 AI Performance Analysis</span>
+            <div class="stats">
+                <div class="stat-item"><i class='bx bxs-coin-stack' style="color:gold"></i> <span id="coin-count">Loading...</span></div>
+                <div class="stat-item"><i class='bx bxs-star' style="color:cyan"></i> LVL <span id="level">1</span></div>
+            </div>
+        </nav>
+
+        <div class="home-content">
+            <!-- Loading State -->
+            <div id="loadingState" class="glass" style="text-align: center; padding: 40px;">
+                <div style="display: inline-block; width: 50px; height: 50px; border: 5px solid rgba(0,212,255,0.3); border-top-color: #00d4ff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+                <p style="font-size: 18px; margin-bottom: 10px;">🤖 AI is analyzing your performance...</p>
+                <p style="font-size: 14px; opacity: 0.8;">This may take a few moments</p>
+            </div>
+
+            <!-- No Results State -->
+            <div id="noResultsState" class="glass" style="display: none; text-align: center; padding: 60px;">
+                <i class='bx bxs-inbox' style="font-size: 80px; color: #00d4ff; margin-bottom: 20px; opacity: 0.3;"></i>
+                <h2 style="font-size: 28px; margin-bottom: 10px;">No Quiz Data Yet</h2>
+                <p style="opacity: 0.8; font-size: 16px; margin-top: 10px;">Take a quiz to get personalized AI insights and recommendations!</p>
+                <button class="ai-btn-primary" onclick="window.location.href='../Classes/student-classes.html'" style="margin-top: 25px;">
+                    <i class='bx bx-game'></i> Go to My Classes
+                </button>
+            </div>
+
+            <!-- AI Analysis -->
+            <div id="aiAnalysis" style="display: none; width: 100%; max-width: 1200px;">
+                <!-- AI Assistant Card -->
+                <div class="ai-assistant-card glass">
+                    <div class="ai-profile">
+                        <div class="ai-avatar">
+                            <i class='bx bxs-bot'></i>
+                        </div>
+                        <div class="ai-info">
+                            <h2 style="font-size: 24px; margin-bottom: 5px;">
+                                🤖 AI Learning Assistant
+                            </h2>
+                            <p style="opacity: 0.9;">
+                                Personalized analysis for: <b id="studentName" style="color: #00d4ff;">Student</b>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="ai-prompt">
+                        <p id="aiMessage" style="font-size: 16px; line-height: 1.7;">Loading AI insights...</p>
+                        <div class="ai-btns">
+                            <button class="ai-btn-primary" onclick="showFeedback()">
+                                <i class='bx bx-show'></i> Show Detailed Analysis
+                            </button>
+                            <button class="ai-btn-secondary" onclick="regenerateInsights()">
+                                <i class='bx bx-refresh'></i> Regenerate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Feedback Grid -->
+                <div id="aiFeedback" class="feedback-grid" style="display: none; margin-top: 30px;">
+                    <!-- Performance Stats -->
+                    <!-- Performance Stats -->
+<div class="analysis-card glass">
+    <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: #00d4ff;">
+        <i class='bx bxs-bar-chart-alt-2'></i> Your Performance
+    </h3>
+    <div class="mistake-item">
+        <p style="margin-bottom: 10px;">
+            <strong>Quizzes Taken:</strong> 
+            <span id="quizzesTaken" style="color: #00d4ff; font-size: 18px;">0</span>
+        </p>
+        <p style="margin-bottom: 10px;">
+            <strong>Average Score:</strong> 
+            <span id="avgScore" style="color: #00ff88; font-size: 18px;">0%</span>
+        </p>
+        <p style="margin-bottom: 15px;">
+            <strong>Total Coins Earned:</strong> 
+            <span id="totalCoins" style="color: gold; font-size: 18px;">0</span>
+        </p>
+        
+        <!-- ✅ NEW: Motivational Message -->
+        <div id="motivationalMessage">
+            <!-- Will be populated by AI -->
+        </div>
+    </div>
+</div>
+
+                    <!-- Weak Areas (Gemini AI) -->
+                    <div class="analysis-card glass">
+                        <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: #ff4b2b;">
+                            <i class='bx bxs-error-circle'></i> Areas to Improve
+                        </h3>
+                        <div id="weakAreas">
+                            <p style="opacity: 0.7;">Loading AI analysis...</p>
+                        </div>
+                    </div>
+
+                    <!-- AI Recommendations (Full Width) -->
+                    <div class="review-card glass" style="grid-column: span 2;">
+                        <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: gold;">
+                            <i class='bx bxs-bulb'></i> AI Recommendations
+                        </h3>
+                        <ul class="study-list" id="recommendations">
+                            <li>Loading personalized recommendations...</li>
+                        </ul>
+                        
+                        <!-- AI Chat Button -->
+                        <div style="margin-top: 25px; text-align: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+                            <button class="ai-btn-primary" onclick="openAIChat()" style="padding: 12px 30px;">
+                                <i class='bx bx-message-dots'></i> Ask AI for More Information
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Recent Quiz History -->
+                    <div class="review-card glass" style="grid-column: span 2;">
+                        <h3 style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px; color: #00d4ff;">
+                            <i class='bx bx-history'></i> Recent Quiz History
+                        </h3>
+                        <div id="quizHistory">
+                            <p style="opacity: 0.7;">Loading history...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ✅ UPDATED: AI Chatbot Popup (Slides from Right) -->
+    <div id="aiChatbot" class="chatbot-container">
+        <div class="chatbot-card">
+            <!-- Header -->
+            <div class="chatbot-header">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="ai-avatar" style="width: 45px; height: 45px; font-size: 28px;">
+                        <i class='bx bxs-bot'></i>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px;">AI Study Assistant</h3>
+                        <p style="margin: 0; font-size: 13px; opacity: 0.8;">Ask me anything about your quiz!</p>
+                    </div>
+                </div>
+                <button class="chatbot-close" onclick="closeAIChat()">
+                    <i class='bx bx-x'></i>
+                </button>
+            </div>
+
+            <!-- Suggested Questions -->
+            <div id="suggestedQuestions" class="suggested-questions">
+                <!-- Will be populated dynamically -->
+            </div>
+
+            <!-- Chat Messages -->
+            <div id="chatMessages" class="chat-messages">
+                <div class="chat-message ai-message">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <p>Hi! I'm here to help you understand your quiz results and improve your performance. What would you like to know? 😊</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="chat-input-area">
+                <input 
+                    type="text" 
+                    id="chatInput" 
+                    placeholder="Ask me anything about your quiz..."
+                    onkeypress="if(event.key==='Enter') sendChatMessage()"
+                />
+                <button class="chat-send-btn" onclick="sendChatMessage()">
+                    <i class='bx bx-send'></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../dyslexia-mode.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { analyzeWithGemini, displayAIInsights, displayQuizHistory } from './report-ai.js';
+        import { initChatbot, sendMessage, getSuggestedQuestions, clearChat } from './report-chatbot.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlUY50heKZ_bp-PZUr76S0SiI1_zN6aOA",
+            authDomain: "plmun-engage.firebaseapp.com",
+            projectId: "plmun-engage",
+            storageBucket: "plmun-engage.firebasestorage.app",
+            messagingSenderId: "701791153164",
+            appId: "1:701791153164:web:45422fd17af3493a04d229"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let currentUser = null;
+        let cachedAnalysis = null;
+        let userProfilePic = null;
+        
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = '../../../index.html';
+                return;
+            }
+            
+            currentUser = user;
+            
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                document.getElementById('coin-count').textContent = userData.coins || 500;
+                document.getElementById('level').textContent = userData.level || 1;
+                document.getElementById('studentName').textContent = userData.fullName || 'Student';
+                
+                userProfilePic = userData.customAvatarURL || null;
+                console.log('✅ User profile pic loaded:', userProfilePic);
+            }
+            
+            await loadAIAnalysis();
+        });
+        
+        async function loadAIAnalysis() {
+            try {
+                console.log('🤖 Starting Gemini AI analysis...');
+                
+                document.getElementById('loadingState').style.display = 'block';
+                document.getElementById('noResultsState').style.display = 'none';
+                document.getElementById('aiAnalysis').style.display = 'none';
+                
+                const analysis = await analyzeWithGemini(db, currentUser);
+                
+                document.getElementById('loadingState').style.display = 'none';
+                
+                if (!analysis.hasResults) {
+                    document.getElementById('noResultsState').style.display = 'block';
+                    return;
+                }
+                
+                cachedAnalysis = analysis;
+                
+                document.getElementById('aiAnalysis').style.display = 'block';
+                displayAIInsights(analysis.aiInsights, analysis.stats, analysis.latestQuiz);
+                displayQuizHistory(analysis.allQuizzes);
+                
+                initChatbot(analysis);
+                
+                console.log('✅ AI analysis complete!');
+                
+            } catch (error) {
+                console.error('❌ Analysis error:', error);
+                document.getElementById('loadingState').innerHTML = `
+                    <div style="color: #ff4b2b; text-align: center;">
+                        <i class='bx bx-error-circle' style="font-size: 60px; margin-bottom: 15px;"></i>
+                        <h3>Analysis Failed</h3>
+                        <p style="margin-top: 10px; font-size: 14px;">${error.message}</p>
+                        <button class="ai-btn-primary" onclick="window.location.reload()" style="margin-top: 20px;">
+                            <i class='bx bx-refresh'></i> Retry
+                        </button>
+                    </div>
+                `;
+            }
+        }
+        
+        window.showFeedback = function() {
+            const feedback = document.getElementById('aiFeedback');
+            if (feedback.style.display === 'none') {
+                feedback.style.display = 'grid';
+                window.scrollTo({ 
+                    top: feedback.offsetTop - 100, 
+                    behavior: 'smooth' 
+                });
+            } else {
+                feedback.style.display = 'none';
+            }
+        };
+        
+        window.regenerateInsights = async function() {
+            if (!currentUser) return;
+            
+            const btn = event.target.closest('button');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Regenerating...';
+            
+            try {
+                await loadAIAnalysis();
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        };
+        
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = '../../../index.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+        
+        // ✅ UPDATED: Open AI Chatbot (Slide Animation)
+        window.openAIChat = function() {
+            const chatbot = document.getElementById('aiChatbot');
+            const overlay = document.getElementById('chatbotOverlay');
+            
+            chatbot.classList.add('open');
+            overlay.classList.add('active');
+            
+            const suggestions = getSuggestedQuestions();
+            const suggestionsDiv = document.getElementById('suggestedQuestions');
+            
+            if (suggestions.length > 0) {
+                suggestionsDiv.innerHTML = suggestions.map(q => 
+                    `<button class="suggested-question" onclick="askSuggestedQuestion('${q.replace(/'/g, "\\'")}')">${q}</button>`
+                ).join('');
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
+            
+            setTimeout(() => {
+                document.getElementById('chatInput').focus();
+            }, 300);
+        };
+        
+        // ✅ UPDATED: Close AI Chatbot (Slide Out)
+        window.closeAIChat = function() {
+            const chatbot = document.getElementById('aiChatbot');
+            const overlay = document.getElementById('chatbotOverlay');
+            
+            chatbot.classList.remove('open');
+            overlay.classList.remove('active');
+        };
+        
+        window.sendChatMessage = async function() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            input.value = '';
+            
+            addMessageToUI(message, 'user');
+            
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'chat-message ai-message';
+            typingIndicator.id = 'typingIndicator';
+            typingIndicator.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="message-content">
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('chatMessages').appendChild(typingIndicator);
+            scrollChatToBottom();
+            
+            const response = await sendMessage(message);
+            
+            typingIndicator.remove();
+            
+            if (response.success) {
+                addMessageToUI(response.message, 'ai');
+            } else {
+                addMessageToUI(response.message, 'ai', true);
+            }
+        };
+        
+        window.askSuggestedQuestion = function(question) {
+            document.getElementById('chatInput').value = question;
+            sendChatMessage();
+            
+            document.getElementById('suggestedQuestions').style.display = 'none';
+        };
+        
+        function addMessageToUI(message, sender, isError = false) {
+            const messagesDiv = document.getElementById('chatMessages');
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${sender}-message`;
+            
+            let avatarHTML;
+            if (sender === 'user' && userProfilePic) {
+                avatarHTML = `<img src="${userProfilePic}" class="user-avatar-img" alt="You" onerror="this.outerHTML='<div class=\\'message-avatar\\'>👤</div>'">`;
+            } else if (sender === 'user') {
+                avatarHTML = '<div class="message-avatar">👤</div>';
+            } else {
+                avatarHTML = '<div class="message-avatar">🤖</div>';
+            }
+            
+            messageDiv.innerHTML = `
+                ${avatarHTML}
+                <div class="message-content" ${isError ? 'style="border-color: #ff4b2b;"' : ''}>
+                    <p>${message.replace(/\n/g, '<br>')}</p>
+                </div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            scrollChatToBottom();
+        }
+        
+        function scrollChatToBottom() {
+            const messagesDiv = document.getElementById('chatMessages');
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    </script>
+</body>
+</html>

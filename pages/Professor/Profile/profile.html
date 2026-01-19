@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - PLMun Engage</title>
+    <link rel="stylesheet" href="profile.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* Delete Button Styling */
+        .btn-delete {
+            padding: 10px 25px;
+            border-radius: 10px;
+            border: 2px solid #ff4b2b;
+            background: rgba(255, 75, 43, 0.1);
+            color: #ff4b2b;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.3s;
+        }
+
+        .btn-delete:hover {
+            background: #ff4b2b;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 75, 43, 0.4);
+        }
+
+        /* Delete Modal Styles */
+        .delete-modal-content {
+            position: relative;
+            background: linear-gradient(135deg, rgba(8, 27, 41, 0.98), rgba(255, 75, 43, 0.1));
+            border: 3px solid #ff4b2b;
+            border-radius: 25px;
+            padding: 50px 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            animation: modalSlideIn 0.4s ease;
+            box-shadow: 0 20px 60px rgba(255, 75, 43, 0.5);
+            color: white;
+        }
+
+        .modal-icon.warning {
+            color: #ff4b2b;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .modal-btn.cancel {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+        }
+
+        .modal-btn.cancel:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-btn.danger {
+            background: linear-gradient(135deg, #ff4b2b, #ff6b4b);
+            color: white;
+        }
+
+        .modal-btn.danger:hover {
+            box-shadow: 0 10px 30px rgba(255, 75, 43, 0.5);
+        }
+
+        .confirmation-input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 2px solid rgba(255, 75, 43, 0.5);
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .confirmation-input:focus {
+            outline: none;
+            border-color: #ff4b2b;
+            box-shadow: 0 0 15px rgba(255, 75, 43, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-briefcase-alt-2'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="../professor.html"><i class='bx bxs-dashboard'></i><span class="link_name">My Classes</span></a></li>
+            <li><a href="#" class="active"><i class='bx bxs-user-circle'></i><span class="link_name">My Profile</span></a></li>
+            <li class="log_out"><a href="#" onclick="logout()"><i class='bx bx-log-out'></i><span class="link_name">Logout</span></a></li>
+        </ul>
+    </div>
+
+    <section class="home-section">
+        <nav>
+            <span class="dashboard">My Profile</span>
+            <div class="prof-name" id="profName">Loading...</div>
+        </nav>
+
+        <div class="home-content">
+            <!-- Profile Overview Card -->
+            <div class="profile-overview glass">
+                <div class="avatar-section">
+                    <div class="avatar-display-container">
+                        <div class="avatar-display" id="avatarDisplay">
+                            <i class='bx bxs-user-circle' id="profileAvatar"></i>
+                            <img id="customAvatarImg" style="display: none;">
+                        </div>
+                        <button class="avatar-upload-btn" id="avatarUploadBtn" onclick="triggerAvatarUpload()" style="display: none;">
+                            <i class='bx bx-camera'></i>
+                        </button>
+                        <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
+                    </div>
+                    
+                    <div class="avatar-info">
+                        <h2 id="displayName">Loading...</h2>
+                        <p id="displayEmail">email@plmun.edu.ph</p>
+                        <div class="role-badge">
+                            <i class='bx bxs-briefcase-alt-2'></i> Professor
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Profile Form -->
+            <div class="profile-edit-card glass">
+                <div class="card-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                        <div>
+                            <h3><i class='bx bx-user'></i> Profile Information</h3>
+                            <p id="modeIndicator">Viewing your profile details</p>
+                        </div>
+                        <div class="button-group">
+                            <button type="button" class="btn-delete" id="deleteBtn" onclick="showDeleteConfirmation()">
+                                <i class='bx bx-trash'></i> Delete Account
+                            </button>
+                            <button type="button" class="btn-edit" id="editBtn" onclick="enableEditMode()">
+                                <i class='bx bx-edit-alt'></i> Edit Profile
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="profileForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class='bx bx-user'></i> Full Name</label>
+                            <input type="text" id="fullName" placeholder="Juan Dela Cruz" required disabled>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class='bx bx-calendar'></i> Age</label>
+                            <input type="number" id="age" placeholder="30" min="21" max="100" disabled>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class='bx bx-envelope'></i> Email Address</label>
+                            <input type="email" id="email" placeholder="juan@plmun.edu.ph" disabled>
+                            <small>Email cannot be changed for security reasons</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class='bx bx-id-card'></i> Employee ID</label>
+                            <input type="text" id="employeeId" placeholder="e.g., PROF-2024-001" disabled>
+                        </div>
+
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label><i class='bx bx-buildings'></i> Department/College</label>
+                            <select id="department" disabled>
+                                <option value="">Select your department</option>
+                                <option value="CAS">College of Arts & Sciences (CAS)</option>
+                                <option value="CBA">College of Business Administration (CBA)</option>
+                                <option value="CCJ">College of Criminal Justice (CCJ)</option>
+                                <option value="CITCS">College of Information Technology & Computer Studies (CITCS)</option>
+                                <option value="COM">College of Medicine (COM)</option>
+                                <option value="CTE">College of Teacher Education (CTE)</option>
+                                <option value="IPPG">Institute of Public Policy and Governance (IPPG)</option>
+                                <option value="GS">Graduate Studies (GS)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label><i class='bx bx-phone'></i> Contact Number (Optional)</label>
+                            <input type="tel" id="contactNumber" placeholder="+63 912 345 6789" disabled>
+                        </div>
+                    </div>
+
+                    <div class="form-actions" id="formActions" style="display: none;">
+                        <button type="button" class="btn-secondary" onclick="cancelEdit()">
+                            <i class='bx bx-x'></i> Cancel
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class='bx bx-save'></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-content">
+            <div class="modal-icon success">✅</div>
+            <h2>Profile Updated!</h2>
+            <p>Your information has been saved successfully.</p>
+            <button class="modal-btn" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Step 1 -->
+    <div id="deleteModal1" class="modal">
+        <div class="modal-overlay" onclick="closeDeleteModal1()"></div>
+        <div class="delete-modal-content">
+            <div class="modal-icon warning">⚠️</div>
+            <h2>Delete Account?</h2>
+            <p style="line-height: 1.8; margin-bottom: 25px;">
+                Are you sure you want to delete your account?<br><br>
+                <strong style="color: #ff4b2b;">This action cannot be undone!</strong><br><br>
+                All your data including:
+            </p>
+            <ul style="text-align: left; margin: 0 auto 25px; max-width: 350px; line-height: 2;">
+                <li>Profile information</li>
+                <li>All created classes</li>
+                <li>All quizzes and quiz results</li>
+                <li>Student records</li>
+            </ul>
+            <p style="font-weight: 700;">will be permanently deleted.</p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeDeleteModal1()">
+                    <i class='bx bx-x'></i> Cancel
+                </button>
+                <button class="modal-btn danger" onclick="showDeleteConfirmation2()">
+                    <i class='bx bx-right-arrow-alt'></i> Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Step 2 -->
+    <div id="deleteModal2" class="modal">
+        <div class="modal-overlay" onclick="closeDeleteModal2()"></div>
+        <div class="delete-modal-content">
+            <div class="modal-icon warning">🚨</div>
+            <h2>Final Confirmation</h2>
+            <p style="line-height: 1.8; margin-bottom: 20px;">
+                This is your <strong>LAST CHANCE</strong> to cancel!<br><br>
+                Type <strong style="color: #ff4b2b; font-size: 18px;">"DELETE"</strong> below to confirm:
+            </p>
+            <input 
+                type="text" 
+                id="deleteConfirmInput" 
+                class="confirmation-input" 
+                placeholder="Type DELETE here"
+                autocomplete="off"
+            >
+            <p style="font-size: 13px; opacity: 0.8; margin-top: -10px;">
+                (Type in all capital letters)
+            </p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel" onclick="closeDeleteModal2()">
+                    <i class='bx bx-x'></i> Cancel
+                </button>
+                <button class="modal-btn danger" onclick="deleteAccount()">
+                    <i class='bx bx-trash'></i> Delete Forever
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deleting Progress Modal -->
+    <div id="deletingModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="delete-modal-content">
+            <div class="modal-icon">
+                <i class='bx bx-loader-alt bx-spin' style="font-size: 80px; color: #ff4b2b;"></i>
+            </div>
+            <h2>Deleting Account...</h2>
+            <p>Please wait while we delete your data.</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, deleteDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlUY50heKZ_bp-PZUr76S0SiI1_zN6aOA",
+            authDomain: "plmun-engage.firebaseapp.com",
+            projectId: "plmun-engage",
+            storageBucket: "plmun-engage.firebasestorage.app",
+            messagingSenderId: "701791153164",
+            appId: "1:701791153164:web:45422fd17af3493a04d229"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let currentUser = null;
+        let userData = null;
+        let originalData = {};
+        let newAvatarFile = null;
+        let isUploading = false;
+        
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = '../../../index.html';
+                return;
+            }
+            
+            currentUser = user;
+            await loadUserData();
+        });
+        
+        async function loadUserData() {
+            try {
+                const userDocRef = doc(db, 'users', currentUser.uid);
+                const userDoc = await getDoc(userDocRef);
+                
+                if (userDoc.exists()) {
+                    userData = userDoc.data();
+                    
+                    if (userData.role !== 'professor') {
+                        alert('Access denied. This page is for professors only.');
+                        window.location.href = '../../student/student.html';
+                        return;
+                    }
+                    
+                    document.getElementById('profName').textContent = userData.fullName || 'Professor';
+                    document.getElementById('displayName').textContent = userData.fullName || 'Professor';
+                    document.getElementById('displayEmail').textContent = userData.email || currentUser.email;
+                    
+                    originalData = {
+                        fullName: userData.fullName || '',
+                        age: userData.age || '',
+                        employeeId: userData.employeeId || '',
+                        department: userData.department || '',
+                        contactNumber: userData.contactNumber || ''
+                    };
+                    
+                    document.getElementById('fullName').value = originalData.fullName;
+                    document.getElementById('age').value = originalData.age;
+                    document.getElementById('email').value = userData.email || currentUser.email;
+                    document.getElementById('employeeId').value = originalData.employeeId;
+                    document.getElementById('department').value = originalData.department;
+                    document.getElementById('contactNumber').value = originalData.contactNumber;
+                    
+                    displayAvatar(userData);
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                alert('Failed to load profile: ' + error.message);
+            }
+        }
+        
+        function displayAvatar(userData) {
+            const customImg = document.getElementById('customAvatarImg');
+            const iconEl = document.getElementById('profileAvatar');
+            
+            if (userData.customAvatarURL && userData.customAvatarURL.trim().length > 0) {
+                customImg.src = userData.customAvatarURL;
+                customImg.style.display = 'block';
+                iconEl.style.display = 'none';
+                
+                customImg.onerror = function() {
+                    customImg.style.display = 'none';
+                    iconEl.style.display = 'block';
+                };
+            } else {
+                customImg.style.display = 'none';
+                iconEl.style.display = 'block';
+            }
+        }
+        
+        window.enableEditMode = function() {
+            document.getElementById('fullName').disabled = false;
+            document.getElementById('age').disabled = false;
+            document.getElementById('employeeId').disabled = false;
+            document.getElementById('department').disabled = false;
+            document.getElementById('contactNumber').disabled = false;
+            
+            document.getElementById('modeIndicator').textContent = 'Editing your profile';
+            document.getElementById('editBtn').style.display = 'none';
+            document.getElementById('deleteBtn').style.display = 'none';
+            document.getElementById('formActions').style.display = 'flex';
+            document.getElementById('avatarUploadBtn').style.display = 'flex';
+        };
+        
+        window.triggerAvatarUpload = function() {
+            document.getElementById('avatarInput').click();
+        };
+        
+        window.handleAvatarUpload = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                alert('❌ Please upload an image file (JPG, PNG, etc.)');
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) {
+                alert('❌ Image size must be less than 10MB');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    const maxSize = 800;
+                    if (width > maxSize || height > maxSize) {
+                        if (width > height) {
+                            height = (height / width) * maxSize;
+                            width = maxSize;
+                        } else {
+                            width = (width / height) * maxSize;
+                            height = maxSize;
+                        }
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    canvas.toBlob(function(blob) {
+                        newAvatarFile = blob;
+                        
+                        const customImg = document.getElementById('customAvatarImg');
+                        const iconEl = document.getElementById('profileAvatar');
+                        
+                        customImg.src = canvas.toDataURL('image/jpeg', 0.8);
+                        customImg.style.display = 'block';
+                        iconEl.style.display = 'none';
+                    }, 'image/jpeg', 0.8);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+        
+        window.cancelEdit = function() {
+            document.getElementById('fullName').value = originalData.fullName;
+            document.getElementById('age').value = originalData.age;
+            document.getElementById('employeeId').value = originalData.employeeId;
+            document.getElementById('department').value = originalData.department;
+            document.getElementById('contactNumber').value = originalData.contactNumber;
+            
+            document.getElementById('fullName').disabled = true;
+            document.getElementById('age').disabled = true;
+            document.getElementById('employeeId').disabled = true;
+            document.getElementById('department').disabled = true;
+            document.getElementById('contactNumber').disabled = true;
+            
+            document.getElementById('modeIndicator').textContent = 'Viewing your profile details';
+            document.getElementById('editBtn').style.display = 'inline-flex';
+            document.getElementById('deleteBtn').style.display = 'inline-flex';
+            document.getElementById('formActions').style.display = 'none';
+            document.getElementById('avatarUploadBtn').style.display = 'none';
+            
+            newAvatarFile = null;
+            isUploading = false;
+            displayAvatar(userData);
+        };
+        
+        async function uploadToCloudinary(imageBlob) {
+            const formData = new FormData();
+            formData.append('file', imageBlob);
+            formData.append('upload_preset', 'ml_default');
+            
+            const response = await fetch('https://api.cloudinary.com/v1_1/dkrjfwkwx/image/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error('Cloudinary upload failed');
+            }
+            
+            const data = await response.json();
+            return data.secure_url;
+        }
+        
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            if (isUploading) return;
+            isUploading = true;
+            
+            const submitBtn = e.target.querySelector('.btn-primary');
+            const originalText = submitBtn.innerHTML;
+            
+            try {
+                let avatarURL = userData.customAvatarURL || null;
+                
+                if (newAvatarFile) {
+                    submitBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Uploading image...';
+                    submitBtn.disabled = true;
+                    avatarURL = await uploadToCloudinary(newAvatarFile);
+                }
+                
+                submitBtn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Saving profile...';
+                
+                const updatedData = {
+                    fullName: document.getElementById('fullName').value.trim(),
+                    age: parseInt(document.getElementById('age').value) || null,
+                    employeeId: document.getElementById('employeeId').value.trim(),
+                    department: document.getElementById('department').value,
+                    contactNumber: document.getElementById('contactNumber').value.trim(),
+                    updatedAt: new Date().toISOString()
+                };
+                
+                if (avatarURL) {
+                    updatedData.customAvatarURL = avatarURL;
+                }
+                
+                await updateDoc(doc(db, 'users', currentUser.uid), updatedData);
+                
+                userData = { ...userData, ...updatedData };
+                originalData = {
+                    fullName: updatedData.fullName,
+                    age: updatedData.age,
+                    employeeId: updatedData.employeeId,
+                    department: updatedData.department,
+                    contactNumber: updatedData.contactNumber
+                };
+                
+                newAvatarFile = null;
+                isUploading = false;
+                
+                document.getElementById('successModal').classList.add('show');
+                
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                
+                displayAvatar(userData);
+                document.getElementById('displayName').textContent = updatedData.fullName;
+                document.getElementById('profName').textContent = updatedData.fullName;
+                
+                setTimeout(() => {
+                    cancelEdit();
+                }, 800);
+                
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('Failed to update profile: ' + error.message);
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+                isUploading = false;
+            }
+        });
+        
+        // Delete Account Functions
+        window.showDeleteConfirmation = function() {
+            document.getElementById('deleteModal1').classList.add('show');
+        };
+        
+        window.closeDeleteModal1 = function() {
+            document.getElementById('deleteModal1').classList.remove('show');
+        };
+        
+        window.showDeleteConfirmation2 = function() {
+            document.getElementById('deleteModal1').classList.remove('show');
+            document.getElementById('deleteModal2').classList.add('show');
+            document.getElementById('deleteConfirmInput').value = '';
+        };
+        
+        window.closeDeleteModal2 = function() {
+            document.getElementById('deleteModal2').classList.remove('show');
+            document.getElementById('deleteConfirmInput').value = '';
+        };
+        
+        window.deleteAccount = async function() {
+            const confirmText = document.getElementById('deleteConfirmInput').value;
+            
+            if (confirmText !== 'DELETE') {
+                alert('❌ Please type "DELETE" exactly as shown (in capital letters)');
+                return;
+            }
+            
+            // Show deleting modal
+            document.getElementById('deleteModal2').classList.remove('show');
+            document.getElementById('deletingModal').classList.add('show');
+            
+            try {
+                console.log('🗑️ Starting account deletion for:', currentUser.uid);
+                
+                // Delete user's classes
+                const classesQuery = query(collection(db, 'classes'), where('professorId', '==', currentUser.uid));
+                const classesSnapshot = await getDocs(classesQuery);
+                
+                for (const classDoc of classesSnapshot.docs) {
+                    await deleteDoc(doc(db, 'classes', classDoc.id));
+                    console.log('✅ Deleted class:', classDoc.id);
+                }
+                
+                // Delete user's quizzes
+                const quizzesQuery = query(collection(db, 'quizzes'), where('professorId', '==', currentUser.uid));
+                const quizzesSnapshot = await getDocs(quizzesQuery);
+                
+                for (const quizDoc of quizzesSnapshot.docs) {
+                    await deleteDoc(doc(db, 'quizzes', quizDoc.id));
+                    console.log('✅ Deleted quiz:', quizDoc.id);
+                }
+                
+                // Delete user document
+                await deleteDoc(doc(db, 'users', currentUser.uid));
+                console.log('✅ Deleted user document');
+                
+                // Delete Firebase Auth account
+                await deleteUser(currentUser);
+                console.log('✅ Deleted Firebase Auth account');
+                
+                // Redirect to home page
+                alert('✅ Your account has been successfully deleted. You will now be redirected to the home page.');
+                window.location.href = '../../../index.html';
+                
+            } catch (error) {
+                console.error('❌ Error deleting account:', error);
+                document.getElementById('deletingModal').classList.remove('show');
+                
+                if (error.code === 'auth/requires-recent-login') {
+                    alert('⚠️ For security reasons, please log out and log back in before deleting your account.');
+                    await signOut(auth);
+                    window.location.href = '../../../index.html';
+                } else {
+                    alert('❌ Failed to delete account: ' + error.message);
+                }
+            }
+        };
+        
+        window.closeModal = function() {
+            document.getElementById('successModal').classList.remove('show');
+        };
+        
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = '../../../index.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+    </script>
+</body>
+</html>

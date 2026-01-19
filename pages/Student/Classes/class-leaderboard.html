@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Leaderboard - PLMun Engage</title>
+    <link rel="stylesheet" href="class-leaderboard.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-graduation'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="class-view.html"><i class='bx bx-arrow-back'></i><span class="link_name">Back to Class</span></a></li>
+            <li><a href="class-topics.html"><i class='bx bxs-book-content'></i><span class="link_name">View Topics</span></a></li>
+            <li><a href="class-leaderboard.html" class="active"><i class='bx bxs-trophy'></i><span class="link_name">Leaderboard</span></a></li>
+            <li class="log_out"><a href="#" onclick="logout()"><i class='bx bx-log-out'></i><span class="link_name">Logout</span></a></li>
+        </ul>
+    </div>
+
+    <section class="home-section">
+        <nav>
+            <span class="dashboard" id="className">Loading Leaderboard...</span>
+            <div class="stats">
+                <div class="stat-item"><i class='bx bxs-coin-stack' style="color:gold"></i> <span id="coin-count">Loading...</span></div>
+                <div class="stat-item"><i class='bx bxs-star' style="color:cyan"></i> LVL <span id="level">1</span></div>
+            </div>
+        </nav>
+
+        <div class="home-content">
+            <!-- Leaderboard Header -->
+            <div class="leaderboard-header glass">
+                <div class="header-content">
+                    <h2><i class='bx bxs-trophy'></i> Class Rankings</h2>
+                    <p id="classInfo">Based on total correct answers</p>
+                </div>
+                <div class="total-students">
+                    <span id="studentCount">0</span>
+                    <small>Students</small>
+                </div>
+            </div>
+
+            <div class="privacy-toggle-card glass">
+    <div class="privacy-toggle-content">
+        <div class="privacy-icon-wrapper">
+            <i class='bx bx-show' id="toggleIcon"></i>
+        </div>
+        <div class="privacy-info">
+            <h3 id="privacyStatus">Visible on Leaderboard</h3>
+            <p id="privacyMessage">Your rank is visible to everyone in this class.</p>
+        </div>
+    </div>
+    <div class="toggle-switch" id="privacyToggle" onclick="toggleLeaderboardPrivacy()">
+        <div class="toggle-slider"></div>
+    </div>
+</div>
+
+<!-- ✅ Privacy Warning Banner -->
+<div class="privacy-warning glass" id="privacyWarning" style="display: none;">
+    <div class="warning-content">
+        <i class='bx bx-lock-alt'></i>
+        <div>
+            <strong>Privacy Mode Active</strong>
+            <p>Other students cannot see your ranking. Only you can view your position marked as "Hidden".</p>
+        </div>
+    </div>
+</div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="glass" style="text-align: center; padding: 40px; display: none;">
+                <div class="loading-spinner"></div>
+                <p>Loading rankings...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="glass" style="display: none; text-align: center; padding: 60px;">
+                <i class='bx bxs-inbox' style="font-size: 80px; color: #00d4ff; margin-bottom: 20px;"></i>
+                <h3>No Rankings Yet</h3>
+                <p>Students need to take quizzes to appear on the leaderboard!</p>
+            </div>
+
+            <!-- Top 3 Podium -->
+            <div id="podium" class="podium" style="display: none;"></div>
+
+            <!-- Leaderboard List -->
+            <div id="leaderboardList" class="leaderboard-list"></div>
+        </div>
+    </section>
+
+    <script type="module" src="class-leaderboard.js"></script>
+</body>
+</html>

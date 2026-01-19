@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - PLMun Engage</title>
+    <link rel="stylesheet" href="profile.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <!-- OpenDyslexic Font -->
+    <link href="https://fonts.cdnfonts.com/css/opendyslexic" rel="stylesheet">
+</head>
+<body>
+    <!-- Dyslexia Mode Badge -->
+    <div class="dyslexia-badge" id="dyslexiaBadge">
+        <i class='bx bx-accessibility'></i>
+        Dyslexia-Friendly Mode Active
+    </div>
+
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-graduation'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="../Classes/student-classes.html"><i class='bx bxs-dashboard'></i><span class="link_name">My Classes</span></a></li>
+            <li><a href="#" class="active"><i class='bx bxs-user-circle'></i><span class="link_name">My Profile</span></a></li>
+            <li><a href="../Reports/report.html"><i class='bx bxs-bar-chart-alt-2'></i><span class="link_name">Reports</span></a></li>
+            <li><a href="../shop/shop.html"><i class='bx bxs-store-alt'></i><span class="link_name">Item Shop</span></a></li>
+            <li class="log_out"><a href="../../../index.html" onclick="logout()"><i class='bx bx-log-out'></i><span class="link_name">Logout</span></a></li>
+        </ul>
+    </div>
+
+    <section class="home-section">
+        <nav>
+            <span class="dashboard">My Profile</span>
+            <div class="stats">
+                <div class="stat-item"><i class='bx bxs-coin-stack' style="color:gold"></i> <span id="coin-count">Loading...</span></div>
+                <div class="stat-item"><i class='bx bxs-star' style="color:cyan"></i> LVL <span id="level">1</span></div>
+            </div>
+        </nav>
+
+        <div class="home-content">
+            <!-- Profile Overview Card -->
+            <div class="profile-overview glass">
+                <div class="avatar-section">
+                    <div class="avatar-display-container">
+                        <div class="avatar-display" id="avatarDisplay">
+                            <i class='bx bxs-user-circle' id="profileAvatar"></i>
+                            <img id="customAvatarImg" style="display: none;">
+                        </div>
+                        <button class="avatar-upload-btn" id="avatarUploadBtn" onclick="triggerAvatarUpload()" style="display: none;">
+                            <i class='bx bx-camera'></i>
+                        </button>
+                        <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="handleAvatarUpload(event)">
+                    </div>
+                    
+                    <div class="avatar-info">
+                        <h2 id="displayName">Loading...</h2>
+                        <p id="displayEmail">email@plmun.edu.ph</p>
+                        <div class="level-badge">
+                            <i class='bx bxs-star'></i> Level <span id="displayLevel">1</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Profile Form -->
+            <div class="profile-edit-card glass">
+                <div class="card-header">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h3><i class='bx bx-user'></i> Profile Information</h3>
+                            <p id="modeIndicator">Viewing your profile details</p>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" class="btn-edit" id="editBtn" onclick="enableEditMode()">
+                                <i class='bx bx-edit-alt'></i> Edit Profile
+                            </button>
+                            <button type="button" class="btn-delete" onclick="showDeleteModal()">
+                                <i class='bx bx-trash'></i> Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="profileForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class='bx bx-user'></i> Full Name</label>
+                            <input type="text" id="fullName" placeholder="Juan Dela Cruz" required disabled>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class='bx bx-at'></i> Username</label>
+                            <input type="text" id="username" placeholder="juandc" required disabled>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class='bx bx-envelope'></i> Email Address</label>
+                            <input type="email" id="email" placeholder="juan@plmun.edu.ph" disabled>
+                            <small>Email cannot be changed for security reasons</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class='bx bx-id-card'></i> Student ID</label>
+                            <input type="text" id="studentId" placeholder="2021-12345" disabled>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class='bx bx-book'></i> Course/Program</label>
+                            <select id="course" disabled>
+                                <option value="">Select your course</option>
+                                <optgroup label="Arts & Social Sciences">
+                                    <option value="BA-Communication">Bachelor of Arts in Communication</option>
+                                    <option value="BS-Psychology">Bachelor of Science in Psychology</option>
+                                </optgroup>
+                                <optgroup label="Business & Accountancy">
+                                    <option value="BS-Business-Admin">Bachelor of Science in Business Administration</option>
+                                    <option value="BS-Accountancy">Bachelor of Science in Accountancy</option>
+                                    <option value="BS-Management-Accounting">Bachelor of Science in Management Accounting</option>
+                                </optgroup>
+                                <optgroup label="Criminology & Security">
+                                    <option value="BS-Criminology">Bachelor of Science in Criminology</option>
+                                    <option value="BS-Industrial-Security">Bachelor of Science in Industrial Security Management</option>
+                                </optgroup>
+                                <optgroup label="Information Technology">
+                                    <option value="BS-Computer-Science">Bachelor of Science in Computer Science</option>
+                                    <option value="BS-Information-Technology">Bachelor of Science in Information Technology</option>
+                                    <option value="Associate-Computer-Tech">Associate in Computer Technology</option>
+                                </optgroup>
+                                <optgroup label="Education">
+                                    <option value="BSEd">Bachelor of Secondary Education (BSEd)</option>
+                                    <option value="BEEd">Bachelor of Elementary Education (BEEd)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label><i class='bx bx-calendar'></i> Year Level</label>
+                            <select id="yearLevel" disabled>
+                                <option value="">Select year level</option>
+                                <option value="1">1st Year</option>
+                                <option value="2">2nd Year</option>
+                                <option value="3">3rd Year</option>
+                                <option value="4">4th Year</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-actions" id="formActions" style="display: none;">
+                        <!-- Dyslexia Toggle -->
+                        <div class="dyslexia-toggle-container">
+                            <label for="dyslexiaToggle" class="dyslexia-label">
+                                <i class='bx bx-accessibility'></i>
+                                <span>Dyslexia-Friendly</span>
+                            </label>
+                            <input type="checkbox" id="dyslexiaToggle" class="dyslexia-checkbox">
+                            <div class="toggle-switch" id="toggleSwitch" onclick="toggleDyslexiaMode()"></div>
+                        </div>
+
+                        <button type="button" class="btn-secondary" onclick="cancelEdit()">
+                            <i class='bx bx-x'></i> Cancel
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class='bx bx-save'></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Account Statistics -->
+            <div class="stats-card glass">
+                <h3><i class='bx bx-bar-chart-alt-2'></i> Account Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <i class='bx bxs-trophy'></i>
+                        <div class="stat-value" id="totalQuizzes">0</div>
+                        <div class="stat-label">Quizzes Taken</div>
+                    </div>
+                    <div class="stat-box">
+                        <i class='bx bxs-medal'></i>
+                        <div class="stat-value" id="avgScore">0%</div>
+                        <div class="stat-label">Average Score</div>
+                    </div>
+                    <div class="stat-box">
+                        <i class='bx bxs-coin-stack'></i>
+                        <div class="stat-value" id="totalCoinsEarned">0</div>
+                        <div class="stat-label">Coins Earned</div>
+                    </div>
+                    <div class="stat-box">
+                        <i class='bx bx-calendar'></i>
+                        <div class="stat-value" id="memberSince">2025</div>
+                        <div class="stat-label">Member Since</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-content">
+            <div class="modal-icon success">✅</div>
+            <h2>Profile Updated!</h2>
+            <p>Your information has been saved successfully.</p>
+            <button class="modal-btn" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <!-- Delete Account Confirmation Modal -->
+    <div id="deleteModal" class="modal delete-modal">
+        <div class="modal-overlay" onclick="closeDeleteModal()"></div>
+        <div class="modal-content delete-content">
+            <div class="modal-icon danger">⚠️</div>
+            <h2>Delete Account?</h2>
+            <p style="margin-bottom: 15px;">This action <strong>cannot be undone</strong>. All your data will be permanently deleted:</p>
+            <ul style="text-align: left; margin: 0 auto 15px; max-width: 300px; line-height: 1.8;">
+                <li>✗ Profile information</li>
+                <li>✗ Quiz results and progress</li>
+                <li>✗ Coins and level</li>
+                <li>✗ Class enrollments</li>
+                <li>✗ All purchased items</li>
+            </ul>
+            <p style="color: #ff4b2b; font-weight: 700; margin-bottom: 20px; font-size: 13px;">Are you absolutely sure?</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button class="modal-btn btn-cancel" onclick="closeDeleteModal()">
+                    <i class='bx bx-x'></i> Cancel
+                </button>
+                <button class="modal-btn btn-confirm-delete" onclick="confirmDeleteAccount()">
+                    <i class='bx bx-trash'></i> Yes, Delete My Account
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deleting Progress Modal -->
+    <div id="deletingModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="loading-spinner"></div>
+            <h2>Deleting Account...</h2>
+            <p>Please wait while we remove your data.</p>
+        </div>
+    </div>
+
+    <script type="module" src="profile-delete.js"></script>
+    <script src="../dyslexia-mode.js"></script>
+</body>
+</html>

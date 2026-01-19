@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+*{ margin: 0; padding: 0; box-sizing: border-box; font-family: "Poppins", sans-serif; }
+
+body {
+    min-height: 100vh;
+    background: #081b29 url('../../../pics/PLMun.png') no-repeat center center/cover fixed;
+}
+
+/* --- SIDEBAR (Fixed Alignment & Responsive) --- */
+.sidebar {
+    position: fixed; height: 100%; width: 240px;
+    background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(15px);
+    color: #fff; border-right: 1px solid rgba(255,255,255,0.1);
+    z-index: 100; transition: all 0.4s ease;
+}
+.sidebar .logo-details { height: 80px; display: flex; align-items: center; padding: 0 25px; font-size: 20px; font-weight: 600; overflow: hidden; }
+.sidebar .logo-details i { margin-right: 12px; font-size: 28px; min-width: 28px; }
+
+.nav-links { margin-top: 15px; }
+.nav-links li { list-style: none; height: 55px; width: 100%; }
+.nav-links li a { 
+    height: 100%; width: 100%; display: flex; align-items: center; 
+    text-decoration: none; color: #fff; padding-left: 25px; 
+    transition: 0.3s; gap: 15px; 
+}
+.nav-links li a i { font-size: 20px; min-width: 28px; text-align: center; }
+.nav-links li a .link_name { white-space: nowrap; }
+
+.nav-links li a:hover, .nav-links li a.active { 
+    background: rgba(255, 255, 255, 0.2); 
+    border-left: 4px solid #00d4ff; 
+}
+.log_out { position: absolute; bottom: 20px; width: 100%; }
+
+/* --- MAIN SECTION --- */
+.home-section { 
+    position: relative; left: 240px; 
+    width: calc(100% - 240px); min-height: 100vh; 
+    transition: all 0.4s ease; 
+}
+
+nav { 
+    display: flex; justify-content: space-between; align-items: center; 
+    height: 80px; background: rgba(255,255,255,0.1); 
+    backdrop-filter: blur(10px); padding: 0 30px; color: #fff; 
+}
+
+.stats { display: flex; gap: 15px; }
+.stat-item { 
+    background: rgba(0,0,0,0.3); padding: 5px 15px; 
+    border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); 
+    display: flex; align-items: center; gap: 5px; color: #fff;
+}
+
+.home-content { padding: 30px; display: flex; flex-direction: column; gap: 25px; }
+
+/* --- GLASS CARDS - ENHANCED DARK --- */
+.glass {
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    padding: 30px;
+    border-radius: 15px;
+    color: #fff;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    width: 100%;
+}
+
+.preview-card { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; }
+.current-avatar i { font-size: 70px; color: #00d4ff; }
+
+.shop-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; width: 100%; }
+
+/* Item Cards - Enhanced Dark Glass */
+.item-card {
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 25px;
+    text-align: center;
+    transition: 0.3s;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.item-card:hover {
+    transform: translateY(-5px);
+    border-color: #00d4ff;
+    box-shadow: 0 10px 40px rgba(0, 212, 255, 0.4);
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.avatar-box { 
+    width: 90px; height: 90px; background: rgba(0,0,0,0.2); 
+    margin: 0 auto 15px; border-radius: 50%; 
+    display: flex; align-items: center; justify-content: center; 
+}
+.avatar-box i { font-size: 55px; }
+
+.buy-section { 
+    display: flex; justify-content: space-between; align-items: center; 
+    margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1); 
+}
+.price { color: gold; font-weight: 600; }
+.buy-btn { background: #00d4ff; border: none; padding: 8px 20px; border-radius: 8px; color: #fff; font-weight: 700; cursor: pointer; transition: 0.3s; }
+.buy-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4); }
+.buy-btn.equip { background: #00ff88; color: #081b29; }
+
+/* --- RESPONSIVE SIDEBAR COLLAPSE --- */
+@media (max-width: 1000px) {
+    .sidebar { width: 80px; }
+    .sidebar .logo_name, .sidebar .link_name { display: none; }
+    .home-section { left: 80px; width: calc(100% - 80px); }
+}
+
+@media (max-width: 600px) {
+    .shop-grid { grid-template-columns: 1fr; }
+    .preview-card { flex-direction: column; text-align: center; gap: 15px; }
+}
+
+#customModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+}
+
+#customModal.show {
+    display: flex;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    position: relative;
+    background: linear-gradient(135deg, rgba(8, 27, 41, 0.95), rgba(0, 212, 255, 0.1));
+    border: 2px solid #00d4ff;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 500px;
+    text-align: center;
+    animation: modalSlideIn 0.3s ease;
+    box-shadow: 0 20px 60px rgba(0, 212, 255, 0.3);
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px) scale(0.9);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.modal-icon {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: bounceIn 0.6s;
+}
+
+@keyframes bounceIn {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+.modal-content h2 {
+    font-size: 28px;
+    margin-bottom: 15px;
+    color: #00d4ff;
+}
+
+.modal-content p {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.modal-btn {
+    padding: 12px 40px;
+    font-size: 18px;
+    font-weight: 700;
+    background: #00d4ff;
+    border: none;
+    border-radius: 10px;
+    color: #081b29;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.modal-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5);
+}

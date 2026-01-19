@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Details - PLMun Engage</title>
+    <link rel="stylesheet" href="class-detail.css">
+    <link rel="stylesheet" href="class-reports.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    
+    <style>
+        /* Chatbot Styles */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .chatbot-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 9998;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .chatbot-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
+        .chatbot-container {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 450px;
+            height: 100vh;
+            z-index: 9999;
+            transition: right 0.3s ease;
+        }
+
+        .chatbot-container.open {
+            right: 0;
+        }
+
+        .chatbot-card {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(8, 27, 41, 0.98), rgba(0, 212, 255, 0.08));
+            backdrop-filter: blur(20px);
+            display: flex;
+            flex-direction: column;
+            border-left: 2px solid #00d4ff;
+            box-shadow: -5px 0 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .chatbot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .chatbot-close {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: rgba(255, 75, 43, 0.2);
+            border: 2px solid #ff4b2b;
+            color: #ff4b2b;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .chatbot-close:hover {
+            background: #ff4b2b;
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .suggested-questions {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .suggested-question {
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid #00d4ff;
+            color: #00d4ff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .suggested-question:hover {
+            background: #00d4ff;
+            color: #081b29;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 12px;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .ai-message .message-avatar {
+            background: rgba(0, 212, 255, 0.2);
+            border: 2px solid #00d4ff;
+        }
+
+        .user-message .message-avatar {
+            background: rgba(0, 255, 136, 0.2);
+            border: 2px solid #00ff88;
+        }
+
+        .message-content {
+            max-width: 75%;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 16px;
+            border-radius: 15px;
+            color: white;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .user-message .message-content {
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .ai-message .message-content {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-top: 2px solid rgba(0, 212, 255, 0.3);
+            display: flex;
+            gap: 10px;
+        }
+
+        #professorChatInput {
+            flex: 1;
+            padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            color: white;
+            font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        #professorChatInput:focus {
+            outline: none;
+            border-color: #00d4ff;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        #professorChatInput::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .chat-send-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #00d4ff;
+            border: none;
+            color: #081b29;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .chat-send-btn:hover {
+            background: #00ff88;
+            transform: scale(1.1);
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 5px;
+            padding: 10px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #00d4ff;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+
+        .chat-messages::-webkit-scrollbar { width: 8px; }
+        .chat-messages::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+        .chat-messages::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.5); border-radius: 10px; }
+        .chat-messages::-webkit-scrollbar-thumb:hover { background: #00d4ff; }
+
+        @media (max-width: 768px) {
+            .chatbot-container { width: 100%; right: -100%; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Chatbot Overlay -->
+    <div class="chatbot-overlay" id="chatbotOverlay" onclick="closeProfessorChat()"></div>
+
+    <!-- Chatbot Container -->
+    <div id="professorChatbot" class="chatbot-container">
+        <div class="chatbot-card">
+            <div class="chatbot-header">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 45px; height: 45px; background: linear-gradient(135deg, #00d4ff, #00ff88); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px;">
+                        🤖
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; color: white;">Teaching Assistant</h3>
+                        <p style="margin: 0; font-size: 13px; opacity: 0.8; color: rgba(255,255,255,0.8);">Ask me about teaching strategies</p>
+                    </div>
+                </div>
+                <button class="chatbot-close" onclick="closeProfessorChat()">
+                    <i class='bx bx-x'></i>
+                </button>
+            </div>
+
+            <div id="professorSuggestedQuestions" class="suggested-questions"></div>
+
+            <div id="professorChatMessages" class="chat-messages">
+                <div class="chat-message ai-message">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-content">
+                        <p>Hi! I'm here to help you improve your teaching and address student challenges. What would you like to know? 😊</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <input 
+                    type="text" 
+                    id="professorChatInput" 
+                    placeholder="Ask about teaching strategies..."
+                    onkeypress="if(event.key==='Enter') sendProfessorChatMessage()"
+                />
+                <button class="chat-send-btn" onclick="sendProfessorChatMessage()">
+                    <i class='bx bx-send'></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-briefcase-alt-2'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#" onclick="showSection('overview')" class="active" data-section="overview">
+                <i class='bx bxs-dashboard'></i><span class="link_name">Overview</span>
+            </a></li>
+            <li><a href="#" onclick="showSection('topics')" data-section="topics">
+                <i class='bx bxs-book-content'></i><span class="link_name">Topics</span>
+            </a></li>
+            <li><a href="#" onclick="showSection('quizzes')" data-section="quizzes">
+                <i class='bx bxs-edit-alt'></i><span class="link_name">Quizzes</span>
+            </a></li>
+            <li><a href="students.html">
+                <i class='bx bxs-group'></i><span class="link_name">Students</span>
+            </a></li>
+            <li><a href="#" onclick="showSection('reports')" data-section="reports">
+                <i class='bx bxs-bar-chart-alt-2'></i><span class="link_name">Reports</span>
+            </a></li>
+            <li class="log_out">
+                <a href="../professor.html"><i class='bx bx-arrow-back'></i><span class="link_name">Back to Classes</span></a>
+            </li>
+        </ul>
+    </div>
+
+    <section class="home-section">
+        <nav>
+            <div class="nav-left">
+                <span class="dashboard" id="className">Loading...</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="class-code-display">
+                    <i class='bx bx-key'></i> <span id="classCodeDisplay">------</span>
+                </div>
+                <button class="btn-delete-class" onclick="showDeleteClassModal()">
+                    <i class='bx bx-trash'></i> Delete Class
+                </button>
+            </div>
+        </nav>
+
+        <div class="home-content">
+            <!-- Overview Section -->
+            <div id="overviewSection" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card clickable" onclick="redirectToStudents()" title="Click to view students">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #00d4ff, #00ff88);">
+                            <i class='bx bxs-user-check'></i>
+                        </div>
+                        <div class="stat-info">
+                            <p class="stat-label">Total Students</p>
+                            <h2 id="totalStudents">0</h2>
+                        </div>
+                    </div>
+
+                    <div class="stat-card clickable" onclick="showSection('topics')" title="Click to view topics">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffd700, #ffed4e);">
+                            <i class='bx bxs-book-open'></i>
+                        </div>
+                        <div class="stat-info">
+                            <p class="stat-label">Topics</p>
+                            <h2 id="totalTopics">0</h2>
+                        </div>
+                    </div>
+
+                    <div class="stat-card clickable" onclick="showSection('quizzes')" title="Click to view quizzes">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #ff6b6b, #ff8e8e);">
+                            <i class='bx bxs-edit-alt'></i>
+                        </div>
+                        <div class="stat-info">
+                            <p class="stat-label">Quizzes</p>
+                            <h2 id="totalQuizzes">0</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="class-info-card">
+                    <h3><i class='bx bxs-info-circle'></i> Class Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Subject Code:</span>
+                            <span class="info-value" id="subjectCode">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Section:</span>
+                            <span class="info-value" id="section">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Created:</span>
+                            <span class="info-value" id="createdDate">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Status:</span>
+                            <span class="info-value status-active" id="classStatus">Active</span>
+                        </div>
+                    </div>
+                    <div class="class-description">
+                        <p id="classDescription">No description</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Topics Section -->
+            <div id="topicsSection" class="content-section">
+                <div class="section-header">
+                    <h2><i class='bx bxs-book-content'></i> Class Topics</h2>
+                    <button class="btn-primary" onclick="showUploadTopicModal()">
+                        <i class='bx bx-upload'></i> Upload Topic
+                    </button>
+                </div>
+
+                <div id="topicsList" class="topics-list">
+                    <div class="empty-state">
+                        <i class='bx bxs-book'></i>
+                        <p>No topics uploaded yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quizzes Section -->
+            <div id="quizzesSection" class="content-section">
+                <div class="section-header">
+                    <h2><i class='bx bxs-edit-alt'></i> Quizzes</h2>
+                    <button class="btn-primary" onclick="createQuiz()">
+                        <i class='bx bx-plus-circle'></i> Create Quiz
+                    </button>
+                </div>
+
+                <div id="quizzesList" class="quizzes-list">
+                    <div class="empty-state">
+                        <i class='bx bxs-edit-alt'></i>
+                        <p>No quizzes created yet</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reportsSection" class="content-section">
+                <div id="loadingReportState" class="glass" style="text-align: center; padding: 40px;">
+                    <div style="display: inline-block; width: 50px; height: 50px; border: 5px solid rgba(0,212,255,0.3); border-top-color: #00d4ff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+                    <p style="font-size: 18px; margin-bottom: 10px; color: #00d4ff;">🤖 AI is analyzing class performance...</p>
+                    <p style="font-size: 14px; opacity: 0.8;">This may take a few moments</p>
+                </div>
+
+                <div id="noReportResultsState" class="glass" style="display: none; text-align: center; padding: 60px;">
+                    <i class='bx bxs-inbox' style="font-size: 80px; color: #00d4ff; margin-bottom: 20px; opacity: 0.3;"></i>
+                    <h2 style="font-size: 28px; margin-bottom: 10px; color: white;">No Student Results Yet</h2>
+                    <p style="opacity: 0.8; font-size: 16px; margin-top: 10px;">Students need to take your quizzes first!</p>
+                    <button class="ai-btn-primary" onclick="showSection('quizzes')" style="margin-top: 25px;">
+                        <i class='bx bx-game'></i> View Quizzes
+                    </button>
+                </div>
+
+                <div id="aiReportAnalysis" style="display: none; width: 100%;">
+                    <div class="ai-assistant-card glass">
+                        <div class="ai-profile">
+                            <div class="ai-avatar">
+                                <i class='bx bxs-bot'></i>
+                            </div>
+                            <div class="ai-info">
+                                <h2>🤖 Teaching Assistant</h2>
+                                <p>AI-Powered Class Analysis</p>
+                            </div>
+                        </div>
+                        <div class="ai-prompt">
+                            <p id="aiMessage">Loading AI insights...</p>
+                            <div class="ai-btns">
+                                <button class="ai-btn-primary" onclick="showReportFeedback()">
+                                    <i class='bx bx-show'></i> Show Detailed Analysis
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="aiReportFeedback" class="feedback-grid" style="display: none; margin-top: 30px;">
+                        <div class="analysis-card glass">
+                            <h3><i class='bx bxs-bar-chart-alt-2'></i> Class Overview</h3>
+                            <div class="mistake-item">
+                                <p><strong>Total Students:</strong> <span id="totalStudentsReport">0</span></p>
+                                <p><strong>Class Average:</strong> <span id="classAvgReport">0%</span></p>
+                                <p><strong>Total Quizzes:</strong> <span id="totalQuizzesReport">0</span></p>
+                                <p><strong>Struggling Students:</strong> <span id="strugglingStudentsReport">0</span></p>
+                                <p><strong>Excellent Students:</strong> <span id="excellentStudentsReport">0</span></p>
+                            </div>
+                        </div>
+
+                        <div class="analysis-card glass">
+                            <h3><i class='bx bxs-error-circle' style="color: #ff4b2b;"></i> Student Knowledge Gaps</h3>
+                            <div id="knowledgeGaps">
+                                <p style="opacity: 0.7;">Loading AI analysis...</p>
+                            </div>
+                        </div>
+
+                        <div class="review-card glass">
+                            <h3><i class='bx bxs-bulb' style="color: gold;"></i> AI Teaching Recommendations</h3>
+                            <ul class="study-list" id="teachingRecommendations">
+                                <li>Loading personalized recommendations...</li>
+                            </ul>
+                            
+                            <div style="margin-top: 25px; text-align: center; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+                                <button class="ai-btn-primary" onclick="openProfessorChat()">
+                                    <i class='bx bx-message-dots'></i> Ask AI for Teaching Advice
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="review-card glass">
+                            <h3><i class='bx bx-history' style="color: #00d4ff;"></i> Student Performance Ranking</h3>
+                            <div id="studentPerformance">
+                                <p style="opacity: 0.7;">Loading performance data...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modals -->
+    <div id="uploadTopicModal" class="modal">
+        <div class="modal-overlay" onclick="closeUploadTopicModal()"></div>
+        <div class="modal-content">
+            <h2><i class='bx bx-upload'></i> Upload Class Topic</h2>
+            
+            <form id="uploadTopicForm">
+                <div class="form-group">
+                    <label>Topic Title</label>
+                    <input type="text" id="topicTitle" placeholder="e.g., Introduction to Arrays" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="topicDescription" rows="3" placeholder="Brief description..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload File (PDF, DOCX, PPTX)</label>
+                    <input type="file" id="topicFile" accept=".pdf,.doc,.docx,.ppt,.pptx" required>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeUploadTopicModal()">Cancel</button>
+                    <button type="submit" class="btn-create">
+                        <i class='bx bx-upload'></i> Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="deleteClassModal" class="modal">
+        <div class="modal-overlay" onclick="closeDeleteClassModal()"></div>
+        <div class="modal-content warning-modal-content">
+            <div class="warning-icon">
+                <i class='bx bx-error-circle'></i>
+            </div>
+            <h2>Delete Class?</h2>
+            <p class="warning-text">Are you absolutely sure you want to delete this class?</p>
+            <div class="danger-text">
+                ⚠️ All data will be permanently erased:<br>
+                • All uploaded topics and files<br>
+                • All quizzes and student results<br>
+                • Student enrollment records<br>
+                • This action CANNOT be undone!
+            </div>
+            <p style="font-size: 14px; opacity: 0.8; margin-top: 15px;">
+                Class: <strong id="deleteClassName" style="color: #00d4ff;">-</strong>
+            </p>
+            <div class="warning-modal-actions">
+                <button class="btn-cancel-warning" onclick="closeDeleteClassModal()">
+                    <i class='bx bx-x'></i> Cancel
+                </button>
+                <button class="btn-confirm-delete" onclick="confirmDeleteClass()">
+                    <i class='bx bx-trash'></i> Yes, Delete Class
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="successDeleteModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content success-delete-content">
+            <div class="warning-icon">
+                <i class='bx bx-check-circle'></i>
+            </div>
+            <h2>Class Deleted</h2>
+            <p class="warning-text">The class has been permanently deleted.</p>
+        </div>
+    </div>
+
+    <script type="module" src="class-detail.js"></script>
+</body>
+</html>

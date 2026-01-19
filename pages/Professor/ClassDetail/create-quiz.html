@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Quiz - PLMun Engage</title>
+    <link rel="stylesheet" href="create-quiz.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div id="blurOverlay" class="blur-overlay"></div>
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-briefcase-alt-2'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="class-detail.html" onclick="sessionStorage.setItem('openTab', 'overview')">
+                <i class='bx bxs-dashboard'></i><span class="link_name">Overview</span>
+            </a></li>
+            <li><a href="class-detail.html" onclick="sessionStorage.setItem('openTab', 'topics')">
+                <i class='bx bxs-book-content'></i><span class="link_name">Topics</span>
+            </a></li>
+            <li><a href="#" class="active">
+                <i class='bx bxs-edit-alt'></i><span class="link_name">Quizzes</span>
+            </a></li>
+            <li><a href="students.html">
+                <i class='bx bxs-group'></i><span class="link_name">Students</span>
+            </a></li>
+            <li><a href="class-detail.html" onclick="sessionStorage.setItem('openTab', 'reports')">
+                <i class='bx bxs-bar-chart-alt-2'></i><span class="link_name">Reports</span>
+            </a></li>
+            <li class="log_out">
+                <a href="class-detail.html" onclick="sessionStorage.setItem('openTab', 'quizzes')"><i class='bx bx-arrow-back'></i><span class="link_name">Back to Class</span></a>
+            </li>
+        </ul>
+    </div>
+
+    <section class="home-section">
+        <nav>
+            <span class="dashboard">Create Quiz</span>
+            <div class="class-code-display">
+                <i class='bx bx-book'></i> <span id="currentClassName">Loading...</span>
+            </div>
+        </nav>
+
+        <div class="home-content">
+            <!-- ✅ Quiz Creator (Shows Immediately - No Extra Button) -->
+            <div id="quizCreator" class="quiz-creator-card">
+                <div class="creator-header">
+                    <h3>Create your Quiz</h3>
+                    <input type="text" id="quizTitleInput" placeholder="Enter Quiz Name (e.g. Quiz 1 Finals - IT4Q)" class="quiz-title-input">
+                    
+                    <!-- Timer Settings -->
+                    <div class="timer-settings-box">
+                        <h4><i class='bx bx-time'></i> Timer Settings</h4>
+                        
+                        <div class="timer-options">
+                            <label class="timer-option">
+                                <input type="radio" name="timerOption" value="no-timer" checked onchange="updateTimerUI()">
+                                <span>No Timer (Manual End)</span>
+                            </label>
+                            
+                            <label class="timer-option">
+                                <input type="radio" name="timerOption" value="custom-timer" onchange="updateTimerUI()">
+                                <span>Set Time Limit</span>
+                            </label>
+                        </div>
+                        
+                        <div id="timerInputGroup" style="display: none;">
+                            <label class="timer-label">Time Limit (minutes):</label>
+                            <input type="number" id="timerMinutes" value="10" min="1" max="120" class="timer-input">
+                            <span class="timer-unit">minutes</span>
+                        </div>
+                        
+                        <div class="timer-info">
+                            <p><i class='bx bx-info-circle'></i> <strong>No Timer:</strong> You control when to end the quiz by clicking "End Session"</p>
+                            <p><i class='bx bx-info-circle'></i> <strong>Set Time Limit:</strong> Quiz auto-submits and code expires when timer runs out</p>
+                        </div>
+                    </div>
+                    
+                    <p class="auto-number-info">Questions will automatically re-number if you delete one.</p>
+                </div>
+
+                <div id="questionsContainer"></div>
+
+                <div class="creator-actions">
+                    <button class="add-ques-btn" onclick="addQuestion()">
+                        <i class='bx bx-plus'></i> Add Question
+                    </button>
+                    <button class="confirm-btn" onclick="confirmQuiz()">
+                        <i class='bx bx-check-circle'></i> Confirm & Generate Code
+                    </button>
+                </div>
+            </div>
+
+            <!-- Code Result (Live Quiz) -->
+            <div id="codeResult" class="code-card" style="display: none;">
+                <h3 id="liveQuizTitle">Your Quiz is Live!</h3>
+                <div class="quiz-code-display">
+                    <div class="code-label">Quiz Code:</div>
+                    <div class="quiz-code" id="displayCode">------</div>
+                </div>
+                <p id="expirationInfo" class="expiration-info">Share this code with your students to begin.</p>
+                
+                <!-- ✅ NEW: Stats Grid with Timer and Completion Count -->
+                <div class="quiz-stats-grid">
+                    <!-- Timer Display Box -->
+                    <div class="stat-box timer-box" id="timerBox" style="display: none;">
+                        <i class='bx bx-time-five'></i>
+                        <div class="stat-content">
+                            <div class="stat-label">Time Remaining</div>
+                            <div class="stat-value" id="timerDisplay">--:--</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Completion Counter Box -->
+                    <div class="stat-box completion-box">
+                        <i class='bx bxs-user-check'></i>
+                        <div class="stat-content">
+                            <div class="stat-label">Students Completed</div>
+                            <div class="stat-value" id="completionCount">0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="end-btn" onclick="showEndConfirmation()">
+                    <i class='bx bx-power-off'></i> End Session & Deactivate Code
+                </button>
+                <p class="warning-text">⚠️ This will prevent new students from joining</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ✅ NEW: Custom Modal for Notifications -->
+    <div id="customModal" class="custom-modal">
+        <div class="modal-overlay" onclick="closeModal()"></div>
+        <div class="modal-box">
+            <div class="modal-icon" id="modalIcon">
+                <i class='bx bx-info-circle'></i>
+            </div>
+            <h2 id="modalTitle">Notification</h2>
+            <p id="modalMessage">This is a message</p>
+            <div class="modal-actions">
+                <button class="modal-btn cancel-btn" id="modalCancelBtn" onclick="closeModal()">Cancel</button>
+                <button class="modal-btn confirm-btn" id="modalConfirmBtn" onclick="closeModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="create-quiz.js"></script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Topics - PLMun Engage</title>
+    <link rel="stylesheet" href="class-topics.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="../dyslexia-mode.css">
+</head>
+<body>
+    <div class="dyslexia-badge" id="dyslexiaBadge">
+    <i class='bx bx-accessibility'></i>
+    Dyslexia-Friendly Mode Active
+</div>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-graduation'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="class-view.html"><i class='bx bx-arrow-back'></i><span class="link_name">Back to Class</span></a></li>
+            <li><a href="class-topics.html" class="active"><i class='bx bxs-book-content'></i><span class="link_name">View Topics</span></a></li>
+            <li><a href="class-leaderboard.html"><i class='bx bxs-trophy'></i><span class="link_name">Leaderboard</span></a></li>
+            <li class="log_out"><a href="#" onclick="logout()"><i class='bx bx-log-out'></i><span class="link_name">Logout</span></a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <section class="home-section">
+        <nav>
+            <span class="dashboard" id="className">Loading Topics...</span>
+            <div class="stats">
+                <div class="stat-item"><i class='bx bxs-coin-stack' style="color:gold"></i> <span id="coin-count">Loading...</span></div>
+                <div class="stat-item"><i class='bx bxs-star' style="color:cyan"></i> LVL <span id="level">1</span></div>
+            </div>
+        </nav>
+
+        <div class="home-content">
+            <!-- Class Info Header -->
+            <div class="topics-header glass">
+                <div class="header-info">
+                    <h2><i class='bx bxs-book-content'></i> Program Topics</h2>
+                    <p id="classInfo">Loading class information...</p>
+                </div>
+                <div class="topics-count">
+                    <span id="topicCount">0</span>
+                    <small>Topic(s) Posted</small>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="glass" style="text-align: center; padding: 40px; display: none;">
+                <div class="loading-spinner"></div>
+                <p>Loading topics...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="glass" style="display: none; text-align: center; padding: 60px;">
+                <i class='bx bxs-inbox' style="font-size: 80px; color: #00d4ff; margin-bottom: 20px; opacity: 0.3;"></i>
+                <h3>No Topics Yet</h3>
+                <p style="opacity: 0.7; margin-top: 10px;">Your professor hasn't posted any topics for this class.</p>
+            </div>
+
+            <!-- Topics Grid -->
+            <div id="topicsGrid" class="topics-grid">
+                <!-- Topics will be loaded here dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Topic Detail Modal -->
+    <div id="topicModal" class="modal">
+        <div class="modal-overlay" onclick="closeTopicModal()"></div>
+        <div class="modal-content topic-detail">
+            <button class="close-btn" onclick="closeTopicModal()">
+                <i class='bx bx-x'></i>
+            </button>
+            
+            <div class="topic-header-modal">
+                <div class="topic-icon-large" id="modalTopicIcon">
+                    <i class='bx bxs-book'></i>
+                </div>
+                <div>
+                    <h2 id="modalTopicTitle">Topic Title</h2>
+                    <p class="topic-meta" id="modalTopicMeta">Posted by Professor • Date</p>
+                </div>
+            </div>
+
+            <div class="topic-description-full" id="modalTopicDescription">
+                Loading description...
+            </div>
+
+            <div class="topic-attachments" id="modalTopicAttachments">
+                <!-- Attachments will be shown here if any -->
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeTopicModal()">
+                    <i class='bx bx-x'></i> Close
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="../dyslexia-mode.js"></script>
+    <script type="module" src="class-topics.js"></script>
+    <script src="../dyslexia-mode.js"></script>
+</body>
+</html>

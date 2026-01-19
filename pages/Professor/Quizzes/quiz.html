@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz History - PLMun Engage</title>
+    <link rel="stylesheet" href="quiz.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-briefcase-alt-2'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="../professor.html"><i class='bx bxs-dashboard'></i><span class="link_name">Overview</span></a></li>
+            <li><a href="#" class="active"><i class='bx bxs-edit-alt'></i><span class="link_name">Quizzes</span></a></li>
+            <li><a href="../Report/profreport.html"><i class='bx bxs-bar-chart-alt-2'></i><span class="link_name">Reports</span></a></li>
+            <li class="log_out"><a href="#" onclick="logout()"><i class='bx bx-log-out'></i><span class="link_name">Logout</span></a></li>
+        </ul>
+    </div>
+
+    <section class="home-section">
+        <nav>
+            <span class="dashboard">Quiz History</span>
+            <div class="prof-name" id="profName">Loading...</div>
+        </nav>
+
+        <div class="home-content">
+            <!-- Loading State -->
+            <div id="loadingState" class="history-card glass" style="text-align: center; padding: 40px;">
+                <div style="display: inline-block; width: 50px; height: 50px; border: 5px solid rgba(0,212,255,0.3); border-top-color: #00d4ff; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+                <p>Loading your quizzes...</p>
+            </div>
+
+            <!-- No Quizzes State -->
+            <div id="noQuizzesState" class="history-card glass" style="display: none; text-align: center; padding: 40px;">
+                <i class='bx bxs-edit-alt' style="font-size: 60px; color: #00d4ff; opacity: 0.5; margin-bottom: 20px;"></i>
+                <h2>No Quizzes Created Yet</h2>
+                <p style="opacity: 0.8; margin-top: 10px;">Create your first quiz to start engaging students!</p>
+                <button class="view-btn" onclick="window.location.href='../professor.html'" style="margin-top: 20px; padding: 12px 30px;">
+                    <i class='bx bx-plus-circle'></i> Create Quiz
+                </button>
+            </div>
+
+            <!-- Quiz History -->
+            <div id="quizHistory" class="history-card glass" style="display: none;">
+                <div class="card-header">
+                    <h2><i class='bx bx-history'></i> Past Quizzes</h2>
+                    <p>Manage and review the performance of your previous quiz sessions.</p>
+                </div>
+
+                <div class="table-container">
+                    <table class="quiz-table">
+                        <thead>
+                            <tr>
+                                <th>Quiz Name</th>
+                                <th>Code</th>
+                                <th>Date Created</th>
+                                <th>Students</th>
+                                <th>Avg Score</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quizTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <style>
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .quiz-code-badge {
+            background: rgba(0, 212, 255, 0.2);
+            border: 1px solid #00d4ff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: #00d4ff;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+        
+        .score-badge {
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .score-good {
+            color: #00ff88;
+        }
+        
+        .score-average {
+            color: #ffd700;
+        }
+        
+        .score-low {
+            color: #ff4b2b;
+        }
+    </style>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlUY50heKZ_bp-PZUr76S0SiI1_zN6aOA",
+            authDomain: "plmun-engage.firebaseapp.com",
+            projectId: "plmun-engage",
+            storageBucket: "plmun-engage.firebasestorage.app",
+            messagingSenderId: "701791153164",
+            appId: "1:701791153164:web:45422fd17af3493a04d229"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let currentUser = null;
+        
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = '../../../index.html';
+                return;
+            }
+            
+            currentUser = user;
+            
+            // Get user data
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                document.getElementById('profName').textContent = userData.fullName || 'Professor';
+            }
+            
+            // Load quiz history
+            await loadQuizHistory();
+        });
+        
+        async function loadQuizHistory() {
+            try {
+                // Get all quizzes created by this professor
+                const quizzesRef = collection(db, 'quizzes');
+                const q = query(quizzesRef, where('professorId', '==', currentUser.uid));
+                const quizzesSnapshot = await getDocs(q);
+                
+                if (quizzesSnapshot.empty) {
+                    document.getElementById('loadingState').style.display = 'none';
+                    document.getElementById('noQuizzesState').style.display = 'block';
+                    return;
+                }
+                
+                // Get quiz results for each quiz
+                const resultsRef = collection(db, 'quizResults');
+                const resultsSnapshot = await getDocs(resultsRef);
+                
+                // Map results by quizId
+                const resultsByQuiz = {};
+                resultsSnapshot.docs.forEach(doc => {
+                    const result = doc.data();
+                    if (!resultsByQuiz[result.quizId]) {
+                        resultsByQuiz[result.quizId] = [];
+                    }
+                    resultsByQuiz[result.quizId].push(result);
+                });
+                
+                // Build quiz data with statistics
+                const quizData = quizzesSnapshot.docs.map(doc => {
+                    const quiz = { id: doc.id, ...doc.data() };
+                    const results = resultsByQuiz[doc.id] || [];
+                    
+                    let avgScore = 0;
+                    if (results.length > 0) {
+                        const totalPercentage = results.reduce((sum, r) => sum + r.percentage, 0);
+                        avgScore = Math.round(totalPercentage / results.length);
+                    }
+                    
+                    return {
+                        ...quiz,
+                        studentCount: results.length,
+                        avgScore: avgScore
+                    };
+                });
+                
+                // Sort by creation date (newest first)
+                quizData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                // Display quizzes
+                displayQuizHistory(quizData);
+                
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('quizHistory').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Error loading quiz history:', error);
+                document.getElementById('loadingState').innerHTML = '<p style="color: #ff4b2b;">Failed to load quiz history. Please try again.</p>';
+            }
+        }
+        
+        function displayQuizHistory(quizzes) {
+            const tableBody = document.getElementById('quizTableBody');
+            
+            tableBody.innerHTML = quizzes.map(quiz => {
+                const date = new Date(quiz.createdAt);
+                const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                
+                let scoreClass = 'score-low';
+                if (quiz.avgScore >= 80) scoreClass = 'score-good';
+                else if (quiz.avgScore >= 60) scoreClass = 'score-average';
+                
+                return `
+                    <tr>
+                        <td><strong>${quiz.title}</strong></td>
+                        <td><span class="quiz-code-badge">${quiz.code}</span></td>
+                        <td>${dateStr}</td>
+                        <td style="text-align: center;">${quiz.studentCount}</td>
+                        <td style="text-align: center;">
+                            <span class="score-badge ${scoreClass}">
+                                ${quiz.studentCount > 0 ? quiz.avgScore + '%' : 'N/A'}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="view-btn" onclick="viewQuizDetails('${quiz.id}', '${quiz.title}')">
+                                View Details
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        window.viewQuizDetails = function(quizId, quizTitle) {
+            // Store quiz info and redirect to results page
+            sessionStorage.setItem('viewQuizId', quizId);
+            sessionStorage.setItem('viewQuizTitle', quizTitle);
+            window.location.href = 'Results/result.html';
+        };
+        
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = '../../../index.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+    </script>
+</body>
+</html>

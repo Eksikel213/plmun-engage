@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class Students - PLMun Engage</title>
+    <link rel="stylesheet" href="students.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-briefcase-alt-2'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="class-detail.html" onclick="sessionStorage.setItem('openTab', 'overview')">
+                <i class='bx bxs-dashboard'></i><span class="link_name">Overview</span>
+            </a></li>
+            <li><a href="class-detail.html" onclick="sessionStorage.setItem('openTab', 'topics')">
+                <i class='bx bxs-book-content'></i><span class="link_name">Topics</span>
+            </a></li>
+            <li><a href="class-detail.html" onclick="sessionStorage.setItem('openTab', 'quizzes')">
+                <i class='bx bxs-edit-alt'></i><span class="link_name">Quizzes</span>
+            </a></li>
+            <li><a href="#" class="active">
+                <i class='bx bxs-group'></i><span class="link_name">Students</span>
+            </a></li>
+            <li><a href="class-detail.html" onclick="sessionStorage.setItem('openTab', 'reports')">
+                <i class='bx bxs-bar-chart-alt-2'></i><span class="link_name">Reports</span>
+            </a></li>
+            <li class="log_out">
+                <a href="../professor.html"><i class='bx bx-arrow-back'></i><span class="link_name">Back to Classes</span></a>
+            </li>
+        </ul>
+    </div>
+
+    <section class="home-section">
+        <nav>
+            <div class="nav-left">
+                <span class="dashboard" id="className">Loading...</span>
+            </div>
+            <div class="student-count">
+                <i class='bx bxs-user-check'></i> 
+                <span id="studentCount">0</span> Students Enrolled
+            </div>
+        </nav>
+
+        <div class="home-content">
+            <!-- Students Header -->
+            <div class="students-header">
+                <h2><i class='bx bxs-group'></i> Class Students</h2>
+                <div class="search-box">
+                    <i class='bx bx-search'></i>
+                    <input type="text" id="searchInput" placeholder="Search by name or student ID...">
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>Loading students...</p>
+            </div>
+
+            <!-- Students Table -->
+            <div id="studentsTable" class="students-table-container" style="display: none;">
+                <table class="students-table">
+                    <thead>
+                        <tr>
+                            <th>Avatar</th>
+                            <th>Student Name</th>
+                            <th>Student ID</th>
+                            <th>Email</th>
+                            <th>Date Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTableBody">
+                        <!-- Students will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State -->
+            <!-- Empty State -->
+<div id="emptyState" class="empty-state" style="display: none;">
+    <i class='bx bxs-user-x'></i>
+    <h3>No Students Enrolled Yet</h3>
+    <p>Students will appear here once they join your class using the class code.</p>
+    <div class="class-code-reminder">
+        <p style="margin-bottom: 10px;"><strong>Share Your Class Code:</strong></p>
+        <span id="displayClassCode">------</span>
+        <p style="font-size: 13px; opacity: 0.7; margin-top: 15px;">
+            Students can join by entering this code
+        </p>
+    </div>
+</div>
+        </div>
+    </section>
+
+    <!-- Kick Confirmation Modal -->
+    <div id="kickModal" class="modal">
+        <div class="modal-overlay" onclick="closeKickModal()"></div>
+        <div class="modal-content">
+            <div class="modal-icon warning">
+                <i class='bx bx-error'></i>
+            </div>
+            <h2>Remove Student?</h2>
+            <p id="kickMessage">Are you sure you want to remove this student from the class?</p>
+            <div class="student-info-preview" id="kickStudentInfo">
+                <!-- Student info will be shown here -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeKickModal()">Cancel</button>
+                <button class="btn-kick" id="confirmKickBtn">
+                    <i class='bx bx-user-x'></i> Remove Student
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="students.js"></script>
+</body>
+</html>

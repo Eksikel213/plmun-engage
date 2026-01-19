@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Battle - PLMun Engage</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="game.css">
+</head>
+<body>
+    <!-- Battle Arena Background -->
+    <div id="battle-bg" class="battle-background"></div>
+
+    <!-- Loading Screen -->
+    <div id="loading" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>Preparing Battle Arena...</p>
+    </div>
+
+    <!-- Battle UI -->
+    <div id="battle-ui" class="hidden">
+        <!-- Pokémon Battle Scene -->
+        <div class="pokemon-battle-scene">
+            <!-- Enemy Pokémon (Top Right) -->
+            <div class="enemy-pokemon">
+                <div class="enemy-info-box">
+                    <div class="pokemon-name-tag">QUESTION MONSTER</div>
+                    <div class="hp-bar">
+                        <span class="hp-label">HP</span>
+                        <div class="hp-bar-fill">
+                            <div class="hp-fill" id="enemy-hp-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="hp-text"><span id="enemy-hp">100</span>/100</span>
+                    </div>
+                </div>
+                <div class="pokemon-sprite enemy-sprite" id="enemy-sprite">
+                    <!-- Enemy monster image will load here -->
+                </div>
+            </div>
+
+            <!-- Player Pokémon (Bottom Left) -->
+            <div class="player-pokemon">
+                <div class="pokemon-sprite player-sprite" id="player-sprite">
+                    <!-- Player character image will load here -->
+                </div>
+                <div class="player-info-box">
+                    <div class="pokemon-name-tag" id="player-name">SCHOLAR</div>
+                    <div class="hp-bar">
+                        <span class="hp-label">HP</span>
+                        <div class="hp-bar-fill">
+                            <div class="hp-fill player-hp" id="player-hp-fill" style="width: 100%"></div>
+                        </div>
+                        <span class="hp-text"><span id="player-hp">100</span>/100</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Battle UI (Question Top Right, Choices Bottom Right) -->
+            <div class="battle-textbox">
+                <!-- Question Section (Upper Right - Glass Effect) -->
+                <div class="question-section">
+                    <div class="timer-container">
+                        <i class='bx bx-time-five'></i>
+                        <span id="timer-display">10s</span>
+                        <div class="timer-bar-mini">
+                            <div class="timer-bar-fill" id="timer-bar-fill"></div>
+                        </div>
+                    </div>
+                    <div class="battle-question" id="battle-question">
+                        Choose your answer! You have 10 seconds!
+                    </div>
+                </div>
+                
+                <!-- Choices Section (Lower Right - Solid) -->
+                <div class="choices-section">
+                    <div class="battle-choices">
+                        <button class="choice-btn" data-index="0">
+                            <span class="choice-icon">▸</span>
+                            <span class="choice-text">Loading...</span>
+                        </button>
+                        <button class="choice-btn" data-index="1">
+                            <span class="choice-icon">▸</span>
+                            <span class="choice-text">Loading...</span>
+                        </button>
+                        <button class="choice-btn" data-index="2">
+                            <span class="choice-icon">▸</span>
+                            <span class="choice-text">Loading...</span>
+                        </button>
+                        <button class="choice-btn" data-index="3">
+                            <span class="choice-icon">▸</span>
+                            <span class="choice-text">Loading...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Modal -->
+    <div id="results-modal" class="modal hidden">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="result-icon" id="result-icon">🏆</div>
+            <h2 id="result-title">Battle Complete!</h2>
+            <div class="result-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Score</span>
+                    <span class="stat-value" id="final-score">0/0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Accuracy</span>
+                    <span class="stat-value" id="final-accuracy">0%</span>
+                </div>
+                <div class="stat-item coins">
+                    <span class="stat-label">Coins Earned</span>
+                    <span class="stat-value">
+                        <i class='bx bxs-coin-stack'></i>
+                        <span id="coins-earned">0</span>
+                    </span>
+                </div>
+            </div>
+            <div class="xp-gain" id="xp-gain" style="display: none;">
+                <i class='bx bxs-star'></i>
+                <span id="xp-text">+0 XP</span>
+            </div>
+            <p id="result-message"></p>
+            <button class="btn-primary" onclick="returnToDashboard()">
+                <i class='bx bx-home'></i> Back to Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- Countdown Overlay -->
+    <div id="countdown" class="countdown-overlay hidden">
+        <div class="countdown-number">3</div>
+    </div>
+    <script src="../dyslexia-mode.js"></script>
+    <script type="module" src="game.js"></script>
+</body>
+</html>

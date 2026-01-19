@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Results - PLMun Engage</title>
+    <link rel="stylesheet" href="quiz-results.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-briefcase-alt-2'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li>
+                <a href="#" onclick="goBack()">
+                    <i class='bx bx-arrow-back'></i>
+                    <span class="link_name">Back to Class</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <section class="home-section">
+        <nav>
+            <span class="dashboard" id="navQuizTitle">
+                <i class='bx bxs-bar-chart-alt-2'></i> Quiz Results
+            </span>
+        </nav>
+
+        <div class="home-content">
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>Loading quiz results...</p>
+            </div>
+
+            <!-- Main Content Container -->
+            <div id="resultsContent" style="display: none;">
+                <!-- Quiz Header -->
+                <div class="quiz-header-card">
+                    <div class="quiz-title-section">
+                        <h1 id="quizTitle">Quiz Title</h1>
+                        <p class="quiz-meta">
+                            Code: <strong id="quizCode">------</strong> • 
+                            <span id="questionCount">0</span> Questions
+                        </p>
+                    </div>
+                    <div class="quiz-date-actions">
+                        <div class="quiz-date">
+                            Created: <span id="createdDate">-</span>
+                        </div>
+                        <button class="btn-download-csv" onclick="downloadQuizCSV()">
+                            <i class='bx bx-download'></i> Download Results as CSV
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Statistics Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #00d4ff, #00b8d4);">
+                            <i class='bx bxs-user-check'></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="totalStudents">0</div>
+                            <div class="stat-label">Total Students</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #00ff88, #00cc6a);">
+                            <i class='bx bxs-bar-chart-alt'></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="avgScore">0%</div>
+                            <div class="stat-label">Average Score</div>
+                        </div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #a29bfe, #6c5ce7);">
+                            <i class='bx bxs-check-circle'></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="passRate">0%</div>
+                            <div class="stat-label">Pass Rate (≥60%)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Results Table -->
+                <div class="results-container">
+                    <h2 class="section-title">
+                        <i class='bx bxs-user-detail'></i> Student Performance
+                    </h2>
+
+                    <div class="results-table">
+                        <div class="results-table-header">
+                            <div class="col-rank">#</div>
+                            <div class="col-name">Student Name</div>
+                            <div class="col-score">Score</div>
+                            <div class="col-percentage">Percentage</div>
+                            <div class="col-coins">Coins</div>
+                            <div class="col-date">Completed</div>
+                        </div>
+
+                        <div id="resultsTableBody" class="results-table-body">
+                            <!-- Results will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Results State -->
+            <div id="noResultsState" class="empty-state" style="display: none;">
+                <div class="empty-state-content">
+                    <div class="empty-state-left">
+                        <i class='bx bxs-inbox'></i>
+                        <div>
+                            <h3>No Results Yet</h3>
+                            <p>No students have taken this quiz yet.</p>
+                        </div>
+                    </div>
+                    <button class="btn-back-small" onclick="goBack()">
+                        <i class='bx bx-arrow-back'></i> Back to Class
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script type="module" src="quiz-results.js"></script>
+</body>
+</html>

@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Battle - PLMun Engage</title>
+    <link rel="stylesheet" href="join.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* Health bars styling */
+        .battle-hud {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .health-bars {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .health-bar-container {
+            flex: 1;
+        }
+
+        .character-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .character-icon {
+            font-size: 30px;
+        }
+
+        .character-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .health-bar-wrapper {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            padding: 3px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .health-bar {
+            height: 25px;
+            border-radius: 12px;
+            transition: width 0.8s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 13px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .player-health {
+            background: linear-gradient(90deg, #00ff88, #00d4ff);
+        }
+
+        .boss-health {
+            background: linear-gradient(90deg, #ff4b2b, #ff6b6b);
+        }
+
+        .battle-log {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-left: 4px solid #00d4ff;
+            font-size: 14px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+        }
+
+        .log-message {
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Quiz container */
+        .quiz-container {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(15px);
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .quiz-progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #00d4ff;
+            font-weight: 600;
+        }
+
+        .question-box {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 5px solid #00d4ff;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .options-container {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: rgba(0, 212, 255, 0.3);
+            border-color: #00d4ff;
+            transform: translateX(5px);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+        }
+
+        .option-btn.correct {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+            animation: pulseCorrect 0.5s;
+        }
+
+        .option-btn.wrong {
+            background: rgba(255, 75, 43, 0.3);
+            border-color: #ff4b2b;
+            animation: shake 0.5s;
+        }
+
+        @keyframes pulseCorrect {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .quiz-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        .next-btn {
+            padding: 12px 40px;
+            border-radius: 10px;
+            border: none;
+            background: #00d4ff;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .next-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .next-btn:disabled {
+            background: rgba(255, 255, 255, 0.2);
+            cursor: not-allowed;
+        }
+
+        /* Results screen */
+        .results-screen {
+            text-align: center;
+        }
+
+        .result-icon {
+            font-size: 100px;
+            margin-bottom: 20px;
+            animation: bounceIn 0.6s;
+        }
+
+        @keyframes bounceIn {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .result-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .score-display {
+            font-size: 48px;
+            font-weight: 800;
+            color: #00d4ff;
+            margin: 20px 0;
+        }
+
+        .coins-earned {
+            font-size: 40px;
+            color: gold;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .bonus-badge {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #081b29;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            display: inline-block;
+            margin-top: 15px;
+            animation: pulseBadge 1s infinite;
+        }
+
+        @keyframes pulseBadge {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .back-btn {
+            padding: 12px 40px;
+            background: #00d4ff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 30px;
+            font-size: 16px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5);
+        }
+
+        @media (max-width: 600px) {
+            .health-bars { flex-direction: column; gap: 15px; }
+            .quiz-container { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-graduation'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="../student.html"><i class='bx bxs-dashboard'></i><span>Dashboard</span></a></li>
+            <li><a href="Profile/profile.html"><i class='bx bxs-user-circle'></i><span class="link_name">My Profile</span></a></li>
+            <li><a href="../Leaderboards/leaderboard.html"><i class='bx bxs-trophy'></i><span>Leaderboards</span></a></li>
+            <li><a href="../Reports/report.html"><i class='bx bxs-bar-chart-alt-2'></i><span>Reports</span></a></li>
+            <li><a href="../shop/shop.html"><i class='bx bxs-store-alt'></i><span>Item Shop</span></a></li>
+            <li class="log_out"><a href="../../../index.html"><i class='bx bx-log-out'></i><span>Logout</span></a></li>
+        </ul>
+    </div>
+
+    <section class="home-section">
+        <nav>
+            <span class="dashboard" id="quizTitle">Loading Quiz...</span>
+            <div class="stats">
+                <!-- Timer display -->
+                <div class="stat-item" id="timerDisplay" style="display: none; background: rgba(255, 75, 43, 0.3); border: 2px solid #ff4b2b;">
+                    <i class='bx bx-time-five' style="color: #ff4b2b;"></i> 
+                    <span id="timeRemaining">--:--</span>
+                </div>
+                
+                <div class="stat-item"><i class='bx bxs-coin-stack' style="color:gold"></i> <span id="coin-count">500</span></div>
+                <div class="stat-item"><i class='bx bxs-star' style="color:cyan"></i> LVL <span id="level">1</span></div>
+            </div>
+        </nav>
+
+        <div class="home-content">
+            <!-- Quiz Battle Screen -->
+            <div id="quizScreen" class="quiz-container" style="display:none;">
+                <!-- Battle HUD -->
+                <div class="battle-hud">
+                    <div class="health-bars">
+                        <div class="health-bar-container">
+                            <div class="character-info">
+                                <i class='bx bxs-user-circle character-icon' style="color: #00d4ff;"></i>
+                                <span class="character-name">You</span>
+                            </div>
+                            <div class="health-bar-wrapper">
+                                <div class="health-bar player-health" id="playerHealth" style="width: 100%;">
+                                    100%
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="health-bar-container">
+                            <div class="character-info">
+                                <span class="character-name">Boss</span>
+                                <i class='bx bxs-skull character-icon' style="color: #ff4b2b;"></i>
+                            </div>
+                            <div class="health-bar-wrapper">
+                                <div class="health-bar boss-health" id="bossHealth" style="width: 100%;">
+                                    100%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="battle-log" id="battleLog">
+                        <div class="log-message">⚔️ Battle started! Answer correctly to defeat the boss!</div>
+                    </div>
+                </div>
+
+                <div class="quiz-progress">
+                    <span>Question <span id="currentQ">1</span> of <span id="totalQ">0</span></span>
+                    <span>Code: <strong id="quizCode">---</strong></span>
+                </div>
+                
+                <div class="question-box">
+                    <div class="question-text" id="questionText">Loading question...</div>
+                    <div class="options-container" id="optionsContainer"></div>
+                </div>
+                
+                <div class="quiz-actions">
+                    <button class="next-btn" id="nextBtn" onclick="nextQuestion()" style="display:none;">
+                        Next Question <i class='bx bx-right-arrow-alt'></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Results Screen -->
+            <div id="resultsScreen" class="quiz-container results-screen" style="display:none;">
+                <div class="result-icon" id="resultIcon">🏆</div>
+                <div class="result-title" id="resultTitle">Battle Complete!</div>
+                <div class="score-display" id="scoreDisplay">0/0</div>
+                <div class="coins-earned">
+                    <i class='bx bxs-coin-stack'></i> +<span id="coinsEarned">0</span> Coins
+                </div>
+                <div id="bonusBadge"></div>
+                <p id="resultMessage" style="font-size: 16px; margin: 20px 0; opacity: 0.9;"></p>
+                <button class="back-btn" onclick="window.location.href='../student.html'">
+                    Back to Dashboard
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc, increment, collection, addDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlUY50heKZ_bp-PZUr76S0SiI1_zN6aOA",
+            authDomain: "plmun-engage.firebaseapp.com",
+            projectId: "plmun-engage",
+            storageBucket: "plmun-engage.firebasestorage.app",
+            messagingSenderId: "701791153164",
+            appId: "1:701791153164:web:45422fd17af3493a04d229"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let currentUser = null;
+        let quizData = null;
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let shuffledQuestions = [];
+        let quizStartTime = null;
+        let quizTimer = null;
+        let timeRemainingSeconds = 0;
+        
+        let playerHealth = 100;
+        let bossHealth = 100;
+        let damagePerQuestion = 0;
+        let correctAnswers = 0;
+        
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+        
+        function startQuizTimer(minutes) {
+            timeRemainingSeconds = minutes * 60;
+            document.getElementById('timerDisplay').style.display = 'flex';
+            
+            quizTimer = setInterval(() => {
+                timeRemainingSeconds--;
+                
+                const mins = Math.floor(timeRemainingSeconds / 60);
+                const secs = timeRemainingSeconds % 60;
+                document.getElementById('timeRemaining').textContent = 
+                    `${mins}:${secs.toString().padStart(2, '0')}`;
+                
+                if (timeRemainingSeconds <= 60) {
+                    document.getElementById('timerDisplay').style.animation = 'pulse 1s infinite';
+                }
+                
+                if (timeRemainingSeconds <= 0) {
+                    clearInterval(quizTimer);
+                    alert('⏰ Time is up! Auto-submitting quiz...');
+                    submitQuiz();
+                }
+            }, 1000);
+        }
+        
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = '../../../index.html';
+                return;
+            }
+            
+            currentUser = user;
+            
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            if (userDoc.exists()) {
+                const userData = userDoc.data();
+                document.getElementById('coin-count').textContent = userData.coins || 500;
+                document.getElementById('level').textContent = userData.level || 1;
+            }
+            
+            const quizJson = sessionStorage.getItem('currentQuiz');
+            if (!quizJson) {
+                alert('No quiz found. Please enter a quiz code.');
+                window.location.href = '../student.html';
+                return;
+            }
+            
+            quizData = JSON.parse(quizJson);
+            userAnswers = new Array(quizData.questions.length).fill(null);
+            damagePerQuestion = Math.round(100 / quizData.questions.length);
+            
+            shuffledQuestions = quizData.questions.map(question => {
+                const optionsWithIndices = question.options.map((option, index) => ({
+                    text: option,
+                    originalIndex: index
+                }));
+                return shuffleArray(optionsWithIndices);
+            });
+            
+            document.getElementById('quizTitle').textContent = '⚔️ ' + quizData.title;
+            document.getElementById('quizCode').textContent = quizData.code;
+            document.getElementById('totalQ').textContent = quizData.questions.length;
+            document.getElementById('quizScreen').style.display = 'block';
+            
+            quizStartTime = Date.now();
+            
+            if (quizData.timer && quizData.timer.enabled) {
+                startQuizTimer(quizData.timer.minutes);
+            }
+            
+            displayQuestion();
+        });
+        
+        function displayQuestion() {
+            const question = quizData.questions[currentQuestionIndex];
+            const shuffledOptions = shuffledQuestions[currentQuestionIndex];
+            
+            document.getElementById('currentQ').textContent = currentQuestionIndex + 1;
+            document.getElementById('questionText').textContent = question.question;
+            
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+            
+            shuffledOptions.forEach((optionData) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = optionData.text;
+                btn.onclick = () => selectOption(optionData.originalIndex, btn);
+                container.appendChild(btn);
+            });
+            
+            document.getElementById('nextBtn').style.display = 'none';
+        }
+        
+        window.selectOption = function(originalIndex, btnElement) {
+            const question = quizData.questions[currentQuestionIndex];
+            const allButtons = document.querySelectorAll('.option-btn');
+            
+            allButtons.forEach(btn => btn.disabled = true);
+            userAnswers[currentQuestionIndex] = originalIndex;
+            
+            const isCorrect = originalIndex === question.correctAnswer;
+            
+            if (isCorrect) {
+                btnElement.classList.add('correct');
+                correctAnswers++;
+                bossHealth = Math.max(0, bossHealth - damagePerQuestion);
+                updateHealthBar('boss', bossHealth);
+                updateBattleLog(`✅ Critical hit! Boss takes ${damagePerQuestion}% damage!`, '#00ff88');
+            } else {
+                btnElement.classList.add('wrong');
+                allButtons.forEach(btn => {
+                    const btnText = btn.textContent;
+                    if (btnText === question.options[question.correctAnswer]) {
+                        btn.classList.add('correct');
+                    }
+                });
+                playerHealth = Math.max(0, playerHealth - 10);
+                updateHealthBar('player', playerHealth);
+                updateBattleLog('❌ Miss! Boss counterattacks for 10% damage!', '#ff4b2b');
+            }
+            
+            setTimeout(() => {
+                if (currentQuestionIndex < quizData.questions.length - 1) {
+                    document.getElementById('nextBtn').style.display = 'inline-block';
+                } else {
+                    setTimeout(() => submitQuiz(), 1500);
+                }
+            }, 1500);
+        };
+        
+        function updateHealthBar(target, health) {
+            const healthBar = document.getElementById(target === 'player' ? 'playerHealth' : 'bossHealth');
+            healthBar.style.width = health + '%';
+            healthBar.textContent = health + '%';
+        }
+        
+        function updateBattleLog(message, color) {
+            const log = document.getElementById('battleLog');
+            log.innerHTML = `<div class="log-message" style="color: ${color}">${message}</div>`;
+        }
+        
+        window.nextQuestion = function() {
+            currentQuestionIndex++;
+            displayQuestion();
+        };
+        
+        window.submitQuiz = async function() {
+            // Clear timer
+            if (quizTimer) {
+                clearInterval(quizTimer);
+            }
+            
+            const totalQuestions = quizData.questions.length;
+            const percentage = Math.round((correctAnswers / totalQuestions) * 100);
+            const timeTakenSeconds = Math.round((Date.now() - quizStartTime) / 1000);
+            const timeTakenFormatted = `${Math.floor(timeTakenSeconds / 60)}m ${timeTakenSeconds % 60}s`;
+            
+            let baseCoins = correctAnswers * 10;
+            let bonusCoins = 0;
+            let bonusMessage = '';
+            
+            if (correctAnswers === totalQuestions) {
+                bonusCoins = 100;
+                bonusMessage = '🎉 PERFECT SCORE BONUS!';
+            } else if (correctAnswers > 0) {
+                bonusCoins = 25;
+                bonusMessage = '👍 Good effort bonus!';
+            }
+            
+            const totalCoins = baseCoins + bonusCoins;
+            
+            const detailedResults = [];
+            quizData.questions.forEach((question, index) => {
+                const isCorrect = userAnswers[index] === question.correctAnswer;
+                detailedResults.push({
+                    questionNumber: index + 1,
+                    question: question.question,
+                    userAnswer: userAnswers[index] !== null ? question.options[userAnswers[index]] : 'Not answered',
+                    correctAnswer: question.options[question.correctAnswer],
+                    isCorrect: isCorrect
+                });
+            });
+            
+            try {
+                const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                const userData = userDoc.data();
+                
+                // Update user coins
+                await updateDoc(doc(db, 'users', currentUser.uid), {
+                    coins: increment(totalCoins)
+                });
+                
+                // ✅ FIX: Use Firestore Timestamp for accurate sorting
+                const now = new Date();
+                const timestamp = now.toISOString();
+                
+                console.log('💾 Saving quiz result with timestamp:', timestamp);
+                console.log('📅 Date object:', now);
+                console.log('⏰ Timestamp value:', now.getTime());
+                
+                // Save quiz result
+                const resultData = {
+                    userId: currentUser.uid,
+                    userName: userData.fullName,
+                    quizId: quizData.id,
+                    quizTitle: quizData.title,
+                    quizCode: quizData.code,
+                    professorId: quizData.professorId,
+                    score: correctAnswers,
+                    totalQuestions: totalQuestions,
+                    percentage: percentage,
+                    coinsEarned: totalCoins,
+                    baseCoins: baseCoins,
+                    bonusCoins: bonusCoins,
+                    detailedResults: detailedResults,
+                    completedAt: timestamp,
+                    completedAtTimestamp: now.getTime(), // ✅ NEW: Add numeric timestamp for reliable sorting
+                    timeTaken: timeTakenFormatted,
+                    timeTakenSeconds: timeTakenSeconds
+                };
+                
+                const docRef = await addDoc(collection(db, 'quizResults'), resultData);
+                console.log('✅ Quiz result saved with ID:', docRef.id);
+                
+                // Mark quiz as completed by this user
+                await updateDoc(doc(db, 'quizzes', quizData.id), {
+                    completedBy: arrayUnion(currentUser.uid)
+                });
+                
+                console.log('✅ Quiz marked as completed for user');
+                
+                showResults(correctAnswers, totalQuestions, totalCoins, bonusCoins, bonusMessage);
+                
+                const currentCoins = parseInt(document.getElementById('coin-count').textContent);
+                document.getElementById('coin-count').textContent = currentCoins + totalCoins;
+                
+                sessionStorage.removeItem('currentQuiz');
+                
+            } catch (error) {
+                console.error('❌ Error submitting quiz:', error);
+                alert('Failed to save results. Please try again.');
+            }
+        };
+        
+        function showResults(correct, total, totalCoins, bonusCoins, bonusMessage) {
+            const percentage = Math.round((correct / total) * 100);
+            
+            let resultIcon = '';
+            let resultTitle = '';
+            let resultMsg = '';
+            
+            if (correct === total) {
+                resultIcon = '🏆';
+                resultTitle = 'FLAWLESS VICTORY!';
+                resultMsg = 'You defeated the boss without taking any damage!';
+            } else if (bossHealth <= 0) {
+                resultIcon = '⚔️';
+                resultTitle = 'VICTORY!';
+                resultMsg = 'You successfully defeated the boss!';
+            } else if (percentage >= 60) {
+                resultIcon = '🎖️';
+                resultTitle = 'WELL DONE!';
+                resultMsg = 'You damaged the boss significantly!';
+            } else {
+                resultIcon = '💪';
+                resultTitle = 'KEEP TRYING!';
+                resultMsg = 'Every battle makes you stronger!';
+            }
+            
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultsScreen').style.display = 'block';
+            document.getElementById('resultIcon').textContent = resultIcon;
+            document.getElementById('resultTitle').textContent = resultTitle;
+            document.getElementById('scoreDisplay').textContent = `${correct}/${total}`;
+            document.getElementById('coinsEarned').textContent = totalCoins;
+            document.getElementById('resultMessage').textContent = resultMsg;
+            
+            if (bonusCoins > 0) {
+                document.getElementById('bonusBadge').innerHTML = 
+                    `<div class="bonus-badge">${bonusMessage} +${bonusCoins} Coins</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - PLMun Engage</title>
+    <link rel="stylesheet" href="student.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <style>
+        /* Error Modal Styles */
+        #errorModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #errorModal.show {
+            display: flex;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            position: relative;
+            background: linear-gradient(135deg, rgba(8, 27, 41, 0.95), rgba(255, 75, 43, 0.1));
+            border: 2px solid #ff4b2b;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            animation: modalSlideIn 0.4s ease;
+            box-shadow: 0 20px 60px rgba(255, 75, 43, 0.4);
+            color: white;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px) scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .modal-content h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #ff4b2b;
+        }
+
+        .modal-content p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .modal-btn {
+            padding: 12px 40px;
+            font-size: 18px;
+            font-weight: 700;
+            background: #ff4b2b;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 75, 43, 0.5);
+            background: #ff6b4b;
+        }
+
+        /* Enhanced Last Quiz Result Styles */
+        .recent-activity {
+            position: relative;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 212, 255, 0.3);
+            border-top-color: #00d4ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; }
+        .rank-2 { background: linear-gradient(135deg, #C0C0C0, #A0A0A0); color: #000; }
+        .rank-3 { background: linear-gradient(135deg, #CD7F32, #B8860B); color: #fff; }
+        .rank-other { background: rgba(0, 212, 255, 0.2); color: #00d4ff; border: 1px solid #00d4ff; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-details">
+            <i class='bx bxs-graduation'></i>
+            <span class="logo_name">PLMun Engage</span>
+        </div>
+        <ul class="nav-links">
+    <li><a href="Classes/student-classes.html" class="active">
+    <i class='bx bxs-book-alt'></i><span class="link_name">My Classes</span>
+</a></li>
+    <li><a href="Profile/profile.html"><i class='bx bxs-user-circle'></i><span class="link_name">My Profile</span></a></li>
+    <li><a href="Reports/report.html"><i class='bx bxs-bar-chart-alt-2'></i><span class="link_name">Reports</span></a></li>
+    <li><a href="shop/shop.html"><i class='bx bxs-store-alt'></i><span class="link_name">Item Shop</span></a></li>
+    <li class="log_out"><a href="#" onclick="logout()"><i class='bx bx-log-out'></i><span class="link_name">Logout</span></a></li>
+</ul>
+    </div>
+
+    <section class="home-section">
+        <nav>
+            <span class="dashboard">Student Panel</span>
+            <div class="stats">
+    <div class="stat-item">
+        <i class='bx bxs-coin-stack' style="color:gold"></i> 
+        <span id="coin-count">Loading...</span>
+    </div>
+    <div class="stat-item" style="flex-direction: column; align-items: flex-start; gap: 5px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <i class='bx bxs-star' style="color:cyan"></i> 
+            <span>LVL <span id="level">1</span></span>
+        </div>
+        <!-- ✅ NEW: XP Progress Bar -->
+        <div style="width: 150px; height: 8px; background: rgba(0,0,0,0.5); border-radius: 10px; overflow: hidden; border: 1px solid rgba(0,212,255,0.3);">
+            <div id="xp-bar" style="height: 100%; background: linear-gradient(90deg, #00d4ff, #00ff88); width: 0%; transition: width 0.5s;"></div>
+        </div>
+        <span style="font-size: 11px; opacity: 0.8;"><span id="current-xp">0</span>/<span id="max-xp">100</span> XP</span>
+    </div>
+</div>
+        </nav>
+
+        <div class="home-content">
+            <div class="quiz-join-card">
+                <h2>Enter Quiz Game</h2>
+                <p>Type the code provided by your Professor to start the match!</p>
+                <div class="input-group">
+                    <input type="text" placeholder="e.g. PLM-M1R0" id="studentCodeInput" style="text-transform: uppercase;">
+                    <!-- ✅ SINGLE BUTTON: Join Quiz (Runner Mode) -->
+                    <button class="join-btn" onclick="joinQuiz()" style="background: #00d4ff;">
+                        🎮 Join Quiz
+                    </button>
+                </div>
+                <div id="errorMsg" style="display:none; color:#ff4b2b; margin-top:15px; font-size:14px;"></div>
+            </div>
+
+            <div class="recent-activity">
+                <h3>Last Quiz Result</h3>
+                <div class="result-summary">
+                    <div class="res-item">
+                        <i class='bx bx-check-circle'></i> Score: 
+                        <span id="lastScore">
+                            <span class="loading-spinner"></span>
+                        </span>
+                    </div>
+                    <div class="res-item">
+                        <i class='bx bx-medal'></i> Rank: 
+                        <span id="lastRank">
+                            <span class="loading-spinner"></span>
+                        </span>
+                    </div>
+                </div>
+                <p id="lastQuizTitle" style="font-size: 13px; opacity: 0.7; margin-top: 10px; text-align: center;"></p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Error Modal -->
+    <div id="errorModal">
+        <div class="modal-overlay" onclick="closeErrorModal()"></div>
+        <div class="modal-content">
+            <div class="modal-icon" id="modalIcon">⛔</div>
+            <h2 id="modalTitle">Session Expired</h2>
+            <p id="modalMessage">This quiz session has ended and is no longer accepting submissions.</p>
+            <button class="modal-btn" onclick="closeErrorModal()">Understood</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, collection, query, where, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBlUY50heKZ_bp-PZUr76S0SiI1_zN6aOA",
+            authDomain: "plmun-engage.firebaseapp.com",
+            projectId: "plmun-engage",
+            storageBucket: "plmun-engage.firebasestorage.app",
+            messagingSenderId: "701791153164",
+            appId: "1:701791153164:web:45422fd17af3493a04d229"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let currentUser = null;
+        
+        // Check authentication
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = '../../index.html';
+                return;
+            }
+            
+            currentUser = user;
+            
+            // Get user data
+            // Find this in student.html onAuthStateChanged:
+const userDoc = await getDoc(doc(db, 'users', user.uid));
+if (userDoc.exists()) {
+    const userData = userDoc.data();
+    document.getElementById('coin-count').textContent = userData.coins || 500;
+    document.getElementById('level').textContent = userData.level || 1;
+    
+    // ✅ ADD THIS CODE:
+    const currentXp = userData.xp || 0;
+    const maxXp = userData.maxXp || 100;
+    const xpPercentage = (currentXp / maxXp) * 100;
+    
+    document.getElementById('current-xp').textContent = currentXp;
+    document.getElementById('max-xp').textContent = maxXp;
+    document.getElementById('xp-bar').style.width = xpPercentage + '%';
+    
+    // Check if user is actually a student
+    if (userData.role !== 'student') {
+        alert('Access denied. This page is for students only.');
+        window.location.href = '../professor/professor.html';
+        return;
+    }
+                
+                // Load last quiz result
+                await loadLastQuizResult();
+            }
+        });
+        
+        // Load last quiz result
+        async function loadLastQuizResult() {
+            try {
+                console.log('🔵 Loading last quiz result for user:', currentUser.uid);
+                
+                const resultsRef = collection(db, 'quizResults');
+                const q = query(
+                    resultsRef, 
+                    where('userId', '==', currentUser.uid)
+                );
+                
+                const resultsSnapshot = await getDocs(q);
+                
+                if (resultsSnapshot.empty) {
+                    console.log('⚠️ No quiz results found');
+                    document.getElementById('lastScore').innerHTML = '<span style="opacity: 0.6;">No quizzes yet</span>';
+                    document.getElementById('lastRank').innerHTML = '<span style="opacity: 0.6;">-</span>';
+                    document.getElementById('lastQuizTitle').innerHTML = '';
+                    return;
+                }
+                
+                const allUserResults = resultsSnapshot.docs.map(doc => {
+                    const data = doc.data();
+                    const timestamp = data.completedAtTimestamp || new Date(data.completedAt).getTime();
+                    
+                    return {
+                        ...data,
+                        sortTimestamp: timestamp
+                    };
+                });
+                
+                allUserResults.sort((a, b) => b.sortTimestamp - a.sortTimestamp);
+                const lastResult = allUserResults[0];
+                
+                const scorePercentage = lastResult.percentage;
+                let scoreColor = '#ff4b2b';
+                if (scorePercentage >= 80) scoreColor = '#00ff88';
+                else if (scorePercentage >= 60) scoreColor = '#ffd700';
+                
+                document.getElementById('lastScore').innerHTML = `
+                    <span style="color: ${scoreColor}; font-weight: 700;">
+                        ${lastResult.score}/${lastResult.totalQuestions} (${scorePercentage}%)
+                    </span>
+                `;
+                
+                const quizResultsRef = collection(db, 'quizResults');
+                const quizQuery = query(quizResultsRef, where('quizId', '==', lastResult.quizId));
+                const quizResultsSnapshot = await getDocs(quizQuery);
+                
+                const allResults = quizResultsSnapshot.docs
+                    .map(doc => doc.data())
+                    .sort((a, b) => b.percentage - a.percentage);
+                
+                const userRank = allResults.findIndex(r => r.userId === currentUser.uid) + 1;
+                
+                let rankHTML = '';
+                if (allResults.length === 1) {
+                    rankHTML = '<span class="rank-badge rank-1">🥇 Only Participant</span>';
+                } else if (userRank === 1) {
+                    rankHTML = '<span class="rank-badge rank-1">🥇 1st Place</span>';
+                } else if (userRank === 2) {
+                    rankHTML = '<span class="rank-badge rank-2">🥈 2nd Place</span>';
+                } else if (userRank === 3) {
+                    rankHTML = '<span class="rank-badge rank-3">🥉 3rd Place</span>';
+                } else {
+                    rankHTML = `<span class="rank-badge rank-other">#${userRank} of ${allResults.length}</span>`;
+                }
+                
+                document.getElementById('lastRank').innerHTML = rankHTML;
+                
+                const quizDate = new Date(lastResult.sortTimestamp);
+                const dateStr = quizDate.toLocaleDateString() + ' at ' + quizDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                document.getElementById('lastQuizTitle').innerHTML = `
+                    <strong>${lastResult.quizTitle}</strong><br>
+                    <span style="font-size: 12px; opacity: 0.6;">Completed: ${dateStr}</span>
+                `;
+                
+                console.log('✅ Last quiz result loaded successfully');
+                
+            } catch (error) {
+                console.error('❌ Error loading last quiz result:', error);
+                document.getElementById('lastScore').innerHTML = '<span style="opacity: 0.6;">Error loading</span>';
+                document.getElementById('lastRank').innerHTML = '<span style="opacity: 0.6;">-</span>';
+                document.getElementById('lastQuizTitle').innerHTML = '';
+            }
+        }
+        
+        // Show error modal
+        function showErrorModal(title, message, icon = '⛔') {
+            document.getElementById('modalIcon').textContent = icon;
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').innerHTML = message;
+            document.getElementById('errorModal').classList.add('show');
+        }
+        
+        // Close error modal
+        window.closeErrorModal = function() {
+            document.getElementById('errorModal').classList.remove('show');
+            document.getElementById('studentCodeInput').value = '';
+        };
+        
+        // ✅ UPDATED: Join Quiz - Goes directly to Runner Mode (game.html)
+        window.joinQuiz = async function() {
+    const code = document.getElementById('studentCodeInput').value.trim().toUpperCase();
+    const errorMsg = document.getElementById('errorMsg');
+    
+    errorMsg.style.display = 'none';
+    
+    if (!code) {
+        errorMsg.textContent = 'Please enter a quiz code!';
+        errorMsg.style.display = 'block';
+        return;
+    }
+    
+    try {
+        const quizzesRef = collection(db, 'quizzes');
+        const q = query(quizzesRef, where('code', '==', code));
+        const querySnapshot = await getDocs(q);
+        
+        if (querySnapshot.empty) {
+            showErrorModal(
+                'Invalid Quiz Code',
+                `The code <strong>${code}</strong> does not match any active quiz.`,
+                '❌'
+            );
+            return;
+        }
+        
+        const quizDoc = querySnapshot.docs[0];
+        const quizData = quizDoc.data();
+        const quizId = quizDoc.id;
+        
+        // ✅ CHECK 1: Is quiz still active?
+        if (!quizData.isActive) {
+            showErrorModal(
+                'Session Expired',
+                `<strong>${quizData.title}</strong><br><br>This quiz session has been ended by the professor.`,
+                '🔒'
+            );
+            return;
+        }
+        
+        // ✅ CHECK 2: Has timer expired?
+        if (quizData.timer && quizData.timer.enabled) {
+            const createdAt = new Date(quizData.createdAt).getTime();
+            const now = Date.now();
+            const timeLimit = quizData.timer.minutes * 60 * 1000;
+            const timeElapsed = now - createdAt;
+            
+            if (timeElapsed > timeLimit) {
+                const endedTime = new Date(createdAt + timeLimit).toLocaleString();
+                showErrorModal(
+                    'Quiz Time Expired',
+                    `<strong>${quizData.title}</strong><br><br>This quiz had a ${quizData.timer.minutes}-minute time limit and expired at:<br><strong>${endedTime}</strong>`,
+                    '⏰'
+                );
+                return;
+            }
+        }
+        
+        // ✅ CHECK 3: Has student already taken this quiz?
+        console.log('🔍 Checking if student already took this quiz...');
+        const resultsRef = collection(db, 'quizResults');
+        const resultsQuery = query(
+    resultsRef, 
+    where('quizId', '==', quizId),      // ✅ This specific quiz
+    where('userId', '==', currentUser.uid) // ✅ This specific student
+);
+        const resultsSnapshot = await getDocs(resultsQuery);
+        
+        if (!resultsSnapshot.empty) {
+            // Student already took this quiz!
+            const existingResult = resultsSnapshot.docs[0].data();
+            const completedDate = new Date(existingResult.completedAt).toLocaleString();
+            
+            showErrorModal(
+                'Already Completed',
+                `<strong>${quizData.title}</strong><br><br>You already took this quiz on:<br><strong>${completedDate}</strong><br><br>Score: <strong style="color: #00d4ff;">${existingResult.score}/${existingResult.totalQuestions} (${existingResult.percentage}%)</strong><br><br>You cannot retake this quiz.`,
+                '✅'
+            );
+            return;
+        }
+        
+        console.log('✅ All checks passed - Student can take quiz');
+        
+        // ✅ All checks passed - Go to Runner Mode (game.html)
+        sessionStorage.setItem('currentQuiz', JSON.stringify({
+            id: quizId,
+            ...quizData
+        }));
+        
+        window.location.href = 'Join/game.html';
+        
+    } catch (error) {
+        console.error('❌ Error joining quiz:', error);
+        showErrorModal(
+            'Connection Error',
+            'Failed to connect to the server. Please check your internet connection.',
+            '⚠️'
+        );
+    }
+};
+        
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = '../../index.html';
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        };
+    </script>
+    <script src="../dyslexia-mode.js"></script>
+</body>
+</html>
